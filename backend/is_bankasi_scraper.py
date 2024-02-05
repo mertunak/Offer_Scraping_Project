@@ -3,6 +3,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import re
 import firebase_operations
+import find_offer_tab
 
 baseUrl = "https://www.isbank.com.tr"
 header = {
@@ -13,62 +14,42 @@ header = {
 
 site = baseUrl.split('/')[-1].split('.')[1].capitalize()
 
-campaigns = []
-httpRequest = requests.get(baseUrl, headers=header)
-parsedHomeHtml = BeautifulSoup(httpRequest.text, "html.parser")
-campaignPageTagList = parsedHomeHtml.find_all(
-    "a", string=re.compile("kampanya", re.I))
+offers = []
+offerPageLink = find_offer_tab.find_offer_tab(baseUrl = baseUrl, header = header)
 
-campaignPageLinkList = []
-for iterTag in campaignPageTagList:
-    campaignPageLinkList.append(iterTag.get("href"))
+if offerPageLink != "":
+    httpRequest = requests.get(offerPageLink, headers=header)
+    parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "html.parser")
+    offerSection = parsedOfferPageHtml.find("div", class_=re.compile("(kampanya|kamp)", re.I))
+    offerCardArr = offerSection.find_all("div", class_="kamp_cards33C")
+    for offerCard in offerCardArr:
+        offerLink = offerCard.find("a").get("href")#Link
+        if not re.match(baseUrl, offerLink):
+            offerLink = baseUrl + offerLink
 
-campaignPageLink = ""
-for iterPageLink in campaignPageLinkList:
-    if campaignPageLink == "":
-        campaignPageLink = iterPageLink
-    else:
-        if len(iterPageLink) < len(campaignPageLink):
-            campaignPageLink = iterPageLink
+        offerTitle = offerCard.find(class_=re.compile("title", re.I)).string.strip()#Title
 
-if not re.match(baseUrl, campaignPageLink):
-    campaignPageLink = baseUrl + campaignPageLink
+        offerDescription = offerCard.find(class_=re.compile("(description|desc)", re.I)).string.strip()#Description
 
-print(campaignPageLink)
+        offerImageLink = offerCard.find(class_=re.compile("(image|img)", re.I)).find("img").get("src")#Image
+        if not re.match(baseUrl, offerImageLink):
+            offerImageLink = baseUrl + offerImageLink
 
-if campaignPageLink != "":
-    httpRequest = requests.get(campaignPageLink, headers=header)
-    parsedCampaignPageHtml = BeautifulSoup(httpRequest.text, "html.parser")
-    campaignSection = parsedCampaignPageHtml.find("div", class_=re.compile("(kampanya|kamp)", re.I))
-    campaignCardArr = campaignSection.find_all("div", class_="kamp_cards33C")
-    for campaignCard in campaignCardArr:
-        campaignLink = campaignCard.find("a").get("href")#Link
-        if not re.match(baseUrl, campaignLink):
-            campaignLink = baseUrl + campaignLink
-
-        campaignTitle = campaignCard.find(class_=re.compile("title", re.I)).string.strip()#Title
-
-        campaignDescription = campaignCard.find(class_=re.compile("(description|desc)", re.I)).string.strip()#Description
-
-        campaignImageLink = campaignCard.find(class_=re.compile("(image|img)", re.I)).find("img").get("src")#Image
-        if not re.match(baseUrl, campaignImageLink):
-            campaignImageLink = baseUrl + campaignImageLink
-
-        dateSection = campaignCard.find(class_=re.compile("date", re.I))#Date
-        campaignEndDate = dateSection.find(string=re.compile("(\d{2})[/.-](\d{2})[/.-](\d{4})$"))
+        dateSection = offerCard.find(class_=re.compile("date", re.I))#Date
+        offerEndDate = dateSection.find(string=re.compile("(\d{2})[/.-](\d{2})[/.-](\d{4})$"))
         
-        campaign = {
-            "Link": campaignLink,
-            "Title" : campaignTitle,
-            "Description" : campaignDescription,
-            "Image": campaignImageLink,
+        offer = {
+            "Link": offerLink,
+            "Title" : offerTitle,
+            "Description" : offerDescription,
+            "Image": offerImageLink,
             "StartDate" : "-",
-            "EndDate" : campaignEndDate,
+            "EndDate" : offerEndDate,
             "Site": site
         }
 
-        campaigns.append(campaign)
+        offers.append(offer)
 else:
     print("Search in slider")
 
-firebase_operations.add_campaigns_to_firestore(campaigns, site)
+firebase_operations.add_offers_to_firestore(offers, site)

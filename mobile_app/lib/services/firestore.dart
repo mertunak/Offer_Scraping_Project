@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
-  final CollectionReference _campaigns =
-      FirebaseFirestore.instance.collection("campaigns");
+  final CollectionReference _offer =
+      FirebaseFirestore.instance.collection("offers");
 
-  Future<QuerySnapshot> getCampaigns() => _campaigns.get();
+  Future<QuerySnapshot> getOffers() => _offer.get();
 
   Future<List<String>> getFilterTabletIds(String indexKey) async {
     DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance

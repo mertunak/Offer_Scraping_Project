@@ -11,7 +11,7 @@ class OfferViewModel = _OfferViewModelBase with _$OfferViewModel;
 abstract class _OfferViewModelBase extends BaseViewModel with Store {
   final FirestoreService firestoreService = FirestoreService();
 
-  List<DocumentSnapshot> allCampaigns = [];
+  List<DocumentSnapshot> allOffers = [];
   List<DocumentSnapshot> filterResults = [];
 
   Map<String, bool> brandMap = {
@@ -47,7 +47,7 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   };
 
   @observable
-  List<DocumentSnapshot> resultCampaigns = [];
+  List<DocumentSnapshot> resultOffers = [];
 
   @observable
   int resultCount = 0;
@@ -71,33 +71,33 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
     };
   }
 
-  Future<void> getAllCampaigns() async {
-    final data = await firestoreService.getCampaigns();
-    allCampaigns = data.docs;
+  Future<void> getAllOffers() async {
+    final data = await firestoreService.getOffers();
+    allOffers = data.docs;
   }
 
   @action
-  void addResultCampaigns(DocumentSnapshot campaignSnapshot) {
-    resultCampaigns.add(campaignSnapshot);
-    resultCount = resultCampaigns.length;
+  void addResultOffers(DocumentSnapshot offerSnapshot) {
+    resultOffers.add(offerSnapshot);
+    resultCount = resultOffers.length;
   }
 
   @action
-  void initCampaignLists() {
-    updateResultCampaigns(allCampaigns);
-    filterResults = List.from(allCampaigns);
+  void initOfferLists() {
+    updateResultOffers(allOffers);
+    filterResults = List.from(allOffers);
   }
 
   @action
-  void clearResultCampaigns() {
-    resultCampaigns.clear();
-    resultCount = resultCampaigns.length;
+  void clearResultOffers() {
+    resultOffers.clear();
+    resultCount = resultOffers.length;
   }
 
   @action
-  void updateResultCampaigns(List<DocumentSnapshot> resultList) {
-    resultCampaigns = List.from(resultList);
-    resultCount = resultCampaigns.length;
+  void updateResultOffers(List<DocumentSnapshot> resultList) {
+    resultOffers = List.from(resultList);
+    resultCount = resultOffers.length;
   }
 
   @action
@@ -117,16 +117,16 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   }
 
   @action
-  Future<void> filterCampaigns(
+  Future<void> filterOffers(
     TextEditingController leastPriceController,
     TextEditingController mostPriceController,
   ) async {
-    List<String> campaignIds = [];
+    List<String> offerIds = [];
     List<String> tmpIds = [];
-    List<String> filterCampaignIds = [];
+    List<String> filterOfferIds = [];
     Map<String, bool> filterMap;
-    for (DocumentSnapshot campaignSnapshot in allCampaigns) {
-      campaignIds.add(campaignSnapshot.id);
+    for (DocumentSnapshot offerSnapshot in allOffers) {
+      offerIds.add(offerSnapshot.id);
     }
     for (var choiceFilterKey in choiceFilters.keys) {
       filterMap = choiceFilters[choiceFilterKey]!;
@@ -135,17 +135,17 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
         for (var filterMapKey in filterMap.keys) {
           if (filterMap[filterMapKey] == true) {
             if (filterMapKey.compareTo("filterActive") != 0) {
-              // filterCampaignIds = await firestoreService.getFilterCampaignIds(filterMapKey);
-              tmpIds = List.from(tmpIds)..addAll(filterCampaignIds);
+              // filterOfferIds = await firestoreService.getFilterOfferIds(filterMapKey);
+              tmpIds = List.from(tmpIds)..addAll(filterOfferIds);
             }
           }
         }
-        campaignIds.removeWhere((element) => !tmpIds.contains(element));
+        offerIds.removeWhere((element) => !tmpIds.contains(element));
       }
     }
 
-    filterResults = List.of(allCampaigns);
-    filterResults.removeWhere((element) => !campaignIds.contains(element.id));
+    filterResults = List.of(allOffers);
+    filterResults.removeWhere((element) => !offerIds.contains(element.id));
     if (leastPriceController.text != "") {
       double leastPrice = double.parse(leastPriceController.text);
       filterResults.removeWhere(
@@ -156,7 +156,7 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
       filterResults.removeWhere(
           (element) => double.parse(element["product_price"]) > mostPrice);
     }
-    updateResultCampaigns(filterResults);
+    updateResultOffers(filterResults);
   }
 
   @override

@@ -4,13 +4,13 @@ import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
 import '../constants/utils/color_constants.dart';
-import '../models/campaign_model.dart';
+import '../models/offer_model.dart';
 
-class CampaignCard extends StatelessWidget {
-  final CampaignModel campaign;
-  const CampaignCard({
+class OfferCard extends StatelessWidget {
+  final OfferModel offer;
+  const OfferCard({
     super.key,
-    required this.campaign,
+    required this.offer,
   });
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class CampaignCard extends StatelessWidget {
       onTap: () {
         Navigator.of(context).pushNamed(
             NavigationConstants.OFFER_DETAIL_VIEW,
-            arguments: campaign);
+            arguments: offer);
       },
       customBorder: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -38,7 +38,7 @@ class CampaignCard extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                campaign.site,
+                offer.site,
                 style: const TextStyle(
                   color: TextColors.PRIMARY_COLOR,
                   fontSize: 16,
@@ -53,7 +53,7 @@ class CampaignCard extends StatelessWidget {
             ClipRRect(
               borderRadius: AppBorderRadius.MEDIUM,
               child: Image.network(
-                  campaign.img,
+                  offer.img,
                   loadingBuilder: (BuildContext context, Widget child,
                       ImageChunkEvent? loadingProgress) {
                     if (loadingProgress == null) return child;
@@ -77,7 +77,7 @@ class CampaignCard extends StatelessWidget {
             Column(
               children: [
                 Text(
-                  campaign.header,
+                  offer.header,
                   style: const TextStyle(
                     color: TextColors.PRIMARY_COLOR,
                     fontSize: 16,
@@ -90,7 +90,7 @@ class CampaignCard extends StatelessWidget {
                   height: 5,
                 ),
                 Text(
-                  campaign.description,
+                  offer.description,
                   textAlign: TextAlign.justify,
                   style: const TextStyle(
                     color: TextColors.PRIMARY_COLOR,
@@ -115,7 +115,7 @@ class CampaignCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            campaign.startDate,
+                            offer.startDate,
                             style: const TextStyle(
                               color: TextColors.PRIMARY_COLOR,
                               fontSize: 16,
@@ -135,7 +135,7 @@ class CampaignCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            campaign.endDate,
+                            offer.endDate,
                             style: const TextStyle(
                               color: TextColors.PRIMARY_COLOR,
                               fontSize: 16,

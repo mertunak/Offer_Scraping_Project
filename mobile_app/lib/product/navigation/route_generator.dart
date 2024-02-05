@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/product/models/campaign_model.dart';
+import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/screens/offer_detail/view/offer_detail_view.dart';
 import 'package:mobile_app/screens/home/view/home_view.dart';
 import 'package:mobile_app/screens/notifications/view/notifications_view.dart';
@@ -21,8 +21,8 @@ class RouteGenerator {
       case NavigationConstants.NOTIFICATIONS_VIEW:
         return MaterialPageRoute(builder: (_) => const NotificationsView());
       case NavigationConstants.OFFER_DETAIL_VIEW:
-        final args = settings.arguments as CampaignModel;
-        return MaterialPageRoute(builder: (_) => CampaignDetailView(args));
+        final args = settings.arguments as OfferModel;
+        return MaterialPageRoute(builder: (_) => OfferDetailView(args));
       default:
         return _errorRoute();
     }

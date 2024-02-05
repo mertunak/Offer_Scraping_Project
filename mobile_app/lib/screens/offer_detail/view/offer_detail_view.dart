@@ -2,18 +2,18 @@ import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
-import 'package:mobile_app/product/models/campaign_model.dart';
+import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../product/constants/utils/border_radius_constants.dart';
 import '../../../product/constants/utils/color_constants.dart';
 import '../../../product/constants/utils/padding_constants.dart';
 
 // ignore: must_be_immutable
-class CampaignDetailView extends BaseStatelessWidget {
+class OfferDetailView extends BaseStatelessWidget {
   late Uri _url;
-  final CampaignModel campaign;
-  CampaignDetailView(this.campaign, {super.key}) {
-    _url = Uri.parse(campaign.link);
+  final OfferModel offer;
+  OfferDetailView(this.offer, {super.key}) {
+    _url = Uri.parse(offer.link);
   }
 
   @override
@@ -26,7 +26,7 @@ class CampaignDetailView extends BaseStatelessWidget {
           scrolledUnderElevation: 0,
           titleSpacing: 0,
           title: Text(
-            "${campaign.site} Kampanya",
+            "${offer.site} Kampanya",
           ),
         ),
         bottomNavigationBar: BottomAppBar(
@@ -43,7 +43,7 @@ class CampaignDetailView extends BaseStatelessWidget {
                 Stack(
                   alignment: Alignment.topRight,
                   children: [
-                    Image.network(campaign.img),
+                    Image.network(offer.img),
                     Padding(
                       padding: AppPaddings.SMALL_V + AppPaddings.SMALL_H,
                       child: InkWell(
@@ -54,7 +54,7 @@ class CampaignDetailView extends BaseStatelessWidget {
                           ]);
                           showImageViewer(
                             context,
-                            Image.network(campaign.img).image,
+                            Image.network(offer.img).image,
                             swipeDismissible: false,
                             onViewerDismissed: () {
                               SystemChrome.setPreferredOrientations([
@@ -83,7 +83,7 @@ class CampaignDetailView extends BaseStatelessWidget {
                   child: RichText(
                     text: TextSpan(
                       text:
-                          "${campaign.startDate} - ${campaign.endDate}",
+                          "${offer.startDate} - ${offer.endDate}",
                       style: const TextStyle(
                         color: TextColors.PRIMARY_COLOR,
                         fontSize: 16,
@@ -106,7 +106,7 @@ class CampaignDetailView extends BaseStatelessWidget {
                   height: dynamicHeightDevice(context, 0.03),
                 ),
                 Text(
-                  campaign.header,
+                  offer.header,
                   style: const TextStyle(
                     color: TextColors.PRIMARY_COLOR,
                     fontSize: 18,
@@ -117,7 +117,7 @@ class CampaignDetailView extends BaseStatelessWidget {
                   height: dynamicHeightDevice(context, 0.02),
                 ),
                 Text(
-                  campaign.description,
+                  offer.description,
                   textAlign: TextAlign.justify,
                   style: const TextStyle(
                     color: TextColors.PRIMARY_COLOR,
