@@ -2,5 +2,7 @@
 
 class NavigationConstants {
   static const HOME_VIEW = '/';
-  static const CAMPAIGN_DETAIL_VIEW = '/campaign_detail';
+  static const NOTIFICATIONS_VIEW = '/notifications';
+  static const OFFER_VIEW = '/offer';
+  static const OFFER_DETAIL_VIEW = '/offer_detail';
 }

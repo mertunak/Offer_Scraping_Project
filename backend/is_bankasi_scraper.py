@@ -11,7 +11,8 @@ header = {
     "Chrome/119.0.0.0 Safari/537.36"
 }
 
-site = baseUrl.split('/')[-1].split('.')[1]
+site = baseUrl.split('/')[-1].split('.')[1].capitalize()
+
 campaigns = []
 httpRequest = requests.get(baseUrl, headers=header)
 parsedHomeHtml = BeautifulSoup(httpRequest.text, "html.parser")
