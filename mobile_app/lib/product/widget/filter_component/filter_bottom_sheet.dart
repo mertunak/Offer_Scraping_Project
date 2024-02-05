@@ -111,7 +111,7 @@ class FilterBottomSheet extends BaseStatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
                 onTap: () {
-                  viewModel.filterCampaigns(
+                  viewModel.filterOffers(
                       leastPriceController, mostPriceController);
                   Navigator.pop(context);
                 },

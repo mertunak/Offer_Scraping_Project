@@ -9,19 +9,19 @@ part of 'offer_viewmodel.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$OfferViewModel on _OfferViewModelBase, Store {
-  late final _$resultCampaignsAtom =
-      Atom(name: '_OfferViewModelBase.resultCampaigns', context: context);
+  late final _$resultOffersAtom =
+      Atom(name: '_OfferViewModelBase.resultOffers', context: context);
 
   @override
-  List<DocumentSnapshot<Object?>> get resultCampaigns {
-    _$resultCampaignsAtom.reportRead();
-    return super.resultCampaigns;
+  List<DocumentSnapshot<Object?>> get resultOffers {
+    _$resultOffersAtom.reportRead();
+    return super.resultOffers;
   }
 
   @override
-  set resultCampaigns(List<DocumentSnapshot<Object?>> value) {
-    _$resultCampaignsAtom.reportWrite(value, super.resultCampaigns, () {
-      super.resultCampaigns = value;
+  set resultOffers(List<DocumentSnapshot<Object?>> value) {
+    _$resultOffersAtom.reportWrite(value, super.resultOffers, () {
+      super.resultOffers = value;
     });
   }
 
@@ -73,58 +73,58 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
     });
   }
 
-  late final _$filterCampaignsAsyncAction =
-      AsyncAction('_OfferViewModelBase.filterCampaigns', context: context);
+  late final _$filterOffersAsyncAction =
+      AsyncAction('_OfferViewModelBase.filterOffers', context: context);
 
   @override
-  Future<void> filterCampaigns(TextEditingController leastPriceController,
+  Future<void> filterOffers(TextEditingController leastPriceController,
       TextEditingController mostPriceController) {
-    return _$filterCampaignsAsyncAction.run(
-        () => super.filterCampaigns(leastPriceController, mostPriceController));
+    return _$filterOffersAsyncAction.run(
+        () => super.filterOffers(leastPriceController, mostPriceController));
   }
 
   late final _$_OfferViewModelBaseActionController =
       ActionController(name: '_OfferViewModelBase', context: context);
 
   @override
-  void addResultCampaigns(DocumentSnapshot<Object?> campaignSnapshot) {
+  void addResultOffers(DocumentSnapshot<Object?> offerSnapshot) {
     final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
-        name: '_OfferViewModelBase.addResultCampaigns');
+        name: '_OfferViewModelBase.addResultOffers');
     try {
-      return super.addResultCampaigns(campaignSnapshot);
+      return super.addResultOffers(offerSnapshot);
     } finally {
       _$_OfferViewModelBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void initCampaignLists() {
+  void initOfferLists() {
     final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
-        name: '_OfferViewModelBase.initCampaignLists');
+        name: '_OfferViewModelBase.initOfferLists');
     try {
-      return super.initCampaignLists();
+      return super.initOfferLists();
     } finally {
       _$_OfferViewModelBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void clearResultCampaigns() {
+  void clearResultOffers() {
     final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
-        name: '_OfferViewModelBase.clearResultCampaigns');
+        name: '_OfferViewModelBase.clearResultOffers');
     try {
-      return super.clearResultCampaigns();
+      return super.clearResultOffers();
     } finally {
       _$_OfferViewModelBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void updateResultCampaigns(List<DocumentSnapshot<Object?>> resultList) {
+  void updateResultOffers(List<DocumentSnapshot<Object?>> resultList) {
     final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
-        name: '_OfferViewModelBase.updateResultCampaigns');
+        name: '_OfferViewModelBase.updateResultOffers');
     try {
-      return super.updateResultCampaigns(resultList);
+      return super.updateResultOffers(resultList);
     } finally {
       _$_OfferViewModelBaseActionController.endAction(_$actionInfo);
     }
@@ -145,7 +145,7 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
   @override
   String toString() {
     return '''
-resultCampaigns: ${resultCampaigns},
+resultOffers: ${resultOffers},
 resultCount: ${resultCount},
 choiceFilters: ${choiceFilters},
 priceFilter: ${priceFilter}

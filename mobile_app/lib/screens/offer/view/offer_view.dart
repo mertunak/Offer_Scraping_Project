@@ -5,10 +5,10 @@ import 'package:mobile_app/product/constants/texts/screen_texts.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
-import 'package:mobile_app/product/models/campaign_model.dart';
+import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/product/widget/custom_search_bar.dart';
 import 'package:mobile_app/product/widget/filter_component/filter_bottom_sheet.dart';
-import 'package:mobile_app/product/widget/campaign_card.dart';
+import 'package:mobile_app/product/widget/offer_card.dart';
 import 'package:mobile_app/screens/offer/viewmodel/offer_viewmodel.dart';
 import 'package:mobile_app/services/firestore.dart';
 
@@ -28,31 +28,31 @@ class _OfferViewState extends State<OfferView> {
   final TextEditingController mostPriceController = TextEditingController();
   late OfferViewModel viewModel;
 
-  _searchCampaigns() {
+  _searchOffers() {
     if (_searchController.text != "") {
-      viewModel.clearResultCampaigns();
-      for (var campaignSnapshot in viewModel.filterResults) {
-        var name = campaignSnapshot["product_name"].toString().toLowerCase();
+      viewModel.clearResultOffers();
+      for (var offerSnapshot in viewModel.filterResults) {
+        var name = offerSnapshot["product_name"].toString().toLowerCase();
         if (name.contains(_searchController.text.toLowerCase())) {
-          viewModel.addResultCampaigns(campaignSnapshot);
+          viewModel.addResultOffers(offerSnapshot);
         }
       }
     } else {
-      viewModel.updateResultCampaigns(viewModel.filterResults);
+      viewModel.updateResultOffers(viewModel.filterResults);
     }
   }
 
   @override
   void initState() {
     viewModel = OfferViewModel();
-    viewModel.getAllCampaigns().then((value) => viewModel.initCampaignLists());
-    _searchController.addListener(_searchCampaigns);
+    viewModel.getAllOffers().then((value) => viewModel.initOfferLists());
+    _searchController.addListener(_searchOffers);
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    _searchCampaigns();
+    _searchOffers();
     super.didChangeDependencies();
   }
 
@@ -128,18 +128,18 @@ class _OfferViewState extends State<OfferView> {
                 Expanded(
                   flex: 14,
                   child: ListView.builder(
-                    itemCount: viewModel.resultCampaigns.length,
+                    itemCount: viewModel.resultOffers.length,
                     itemBuilder: (BuildContext context, int index) {
                       DocumentSnapshot document =
-                          viewModel.resultCampaigns[index];
+                          viewModel.resultOffers[index];
                       Map<String, dynamic> data =
                           document.data() as Map<String, dynamic>;
-                      CampaignModel campaign = CampaignModel.fromJson(data);
-                      campaign.setId(document.id);
+                      OfferModel offer = OfferModel.fromJson(data);
+                      offer.setId(document.id);
                       return Padding(
                         padding: EdgeInsets.only(top: 8),
-                        child: CampaignCard(
-                          campaign: campaign,
+                        child: OfferCard(
+                          offer: offer,
                         ),
                       );
                     },
