@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-
-import '../../../screens/home/viewmodel/home_viewmodel.dart';
+import 'package:mobile_app/screens/offer/viewmodel/offer_viewmodel.dart';
 import '../../constants/utils/color_constants.dart';
 
 class CustomCheckbox extends StatefulWidget {
-  final HomeViewModel viewModel;
+  final OfferViewModel viewModel;
   final String filterType;
   final String choice;
   const CustomCheckbox({

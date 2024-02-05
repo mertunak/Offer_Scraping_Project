@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/product/models/campaign_model.dart';
-import 'package:mobile_app/screens/campaign_detail/view/campaign_detail_view.dart';
+import 'package:mobile_app/screens/offer_detail/view/offer_detail_view.dart';
+import 'package:mobile_app/screens/home/view/home_view.dart';
+import 'package:mobile_app/screens/notifications/view/notifications_view.dart';
 import 'navigation_constants.dart';
-import '../../screens/home/view/home_view.dart';
 
 class RouteGenerator {
   RouteGenerator._init();
@@ -17,7 +18,9 @@ class RouteGenerator {
     switch (settings.name) {
       case NavigationConstants.HOME_VIEW:
         return MaterialPageRoute(builder: (_) => const HomeView());
-      case NavigationConstants.CAMPAIGN_DETAIL_VIEW:
+      case NavigationConstants.NOTIFICATIONS_VIEW:
+        return MaterialPageRoute(builder: (_) => const NotificationsView());
+      case NavigationConstants.OFFER_DETAIL_VIEW:
         final args = settings.arguments as CampaignModel;
         return MaterialPageRoute(builder: (_) => CampaignDetailView(args));
       default:

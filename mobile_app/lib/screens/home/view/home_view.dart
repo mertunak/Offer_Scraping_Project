@@ -1,19 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobile_app/product/constants/texts/screen_texts.dart';
+import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
-import 'package:mobile_app/product/constants/utils/text_styles.dart';
-import 'package:mobile_app/product/models/campaign_model.dart';
-import 'package:mobile_app/product/widget/custom_search_bar.dart';
-import 'package:mobile_app/product/widget/filter_component/filter_bottom_sheet.dart';
-import 'package:mobile_app/product/widget/campaign_card.dart';
-import 'package:mobile_app/product/widget/update_bottom_sheet.dart';
-import 'package:mobile_app/screens/home/viewmodel/home_viewmodel.dart';
-import 'package:mobile_app/services/firestore.dart';
-
-import '../../../core/base/view/base_view.dart';
+import 'package:mobile_app/product/navigation/navigation_constants.dart';
+import 'package:mobile_app/screens/offer/view/offer_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -22,54 +12,11 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
-  final FirestoreService firestoreService = FirestoreService();
-  final TextEditingController _searchController = TextEditingController();
-  final TextEditingController leastPriceController = TextEditingController();
-  final TextEditingController mostPriceController = TextEditingController();
-  late HomeViewModel viewModel;
-
-  _searchCampaigns() {
-    if (_searchController.text != "") {
-      viewModel.clearResultCampaigns();
-      for (var campaignSnapshot in viewModel.filterResults) {
-        var name = campaignSnapshot["product_name"].toString().toLowerCase();
-        if (name.contains(_searchController.text.toLowerCase())) {
-          viewModel.addResultCampaigns(campaignSnapshot);
-        }
-      }
-    } else {
-      viewModel.updateResultCampaigns(viewModel.filterResults);
-    }
-  }
-
-  @override
-  void initState() {
-    viewModel = HomeViewModel();
-    viewModel.getAllCampaigns().then((value) => viewModel.initCampaignLists());
-    _searchController.addListener(_searchCampaigns);
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    _searchCampaigns();
-    super.didChangeDependencies();
-  }
+class _HomeViewState extends BaseState<HomeView> {
+  int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    return BaseStatefulView<HomeViewModel>(
-      viewModel: viewModel,
-      onModelReady: (model) {
-        model.setContext(context);
-        viewModel = model;
-      },
-      onPageBuilder: (context, value) => buildPage(context),
-    );
-  }
-
-  SafeArea buildPage(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -79,17 +26,20 @@ class _HomeViewState extends State<HomeView> {
           scrolledUnderElevation: 0,
           actions: [
             IconButton(
-              onPressed: () {
-                // showModalBottomSheet(
-                //   context: context,
-                //   isScrollControlled: true,
-                //   builder: (BuildContext context) {
-                //     return UpdateBottomSheet();
-                //   },
-                // );
-              },
+              onPressed: () {},
               icon: const Icon(
                 Icons.person,
+                color: AssetColors.SECONDARY_COLOR,
+                size: 35,
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamed(NavigationConstants.NOTIFICATIONS_VIEW);
+              },
+              icon: const Icon(
+                Icons.notifications_rounded,
                 color: AssetColors.SECONDARY_COLOR,
                 size: 35,
               ),
@@ -99,91 +49,51 @@ class _HomeViewState extends State<HomeView> {
             )
           ],
         ),
-        body: Padding(
-          padding: AppPaddings.MEDIUM_H + const EdgeInsets.only(bottom: 10),
-          child: Column(
-            children: [
-              const Expanded(
-                flex: 3,
-                child: Center(
-                  child: Text(ScreenTexts.HOME_TEXT,
-                      textAlign: TextAlign.center,
-                      style: TextStyles.HOME_HEADING),
-                ),
+        bottomNavigationBar: ClipRRect(
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+          child: NavigationBar(
+            onDestinationSelected: (int index) {
+              setState(() {
+                currentPageIndex = index;
+              });
+            },
+            elevation: 0,
+            backgroundColor:  SurfaceColors.PRIMARY_COLOR,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+            height: dynamicHeightDevice(0.07),
+            selectedIndex: currentPageIndex,
+            indicatorColor: Colors.transparent,
+            destinations: const <Widget>[
+              NavigationDestination(
+                selectedIcon: Icon(Icons.campaign, size: 40,),
+                icon: Icon(Icons.campaign_outlined, size: 35,),
+                label: 'Kampanyalar',
               ),
-              Expanded(
-                flex: 2,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: CustomSearchBar(
-                        searchController: _searchController,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    IconButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (BuildContext context) {
-                            return FilterBottomSheet(
-                              viewModel: viewModel,
-                              leastPriceController: leastPriceController,
-                              mostPriceController: mostPriceController,
-                            );
-                          },
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.filter_list_rounded,
-                        size: 30,
-                        color: AssetColors.SECONDARY_COLOR,
-                      ),
-                    )
-                  ],
-                ),
+              NavigationDestination(
+                selectedIcon: Icon(Icons.screen_search_desktop_rounded, size: 35,),
+                icon: Icon(Icons.screen_search_desktop_outlined, size: 30,),
+                label: 'Ayarlar',
               ),
-              Expanded(
-                flex: 15,
-                child: Observer(builder: (_) {
-                  return Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "${viewModel.resultCount} sonuç gösteriliyor...",
-                          style: const TextStyle(
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 14,
-                        child: ListView.builder(
-                          itemCount: viewModel.resultCampaigns.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            DocumentSnapshot document =
-                                viewModel.resultCampaigns[index];
-                            Map<String, dynamic> data =
-                                document.data() as Map<String, dynamic>;
-                            CampaignModel campaign = CampaignModel.fromJson(data);
-                            campaign.setId(document.id);
-                            return Padding(
-                              padding: EdgeInsets.only(top: 8),
-                              child: CampaignCard(
-                                campaign: campaign,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  );
-                }),
-              )
+              NavigationDestination(
+                selectedIcon: Icon(Icons.favorite_rounded, size: 35,),
+                icon: Icon(Icons.favorite_border_rounded, size: 30,),
+                label: 'Favoriler',
+              ),
             ],
           ),
+        ),
+        body: Padding(
+          padding: AppPaddings.MEDIUM_H,
+          child: <Widget>[
+            /// Home page
+            OfferView(),
+
+            /// Notifications page
+            Center(),
+
+            /// Messages page
+            Center()
+          ][currentPageIndex],
         ),
       ),
     );

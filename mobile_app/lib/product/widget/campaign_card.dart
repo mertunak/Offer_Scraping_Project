@@ -17,7 +17,7 @@ class CampaignCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         Navigator.of(context).pushNamed(
-            NavigationConstants.CAMPAIGN_DETAIL_VIEW,
+            NavigationConstants.OFFER_DETAIL_VIEW,
             arguments: campaign);
       },
       customBorder: RoundedRectangleBorder(
@@ -53,8 +53,23 @@ class CampaignCard extends StatelessWidget {
             ClipRRect(
               borderRadius: AppBorderRadius.MEDIUM,
               child: Image.network(
-                campaign.img,
-              ),
+                  campaign.img,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return SizedBox(
+                      height: 200,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      ),
+                    );
+                  },
+                ),
             ),
             const SizedBox(
               height: 10,

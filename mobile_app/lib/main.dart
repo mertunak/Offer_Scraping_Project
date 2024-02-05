@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'product/navigation/navigation_constants.dart';
 import 'product/navigation/route_generator.dart';
 import 'package:firebase_core/firebase_core.dart';
