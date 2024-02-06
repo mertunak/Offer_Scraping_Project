@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
+import 'package:mobile_app/product/widget/list_tiles/notification_list_tile.dart';
 
 class NotificationsView extends StatelessWidget {
   const NotificationsView({super.key});
@@ -19,20 +20,9 @@ class NotificationsView extends StatelessWidget {
           padding: AppPaddings.MEDIUM_H,
           child: Column(
             children: <Widget>[
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.notifications_sharp),
-                  title: Text('Notification 1'),
-                  subtitle: Text('This is a notification'),
-                ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.notifications_sharp),
-                  title: Text('Notification 2'),
-                  subtitle: Text('This is a notification'),
-                ),
-              ),
+              NotificationListTile(title: "Notification 1", subtitle: "This is a notification"),
+              NotificationListTile(title: "Notification 2", subtitle: "This is a notification"),
+              NotificationListTile(title: "Notification 3", subtitle: "This is a notification"),
             ],
           ),
         ),

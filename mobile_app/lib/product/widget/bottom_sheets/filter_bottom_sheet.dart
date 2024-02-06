@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
-import 'package:mobile_app/product/widget/custom_filled_button.dart';
+import 'package:mobile_app/product/widget/buttons/custom_filled_button.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
 import 'package:mobile_app/product/widget/filter_component/filter_price.dart';
 import 'package:mobile_app/screens/offer/viewmodel/offer_viewmodel.dart';
 import '../../constants/utils/color_constants.dart';
-import 'filter_multiple_checkbox.dart';
+import '../filter_component/filter_multiple_checkbox.dart';
 
 class FilterBottomSheet extends BaseStatelessWidget {
   final OfferViewModel viewModel;

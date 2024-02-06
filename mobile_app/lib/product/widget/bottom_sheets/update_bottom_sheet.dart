@@ -5,7 +5,7 @@ import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/services/flask.dart';
 
-import '../constants/utils/color_constants.dart';
+import '../../constants/utils/color_constants.dart';
 
 class UpdateBottomSheet extends BaseStatelessWidget {
   final FlaskService flaskService = FlaskService();

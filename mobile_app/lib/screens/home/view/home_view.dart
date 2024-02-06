@@ -3,7 +3,9 @@ import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
+import 'package:mobile_app/screens/fav_offers/view/fav_offers_view.dart';
 import 'package:mobile_app/screens/offer/view/offer_view.dart';
+import 'package:mobile_app/screens/offer_preferences/view/offer_preferences_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -14,7 +16,6 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends BaseState<HomeView> {
   int currentPageIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -72,7 +73,7 @@ class _HomeViewState extends BaseState<HomeView> {
               NavigationDestination(
                 selectedIcon: Icon(Icons.screen_search_desktop_rounded, size: 35,),
                 icon: Icon(Icons.screen_search_desktop_outlined, size: 30,),
-                label: 'Ayarlar',
+                label: 'Tercihler',
               ),
               NavigationDestination(
                 selectedIcon: Icon(Icons.favorite_rounded, size: 35,),
@@ -85,14 +86,9 @@ class _HomeViewState extends BaseState<HomeView> {
         body: Padding(
           padding: AppPaddings.MEDIUM_H,
           child: <Widget>[
-            /// Home page
             OfferView(),
-
-            /// Notifications page
-            Center(),
-
-            /// Messages page
-            Center()
+            OfferPreferencesView(),
+            FavOffersView(),
           ][currentPageIndex],
         ),
       ),
