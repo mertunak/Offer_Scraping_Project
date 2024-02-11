@@ -13,8 +13,8 @@ header = {
     "Chrome/119.0.0.0 Safari/537.36"
 }
 
-def find_offer_tab(baseUrl, header):
-    base_without_https = baseUrl.split(":")[-1]
+def findOfferTab(baseUrl, header):
+    baseWithoutHttps = baseUrl.split(":")[-1]
     
     httpRequest = requests.get(baseUrl, headers=header)
     parsedHomeHtml = BeautifulSoup(httpRequest.text, "html.parser")
@@ -44,7 +44,7 @@ def find_offer_tab(baseUrl, header):
             if len(iterPageLink) < len(offerPageLink):
                 offerPageLink = iterPageLink
     
-    if base_without_https in offerPageLink:
+    if baseWithoutHttps in offerPageLink:
         if "https:" not in offerPageLink:
             offerPageLink = "https:" + offerPageLink
     else:

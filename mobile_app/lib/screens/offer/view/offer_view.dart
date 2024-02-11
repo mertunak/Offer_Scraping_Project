@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobile_app/product/constants/texts/screen_texts.dart';
+// import 'package:mobile_app/product/constants/texts/screen_texts.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
-import 'package:mobile_app/product/constants/utils/padding_constants.dart';
-import 'package:mobile_app/product/constants/utils/text_styles.dart';
+// import 'package:mobile_app/product/constants/utils/padding_constants.dart';
+// import 'package:mobile_app/product/constants/utils/text_styles.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/product/widget/custom_search_bar.dart';
-import 'package:mobile_app/product/widget/filter_component/filter_bottom_sheet.dart';
-import 'package:mobile_app/product/widget/offer_card.dart';
+import 'package:mobile_app/product/widget/bottom_sheets/filter_bottom_sheet.dart';
+import 'package:mobile_app/product/widget/cards/offer_card.dart';
 import 'package:mobile_app/screens/offer/viewmodel/offer_viewmodel.dart';
 import 'package:mobile_app/services/firestore.dart';
 

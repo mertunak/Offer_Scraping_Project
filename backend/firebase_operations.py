@@ -1,18 +1,16 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
-from pandas import read_excel
 
-def add_offers_to_firestore(offers, site):
-    # SDK ayarlamaları
-    credentialData = credentials.Certificate("backend/serviceAccountKey.json")
-    firebase_admin.initialize_app(credentialData)
-    # Firestore instance  oluşturma
-    firestoreDb = firestore.client()
+def add_scraped_site(scraped_site, firestoreDb):
+
+    if not firestoreDb.collection("scraped_sites").where("site_name", "==", scraped_site.get("site_name")).get():
+            firestoreDb.collection("scraped_sites").add(scraped_site)
+
+def add_offers_to_firestore(offers, firestoreDb):
 
     for offer in offers:
-        offerTitle = offer.get("Title")  # Burada "id" kampanyanın benzersiz özelliği olsun
-        # Daha önce eklenmişse kontrol et
-        existing_offer = firestoreDb.collection("offers").where("Title", "==", offerTitle).get()
+        offerTitle = offer.get("title")
+        existing_offer = firestoreDb.collection("offers").where("title", "==", offerTitle).get()
 
         # Daha önce eklenmemişse ekle
         if not existing_offer:

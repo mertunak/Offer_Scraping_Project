@@ -3,81 +3,112 @@ import 'package:mobile_app/product/constants/utils/border_radius_constants.dart'
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
-import '../constants/utils/color_constants.dart';
-import '../models/offer_model.dart';
+import '../../constants/utils/color_constants.dart';
+import '../../models/offer_model.dart';
 
-class OfferCard extends StatelessWidget {
+class OfferCard extends StatefulWidget {
   final OfferModel offer;
   const OfferCard({
     super.key,
     required this.offer,
   });
+
+  @override
+  State<OfferCard> createState() => _OfferCardState();
+}
+
+class _OfferCardState extends State<OfferCard> {
+  bool isFav = false;
+
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).pushNamed(
-            NavigationConstants.OFFER_DETAIL_VIEW,
-            arguments: offer);
-      },
-      customBorder: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Container(
-        padding: AppPaddings.MEDIUM_V + AppPaddings.MEDIUM_H,
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(15, 133, 200, 137),
-          borderRadius: AppBorderRadius.MEDIUM,
-          border: Border.all(
-            color: const Color.fromARGB(20, 133, 200, 137),
-            width: 2,
-          ),
+    return Container(
+      padding: AppPaddings.MEDIUM_V + AppPaddings.MEDIUM_H,
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(15, 133, 200, 137),
+        borderRadius: AppBorderRadius.MEDIUM,
+        border: Border.all(
+          color: const Color.fromARGB(20, 133, 200, 137),
+          width: 2,
         ),
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                offer.site,
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                widget.offer.site,
                 style: const TextStyle(
                   color: TextColors.PRIMARY_COLOR,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            const ColumnDivider(
-              verticalOffset: 8,
-              horizontalOffset: 0,
-            ),
-            ClipRRect(
-              borderRadius: AppBorderRadius.MEDIUM,
-              child: Image.network(
-                  offer.img,
-                  loadingBuilder: (BuildContext context, Widget child,
-                      ImageChunkEvent? loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return SizedBox(
-                      height: 200,
-                      child: Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                              : null,
+              CircleAvatar(
+                backgroundColor: Colors.transparent,
+                radius: 15,
+                child: IconButton(
+                  highlightColor: Colors.transparent,
+                  padding: EdgeInsets.zero,
+                  iconSize: 30,
+                  icon: isFav
+                      ? const Icon(
+                          Icons.favorite_rounded,
+                          color: Colors.red,
+                        )
+                      : const Icon(
+                          Icons.favorite_border_rounded,
                         ),
-                      ),
-                    );
+                  onPressed: () {
+                    setState(() {
+                      isFav = !isFav;
+                    });
                   },
                 ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Column(
+              ),
+            ],
+          ),
+          const ColumnDivider(
+            verticalOffset: 8,
+            horizontalOffset: 0,
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.of(context).pushNamed(
+                  NavigationConstants.OFFER_DETAIL_VIEW,
+                  arguments: widget.offer);
+            },
+            overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+            highlightColor: Colors.transparent,
+            child: Column(
               children: [
+                ClipRRect(
+                  borderRadius: AppBorderRadius.MEDIUM,
+                  child: Image.network(
+                    widget.offer.img,
+                    loadingBuilder: (BuildContext context, Widget child,
+                        ImageChunkEvent? loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return SizedBox(
+                        height: 200,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
                 Text(
-                  offer.header,
+                  widget.offer.header,
                   style: const TextStyle(
                     color: TextColors.PRIMARY_COLOR,
                     fontSize: 16,
@@ -90,7 +121,7 @@ class OfferCard extends StatelessWidget {
                   height: 5,
                 ),
                 Text(
-                  offer.description,
+                  widget.offer.description,
                   textAlign: TextAlign.justify,
                   style: const TextStyle(
                     color: TextColors.PRIMARY_COLOR,
@@ -115,7 +146,7 @@ class OfferCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            offer.startDate,
+                            widget.offer.startDate,
                             style: const TextStyle(
                               color: TextColors.PRIMARY_COLOR,
                               fontSize: 16,
@@ -135,7 +166,7 @@ class OfferCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            offer.endDate,
+                            widget.offer.endDate,
                             style: const TextStyle(
                               color: TextColors.PRIMARY_COLOR,
                               fontSize: 16,
@@ -151,8 +182,8 @@ class OfferCard extends StatelessWidget {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
