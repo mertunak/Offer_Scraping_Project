@@ -3,20 +3,22 @@ import 'package:mobile_app/product/constants/utils/color_constants.dart';
 
 class SiteListTile extends StatelessWidget {
   final int id;
-  final String title;
+  final String siteName;
+  final String url;
   final bool isPreferred;
   const SiteListTile({
     super.key,
-    required this.title,
+    required this.siteName,
     required this.id,
-    required this.isPreferred,
+    required this.isPreferred, required this.url,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        title: Text(title),
+        title: Text(siteName),
+        subtitle: Text(url),
         trailing: IconButton(
           onPressed: () {
             if (isPreferred) {

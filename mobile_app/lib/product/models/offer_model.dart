@@ -24,13 +24,13 @@ class OfferModel {
   String get endDate => _endDate;
 
   OfferModel.fromJson(Map<String, dynamic> json) {
-    _header = json['Title'];
-    _description = json['Description'];
-    _link = json['Link'];
-    _site = json['Site'];
-    _img = json['Image'];
-    _startDate = json['StartDate'];
-    _endDate = json['EndDate'];
+    _header = json['title'];
+    _description = json['description'];
+    _link = json['link'];
+    _site = json['site'];
+    _img = json['image'];
+    _startDate = json['startDate'];
+    _endDate = json['endDate'];
   }
 
   Map<String, dynamic> toJson() {

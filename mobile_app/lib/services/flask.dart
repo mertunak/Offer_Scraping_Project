@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class FlaskService {
-  Future<void> runScraper(String scraperName) async {
+  Future<void> runScraper(String siteUrl) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.146.8:5000/run_scraper'),
+        Uri.parse('http://192.168.1.29:5000/run_scraper'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode({'scraper_name': scraperName}),
+        body: jsonEncode({'site_url': siteUrl}),
       );
 
       if (response.statusCode == 200) {

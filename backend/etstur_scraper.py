@@ -5,7 +5,7 @@ import re
 import firebase_operations
 import find_offer_tab
 
-baseUrl = "https://www.isbank.com.tr"
+baseUrl = "https://www.etstur.com"
 header = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
     "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -15,8 +15,8 @@ header = {
 site = baseUrl.split('/')[-1].split('.')[1].capitalize()
 
 offers = []
-offerPageLink = find_offer_tab.findOfferTab(baseUrl = baseUrl, header = header)
-
+offerPageLink = find_offer_tab.find_offer_tab(baseUrl = baseUrl, header = header)
+print(offerPageLink)
 if offerPageLink != "":
     httpRequest = requests.get(offerPageLink, headers=header)
     parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "html.parser")
@@ -52,4 +52,4 @@ if offerPageLink != "":
 else:
     print("Search in slider")
 
-firebase_operations.add_offers_to_firestore(offers, site)
+# firebase_operations.add_offers_to_firestore(offers, site)

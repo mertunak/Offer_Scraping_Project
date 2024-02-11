@@ -6,17 +6,44 @@ import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
 import 'package:mobile_app/product/widget/custom_search_bar.dart';
 import 'package:mobile_app/product/widget/list_tiles/site_list_tile.dart';
+import 'package:mobile_app/services/flask.dart';
 
-class OfferPreferencesView extends BaseStatelessWidget {
-  OfferPreferencesView({super.key});
-  final List<String> preferred = [
-    "İş Bankası",
-    "Bellona",
+class OfferPreferencesView extends StatefulWidget {
+  const OfferPreferencesView({super.key});
+
+  @override
+  State<OfferPreferencesView> createState() => _OfferPreferencesViewState();
+}
+
+class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
+  final FlaskService flaskService = FlaskService();
+
+  final TextEditingController siteUrlController = TextEditingController();
+
+  final urlCheck = RegExp(r"^https:\/\/www\..*\.(com|tr|org)$");
+
+  String? errorText;
+  bool isScraperRunning = false;
+
+  final List<Map<String, String>> preferred = [
+    {
+      "site_name": "Isbank",
+      "url": "https://www.isbank.com.tr",
+      "last_scrape_date": "10.02.2024"
+    },
+    {
+      "site_name": "Bellona",
+      "url": "https://www.bellona.com.tr",
+      "last_scrape_date": "11.02.2024"
+    },
   ];
-  final List<String> notPreferred = [
-    "MediaMarkt",
-    "Migros",
-    "Vatan",
+
+  final List<Map<String, String>> notPreferred = [
+    {
+      "site_name": "MediaMarkt",
+      "url": "https://www.mediamarkt.com.tr",
+      "last_scrape_date": "10.02.2024"
+    },
   ];
 
   @override
@@ -43,45 +70,74 @@ class OfferPreferencesView extends BaseStatelessWidget {
                 ),
                 const Spacer(),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       flex: 22,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: AppBorderRadius.MEDIUM,
-                          border: Border.all(
-                            color: BorderColors.SECONDARY_COLOR,
-                            width: 2,
+                      child: TextField(
+                        decoration: InputDecoration(
+                          contentPadding: AppPaddings.SMALL_H,
+                          enabled: !isScraperRunning,
+                          border: OutlineInputBorder(
+                            borderRadius: AppBorderRadius.MEDIUM,
+                            borderSide: const BorderSide(
+                              color: BorderColors.SECONDARY_COLOR,
+                              width: 2,
+                            ),
                           ),
+                          hintText: "https://www.examplesite.com",
+                          hintStyle:
+                              const TextStyle(color: TextColors.HINT_COLOR),
+                          errorText: errorText,
                         ),
-                        child: TextField(
-                          decoration: const InputDecoration(
-                            contentPadding: AppPaddings.SMALL_H,
-                            border: InputBorder.none,
-                            hintText: "https://www.examplesite.com",
-                            hintStyle: TextStyle(color: TextColors.HINT_COLOR),
-                          ),
-                          controller: TextEditingController(),
-                        ),
+                        controller: siteUrlController,
                       ),
                     ),
                     const Spacer(),
                     Expanded(
                       flex: 4,
-                      child: Ink(
-                        decoration: ShapeDecoration(
-                          color: AssetColors.SECONDARY_COLOR,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppBorderRadius.MEDIUM,
-                          ),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.search_rounded),
-                          color: Colors.white,
-                          onPressed: () {},
-                        ),
-                      ),
-                    )
+                      child: isScraperRunning
+                          ? const Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : Ink(
+                              decoration: ShapeDecoration(
+                                color: AssetColors.SECONDARY_COLOR,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: AppBorderRadius.MEDIUM,
+                                ),
+                              ),
+                              child: IconButton(
+                                icon: const Icon(Icons.search_rounded),
+                                color: Colors.white,
+                                onPressed: () {
+                                  final text = siteUrlController.value.text;
+                                  setState(() {
+                                    errorText = null;
+                                    if (text.isEmpty) {
+                                      errorText = "Bu alan boş bırakılamaz";
+                                    } else if (!urlCheck.hasMatch(text)) {
+                                      errorText =
+                                          "Lütfen geçerli bir URL giriniz";
+                                    }
+                                  });
+                                  if (urlCheck.hasMatch(text)) {
+                                    setState(() {
+                                      isScraperRunning = true;
+                                    });
+                                    flaskService
+                                        .runScraper(siteUrlController.text)
+                                        .then((_) {
+                                      setState(() {
+                                        isScraperRunning = false;
+                                        siteUrlController.clear();
+                                      });
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                    ),
                   ],
                 )
               ],
@@ -127,7 +183,8 @@ class OfferPreferencesView extends BaseStatelessWidget {
                         itemBuilder: (BuildContext context, int index) {
                           return SiteListTile(
                             id: index,
-                            title: preferred[index],
+                            siteName: preferred[index]["site_name"]!,
+                            url: preferred[index]["url"]!,
                             isPreferred: true,
                           );
                         },
@@ -137,7 +194,8 @@ class OfferPreferencesView extends BaseStatelessWidget {
                         itemBuilder: (BuildContext context, int index) {
                           return SiteListTile(
                             id: index,
-                            title: notPreferred[index],
+                            siteName: notPreferred[index]["site_name"]!,
+                            url: notPreferred[index]["url"]!,
                             isPreferred: false,
                           );
                         },
@@ -155,7 +213,7 @@ class OfferPreferencesView extends BaseStatelessWidget {
 
   Tab buildTab(BuildContext context, String label) {
     return Tab(
-      height: dynamicHeightDevice(context, 0.07),
+      height: dynamicHeightDevice(0.07),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Text(
