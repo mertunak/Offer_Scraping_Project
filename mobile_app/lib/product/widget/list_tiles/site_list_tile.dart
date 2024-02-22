@@ -1,34 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
+import 'package:mobile_app/product/models/site_model.dart';
+import 'package:mobile_app/screens/offer_preferences/viewmodel/offer_preferences_viewmodel.dart';
 
 class SiteListTile extends StatelessWidget {
-  final int id;
-  final String siteName;
-  final String url;
-  final bool isPreferred;
+  final SiteModel site;
+  final bool isPrefered;
+  final OfferPreferencesViewModel viewModel;
   const SiteListTile({
     super.key,
-    required this.siteName,
-    required this.id,
-    required this.isPreferred, required this.url,
+    required this.site,
+    required this.isPrefered,
+    required this.viewModel,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        title: Text(siteName),
-        subtitle: Text(url),
+        title: Text(site.siteName!),
+        subtitle: Text(site.url!),
         trailing: IconButton(
           onPressed: () {
-            if (isPreferred) {
-              print("delete");
-            } else {
-              print("add");
-            }
+            viewModel.changePreference(isPrefered, site);
           },
           icon: Icon(
-            isPreferred == true ? Icons.delete_outline_rounded : Icons.add_rounded,
+            isPrefered == true
+                ? Icons.delete_outline_rounded
+                : Icons.add_rounded,
             color: AssetColors.SECONDARY_COLOR,
             size: 30,
           ),

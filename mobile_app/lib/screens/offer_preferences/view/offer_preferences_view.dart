@@ -1,11 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
+import 'package:mobile_app/core/base/view/base_view.dart';
 import 'package:mobile_app/product/constants/utils/border_radius_constants.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
+import 'package:mobile_app/product/models/site_model.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
 import 'package:mobile_app/product/widget/custom_search_bar.dart';
 import 'package:mobile_app/product/widget/list_tiles/site_list_tile.dart';
+import 'package:mobile_app/screens/offer_preferences/viewmodel/offer_preferences_viewmodel.dart';
 import 'package:mobile_app/services/flask.dart';
 
 class OfferPreferencesView extends StatefulWidget {
@@ -16,38 +21,34 @@ class OfferPreferencesView extends StatefulWidget {
 }
 
 class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
+  late OfferPreferencesViewModel viewModel;
   final FlaskService flaskService = FlaskService();
 
   final TextEditingController siteUrlController = TextEditingController();
 
-  final urlCheck = RegExp(r"^https:\/\/www\..*\.(com|tr|org)$");
-
   String? errorText;
   bool isScraperRunning = false;
 
-  final List<Map<String, String>> preferred = [
-    {
-      "site_name": "Isbank",
-      "url": "https://www.isbank.com.tr",
-      "last_scrape_date": "10.02.2024"
-    },
-    {
-      "site_name": "Bellona",
-      "url": "https://www.bellona.com.tr",
-      "last_scrape_date": "11.02.2024"
-    },
-  ];
-
-  final List<Map<String, String>> notPreferred = [
-    {
-      "site_name": "MediaMarkt",
-      "url": "https://www.mediamarkt.com.tr",
-      "last_scrape_date": "10.02.2024"
-    },
-  ];
+  @override
+  void initState() {
+    viewModel = OfferPreferencesViewModel();
+    viewModel.getAllSites().then((value) => viewModel.splitPreferencesSites());
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    return BaseStatefulView<OfferPreferencesViewModel>(
+      viewModel: viewModel,
+      onModelReady: (model) {
+        model.setContext(context);
+        viewModel = model;
+      },
+      onPageBuilder: (context, value) => buildPage(context),
+    );
+  }
+
+  Column buildPage(BuildContext context) {
     return Column(
       children: [
         Expanded(
@@ -116,12 +117,16 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
                                     errorText = null;
                                     if (text.isEmpty) {
                                       errorText = "Bu alan boş bırakılamaz";
-                                    } else if (!urlCheck.hasMatch(text)) {
+                                    } else if (!viewModel.urlCheck
+                                        .hasMatch(text)) {
                                       errorText =
                                           "Lütfen geçerli bir URL giriniz";
+                                    } else if (viewModel.siteExist(text)) {
+                                      errorText =
+                                          "Girilen site aşağıda yer almaktadır";
                                     }
                                   });
-                                  if (urlCheck.hasMatch(text)) {
+                                  if (viewModel.urlCheck.hasMatch(text) && !viewModel.siteExist(text)) {
                                     setState(() {
                                       isScraperRunning = true;
                                     });
@@ -176,31 +181,43 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
                 const Spacer(),
                 Expanded(
                   flex: 24,
-                  child: TabBarView(
-                    children: [
-                      ListView.builder(
-                        itemCount: preferred.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return SiteListTile(
-                            id: index,
-                            siteName: preferred[index]["site_name"]!,
-                            url: preferred[index]["url"]!,
-                            isPreferred: true,
-                          );
-                        },
-                      ),
-                      ListView.builder(
-                        itemCount: notPreferred.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return SiteListTile(
-                            id: index,
-                            siteName: notPreferred[index]["site_name"]!,
-                            url: notPreferred[index]["url"]!,
-                            isPreferred: false,
-                          );
-                        },
-                      ),
-                    ],
+                  child: Observer(
+                    builder: (_) => TabBarView(
+                      children: [
+                        ListView.builder(
+                          itemCount: viewModel.prefered.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            DocumentSnapshot document =
+                                viewModel.prefered[index];
+                            Map<String, dynamic> data =
+                                document.data() as Map<String, dynamic>;
+                            SiteModel site =
+                                SiteModel.fromJson(data, document.id);
+                            return SiteListTile(
+                              site: site,
+                              isPrefered: true,
+                              viewModel: viewModel,
+                            );
+                          },
+                        ),
+                        ListView.builder(
+                          itemCount: viewModel.notPrefered.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            DocumentSnapshot document =
+                                viewModel.notPrefered[index];
+                            Map<String, dynamic> data =
+                                document.data() as Map<String, dynamic>;
+                            SiteModel site =
+                                SiteModel.fromJson(data, document.id);
+                            return SiteListTile(
+                              site: site,
+                              isPrefered: false,
+                              viewModel: viewModel,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

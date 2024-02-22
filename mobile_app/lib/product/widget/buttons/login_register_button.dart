@@ -68,13 +68,13 @@ class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
                 widget.emailController.text, widget.passwordController.text);
 
             if (user != null) {
-              UserModel addUser = UserModel(
-                name: widget.fullnameController?.text,
-                email: widget.emailController.text,
-                password: widget.passwordController.text,
-                uid: user.uid,
-              );
-              await FirestoreService().addNewUser(addUser);
+              // UserModel addUser = UserModel(
+              //   name: widget.fullnameController?.text,
+              //   email: widget.emailController.text,
+              //   password: widget.passwordController.text,
+              //   uid: user.uid,
+              // );
+              // await FirestoreService().addNewUser(addUser);
               // ignore: use_build_context_synchronously
               Navigator.of(context).pushNamed(NavigationConstants.HOME_VIEW);
             }

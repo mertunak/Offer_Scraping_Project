@@ -37,11 +37,11 @@ class FirestoreService {
   }
 
   Future<void> addNewUser(UserModel userModel) async {
-    await users.doc(userModel.uid).set({
+    await users.doc(userModel.id).set({
       "name": userModel.name,
       "email": userModel.email,
       "password": userModel.password,
-      "uid": userModel.uid,
+      "uid": userModel.id,
     });
   }
 }
