@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mobile_app/product/models/user_model.dart';
 
 class FirestoreService {
   final CollectionReference _offers =
@@ -6,6 +7,8 @@ class FirestoreService {
 
   final CollectionReference _scrapedSites =
       FirebaseFirestore.instance.collection("scraped_sites");
+  final CollectionReference users =
+      FirebaseFirestore.instance.collection('users');
 
   Future<QuerySnapshot> getOffers() => _offers.get();
 
@@ -28,8 +31,17 @@ class FirestoreService {
       final Map<String, dynamic> tabletIdsMap =
           documentSnapshot.data() as Map<String, dynamic>;
       return List<String>.from(tabletIdsMap["tablet_ids"]);
-    }else{
+    } else {
       return [];
     }
+  }
+
+  Future<void> addNewUser(UserModel userModel) async {
+    await users.doc(userModel.id).set({
+      "name": userModel.name,
+      "email": userModel.email,
+      "password": userModel.password,
+      "uid": userModel.id,
+    });
   }
 }

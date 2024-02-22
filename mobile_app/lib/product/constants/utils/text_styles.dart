@@ -8,9 +8,26 @@ class TextStyles {
     color: TextColors.PRIMARY_COLOR,
     fontSize: 16,
   );
+  static const SMALL_B = TextStyle(
+      color: TextColors.PRIMARY_COLOR,
+      fontSize: 16,
+      fontWeight: FontWeight.bold);
   static const MEDIUM = TextStyle(
     color: TextColors.PRIMARY_COLOR,
     fontSize: 24,
+  );
+  static const MEDIUM_B = TextStyle(
+      color: TextColors.PRIMARY_COLOR,
+      fontSize: 24,
+      fontWeight: FontWeight.bold);
+  static const LARGE_B = TextStyle(
+    color: TextColors.PRIMARY_COLOR,
+    fontSize: 32,
+    fontWeight: FontWeight.bold,
+  );
+  static const LARGE = TextStyle(
+    color: TextColors.PRIMARY_COLOR,
+    fontSize: 32,
   );
   static const HOME_HEADING = TextStyle(
     color: TextColors.SECONDARY_COLOR,

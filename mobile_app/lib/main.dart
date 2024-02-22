@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       onGenerateRoute: RouteGenerator.generateRoute,
-      initialRoute: NavigationConstants.HOME_VIEW,
+      initialRoute: NavigationConstants.LOGIN_VIEW,
     );
   }
 }

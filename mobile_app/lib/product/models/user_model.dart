@@ -10,7 +10,7 @@ class UserModel {
   UserModel.mock(this._id, this._email, this._password, this._name, this._surname, this._favSites, this._favOffers);
   UserModel();
 
-  String? get userId => _id;
+  String? get id => _id;
   void setId(String id) => _id = id;
   String? get email => _email;
   String? get password => _password;
