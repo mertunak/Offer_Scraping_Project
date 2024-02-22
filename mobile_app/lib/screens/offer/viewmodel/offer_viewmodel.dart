@@ -58,10 +58,6 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   @observable
   List<String> priceFilter = [];
 
-  _OfferViewModelBase() {
-    init();
-  }
-
   @override
   void init() {
     choiceFilters = {

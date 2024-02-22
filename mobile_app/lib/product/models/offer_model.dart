@@ -1,6 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-// ignore_for_file: unnecessary_getters_setters
-
 class OfferModel {
   late final String _id;
   late final String _header;
@@ -35,13 +32,13 @@ class OfferModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['offer_header'] = _header;
-    data['offer_header'] = _description;
-    data['offer_link'] = _link;
-    data['offer_site'] = _site;
-    data['offer_img'] = _img;
-    data['offer_startDate'] = _startDate;
-    data['offer_endDate'] = _endDate;
+    data['title'] = _header;
+    data['description'] = _description;
+    data['link'] = _link;
+    data['site'] = _site;
+    data['image'] = _img;
+    data['startDate'] = _startDate;
+    data['endDate'] = _endDate;
     return data;
   }
 }
