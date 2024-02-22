@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
+import 'package:mobile_app/screens/login/view/login_view.dart';
 import 'package:mobile_app/screens/offer_detail/view/offer_detail_view.dart';
 import 'package:mobile_app/screens/home/view/home_view.dart';
 import 'package:mobile_app/screens/notifications/view/notifications_view.dart';
+import 'package:mobile_app/screens/register/view/register_view.dart';
 import 'navigation_constants.dart';
 
 class RouteGenerator {
@@ -14,7 +16,6 @@ class RouteGenerator {
   }
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
-
     switch (settings.name) {
       case NavigationConstants.HOME_VIEW:
         return MaterialPageRoute(builder: (_) => const HomeView());
@@ -23,6 +24,10 @@ class RouteGenerator {
       case NavigationConstants.OFFER_DETAIL_VIEW:
         final args = settings.arguments as OfferModel;
         return MaterialPageRoute(builder: (_) => OfferDetailView(args));
+      case NavigationConstants.LOGIN_VIEW:
+        return MaterialPageRoute(builder: (_) => const LoginView());
+      case NavigationConstants.REGISTER_VIEW:
+        return MaterialPageRoute(builder: (_) => const RegisterView());
       default:
         return _errorRoute();
     }

@@ -7,10 +7,14 @@ def add_scraped_site(scraped_site, firestoreDb):
             firestoreDb.collection("scraped_sites").add(scraped_site)
 
 def add_offers_to_firestore(offers, firestoreDb):
-
+    cred = credentials.Certificate('backend/serviceAccountKey.json')
+    firebase_admin.initialize_app(cred)
+    # Obtain a reference to your Firestore database
+    firestoreDb = firestore.client()
+    
     for offer in offers:
-        offerTitle = offer.get("title")
-        existing_offer = firestoreDb.collection("offers").where("title", "==", offerTitle).get()
+        offerTitle = offer.get("Title")
+        existing_offer = firestoreDb.collection("offers").where("Title", "==", offerTitle).get()
 
         # Daha önce eklenmemişse ekle
         if not existing_offer:
