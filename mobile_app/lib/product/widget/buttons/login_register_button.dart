@@ -11,18 +11,22 @@ import 'package:mobile_app/services/firestore.dart';
 import '../../models/user_model.dart';
 
 class LoginAndRegisterButton extends StatefulWidget {
-  const LoginAndRegisterButton(
-      {super.key,
-      required this.emailController,
-      required this.passwordController,
-      this.fullnameController,
-      required this.isLoginButton,
-      required this.buttonText});
   final TextEditingController emailController;
   final TextEditingController passwordController;
-  final TextEditingController? fullnameController;
+  final TextEditingController nameController;
+  final TextEditingController surnameController;
   final bool isLoginButton;
   final String buttonText;
+
+  const LoginAndRegisterButton({
+    super.key,
+    required this.emailController,
+    required this.passwordController,
+    required this.nameController,
+    required this.surnameController,
+    required this.isLoginButton,
+    required this.buttonText,
+  });
 
   @override
   State<LoginAndRegisterButton> createState() => _LoginAndRegisterButtonState();
@@ -51,7 +55,7 @@ class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
           child: Center(
             child: Text(
               widget.buttonText,
-              style: TextStyles.SMALL,
+              style: TextStyles.BUTTON,
             ),
           ),
         ),
@@ -61,22 +65,25 @@ class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
                 widget.emailController.text, widget.passwordController.text);
             if (user != null) {
               // ignore: use_build_context_synchronously
-              Navigator.of(context).pushNamed(NavigationConstants.HOME_VIEW);
+              Navigator.of(context).pushNamedAndRemoveUntil(NavigationConstants.HOME_VIEW, (route)=>false);
             }
           } else {
             User? user = await authService.signUp(
                 widget.emailController.text, widget.passwordController.text);
 
             if (user != null) {
-              // UserModel addUser = UserModel(
-              //   name: widget.fullnameController?.text,
-              //   email: widget.emailController.text,
-              //   password: widget.passwordController.text,
-              //   uid: user.uid,
-              // );
-              // await FirestoreService().addNewUser(addUser);
-              // ignore: use_build_context_synchronously
-              Navigator.of(context).pushNamed(NavigationConstants.HOME_VIEW);
+              UserModel newUser = UserModel(
+                user.uid,
+                widget.emailController.text,
+                widget.passwordController.text,
+                widget.nameController.text,
+                widget.surnameController.text,
+                [],
+                [],
+              );
+              await FirestoreService().addNewUser(newUser);
+
+              Navigator.of(context).pop;
             }
           }
         },

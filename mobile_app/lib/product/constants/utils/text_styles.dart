@@ -33,9 +33,15 @@ class TextStyles {
     color: TextColors.SECONDARY_COLOR,
     fontSize: 30,
   );
-  static const BUTTON_TEXTSTYLE = TextStyle(
+  static const TEXT_BUTTON = TextStyle(
     color: TextColors.SECONDARY_COLOR,
-    fontSize: 20,
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+  );
+
+  static const BUTTON = TextStyle(
+    color: TextColors.BUTTON_TEXT_COLOR,
+    fontSize: 16,
     fontWeight: FontWeight.bold,
   );
 }

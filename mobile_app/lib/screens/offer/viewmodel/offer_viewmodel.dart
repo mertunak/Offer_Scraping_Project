@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/core/base/viewmodel/base_viewmodel.dart';
+import 'package:mobile_app/product/models/user_model.dart';
 import 'package:mobx/mobx.dart';
 
 import '../../../services/firestore.dart';
@@ -10,6 +12,8 @@ class OfferViewModel = _OfferViewModelBase with _$OfferViewModel;
 
 abstract class _OfferViewModelBase extends BaseViewModel with Store {
   final FirestoreService firestoreService = FirestoreService();
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  late UserModel currentUser;
 
   List<DocumentSnapshot> allOffers = [];
   List<DocumentSnapshot> filterResults = [];
@@ -70,6 +74,13 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   Future<void> getAllOffers() async {
     final data = await firestoreService.getOffers();
     allOffers = data.docs;
+  }
+
+  Future<void> setCurrentUser() async {
+    final User user = auth.currentUser!;
+    final uid = user.uid;
+    currentUser = await firestoreService.getCurrentUser(uid);
+    print(currentUser.favSites);
   }
 
   @action

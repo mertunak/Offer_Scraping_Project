@@ -14,6 +14,12 @@ class FirestoreService {
 
   Future<QuerySnapshot> getscrapedSites() => _scrapedSites.get();
 
+  Future<UserModel> getCurrentUser(String uid) async {
+    DocumentSnapshot documentSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    return UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>);
+  }
+
   Future<bool> checkSiteExist(String url) async {
     // DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
     //     .collection('inverted_index')
@@ -37,11 +43,6 @@ class FirestoreService {
   }
 
   Future<void> addNewUser(UserModel userModel) async {
-    await users.doc(userModel.id).set({
-      "name": userModel.name,
-      "email": userModel.email,
-      "password": userModel.password,
-      "uid": userModel.id,
-    });
+    await users.doc(userModel.id).set(userModel.toJson());
   }
 }

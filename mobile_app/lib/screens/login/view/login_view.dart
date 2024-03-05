@@ -6,7 +6,7 @@ import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/product/widget/buttons/login_register_button.dart';
-import 'package:mobile_app/product/widget/text_fields/login_text_fields.dart';
+import 'package:mobile_app/product/widget/text_fields/custom_text_field.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -22,7 +22,6 @@ class _LoginViewState extends BaseState<LoginView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -37,14 +36,10 @@ class _LoginViewState extends BaseState<LoginView> {
                     width: dyanmicWidthDevice(0.5),
                     height: dynamicHeightDevice(0.25),
                   ),
-                  const Text(ScreenTexts.LOGIN_TEXT_TITLE,
-                      style: TextStyles.LARGE),
                   const Padding(
                     padding: AppPaddings.SMALL_V,
-                    child: Text(
-                      ScreenTexts.LOGIN_TEXT_SUBTITLE,
-                      style: TextStyles.SMALL,
-                    ),
+                    child: Text(ScreenTexts.LOGIN_TEXT_TITLE,
+                        style: TextStyles.LARGE),
                   ),
                 ],
               ),
@@ -58,46 +53,51 @@ class _LoginViewState extends BaseState<LoginView> {
                     'Email',
                     style: TextStyles.SMALL,
                   ),
-                  LoginTextField(
+                  CustomTextField(
                     controller: emailController,
                     isEmail: true,
                   ),
                   const Text(
-                    'Password',
+                    'Şifre',
                     style: TextStyles.SMALL,
                   ),
-                  LoginTextField(
+                  CustomTextField(
                     controller: passwordController,
                     isEmail: false,
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const Text(
-                        'Forgot Password?',
-                        style: TextStyles.BUTTON_TEXTSTYLE,
-                      ),
-                      LoginAndRegisterButton(
-                        emailController: emailController,
-                        passwordController: passwordController,
-                        isLoginButton: true,
-                        buttonText: 'Sign In',
-                      ),
-                    ],
+                  const Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'Şifreni mi unuttun?',
+                      style: TextStyles.TEXT_BUTTON,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  LoginAndRegisterButton(
+                    emailController: emailController,
+                    passwordController: passwordController,
+                    nameController: TextEditingController(),
+                    surnameController: TextEditingController(),
+                    isLoginButton: true,
+                    buttonText: 'Giriş Yap',
                   ),
                   Padding(
                     padding: AppPaddings.LARGE_H,
                     child: Row(
                       children: [
                         const Text(
-                          "Don't have an account?",
+                          "Henüz hesabın yok mu?",
                           style: TextStyles.SMALL,
                         ),
-                        const Spacer(),
+                        const SizedBox(
+                          width: 20,
+                        ),
                         InkWell(
                           child: const Text(
-                            'Sign Up',
-                            style: TextStyles.BUTTON_TEXTSTYLE,
+                            'Kaydol',
+                            style: TextStyles.TEXT_BUTTON,
                           ),
                           onTap: () {
                             Navigator.of(context)

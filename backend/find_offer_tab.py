@@ -44,13 +44,16 @@ def findOfferTab(baseUrl, header):
             if len(iterPageLink) < len(offerPageLink):
                 offerPageLink = iterPageLink
     
-    if baseWithoutHttps in offerPageLink:
-        if "https:" not in offerPageLink:
-            offerPageLink = "https:" + offerPageLink
+    if offerPageLink:
+        if baseWithoutHttps in offerPageLink:
+            if "https:" not in offerPageLink:
+                offerPageLink = "https:" + offerPageLink
+        else:
+            offerPageLink = baseUrl + offerPageLink
+            
+        return offerPageLink
     else:
-        offerPageLink = baseUrl + offerPageLink
-        
-    return offerPageLink
+        return ""
 
 # is_bank = "https://www.isbank.com.tr"
 # bellona = "https://www.bellona.com.tr"

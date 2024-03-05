@@ -7,8 +7,11 @@ class UserModel {
   late final List<String> _favSites;
   late final List<String> _favOffers;
 
-  UserModel.mock(this._id, this._email, this._password, this._name, this._surname, this._favSites, this._favOffers);
-  UserModel();
+  UserModel.mock(this._id, this._email, this._password, this._name,
+      this._surname, this._favSites, this._favOffers);
+
+  UserModel(this._id, this._email, this._password, this._name, this._surname,
+      this._favSites, this._favOffers);
 
   String? get id => _id;
   void setId(String id) => _id = id;
