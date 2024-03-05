@@ -41,19 +41,14 @@ mixin _$OfferPreferencesViewModel on _OfferPreferencesViewModelBase, Store {
     });
   }
 
-  late final _$_OfferPreferencesViewModelBaseActionController =
-      ActionController(
-          name: '_OfferPreferencesViewModelBase', context: context);
+  late final _$changePreferenceAsyncAction = AsyncAction(
+      '_OfferPreferencesViewModelBase.changePreference',
+      context: context);
 
   @override
-  void changePreference(bool isPrefered, SiteModel site) {
-    final _$actionInfo = _$_OfferPreferencesViewModelBaseActionController
-        .startAction(name: '_OfferPreferencesViewModelBase.changePreference');
-    try {
-      return super.changePreference(isPrefered, site);
-    } finally {
-      _$_OfferPreferencesViewModelBaseActionController.endAction(_$actionInfo);
-    }
+  Future<void> changePreference(bool isPrefered, SiteModel site) {
+    return _$changePreferenceAsyncAction
+        .run(() => super.changePreference(isPrefered, site));
   }
 
   @override

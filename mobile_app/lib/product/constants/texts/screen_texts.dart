@@ -2,8 +2,7 @@
 
 class ScreenTexts {
   static const HOME_TEXT = 'Sana uygun bütün kampanyalar.';
-  static const LOGIN_TEXT_TITLE = 'Welcome Back';
-  static const LOGIN_TEXT_SUBTITLE = 'Please enter your email and password';
+  static const LOGIN_TEXT_TITLE = 'Hoşgeldiniz';
   static const REGISTER_TEXT_SUBTITLE =
-      'The most suitable campaign suggestions for you to keep your money in your pocket';
+      'Paranızın Cebinizde Saklaması İçin En Uygun Kampanya Önerileri';
 }

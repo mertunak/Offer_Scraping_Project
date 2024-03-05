@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/core/base/viewmodel/base_viewmodel.dart';
-import 'package:mobile_app/product/data/user_mock.dart';
 import 'package:mobile_app/product/models/site_model.dart';
 import 'package:mobile_app/product/models/user_model.dart';
 import 'package:mobile_app/services/firestore.dart';
@@ -14,7 +14,8 @@ class OfferPreferencesViewModel = _OfferPreferencesViewModelBase
 abstract class _OfferPreferencesViewModelBase extends BaseViewModel with Store {
   final urlCheck = RegExp(r"^https:\/\/www\..*\.(com|tr|org)$");
   final FirestoreService firestoreService = FirestoreService();
-  UserModel currentUser = UserMock.users[0];
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  late UserModel currentUser;
 
   List<DocumentSnapshot> allSites = [];
 
@@ -25,22 +26,31 @@ abstract class _OfferPreferencesViewModelBase extends BaseViewModel with Store {
   ObservableList<DocumentSnapshot> notPrefered = ObservableList.of([]);
 
   @action
-  void changePreference(bool isPrefered, SiteModel site) {
+  Future<void> changePreference(bool isPrefered, SiteModel site) async {
     final siteDoc = allSites.firstWhere((element) => element.id == site.id);
     if (isPrefered) {
-      UserMock.users[0].favSites!.add(site.id!);
+      currentUser.favSites!.remove(site.id!);
       prefered.remove(siteDoc);
       notPrefered.add(siteDoc);
     } else {
-      UserMock.users[0].favSites!.remove(site.id!);
+      currentUser.favSites!.add(site.id!);
       notPrefered.remove(siteDoc);
       prefered.add(siteDoc);
     }
+    await firestoreService.users.doc(currentUser.id).update({'fav_sites': currentUser.favSites});
+    print(currentUser.favSites);
   }
 
   Future<void> getAllSites() async {
     final data = await firestoreService.getscrapedSites();
     allSites = data.docs;
+  }
+
+  Future<void> setCurrentUser() async {
+    final User user = auth.currentUser!;
+    final uid = user.uid;
+    currentUser = await firestoreService.getCurrentUser(uid);
+    print(currentUser.favSites);
   }
 
   void splitPreferencesSites() {

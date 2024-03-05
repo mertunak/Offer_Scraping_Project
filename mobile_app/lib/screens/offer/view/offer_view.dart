@@ -45,8 +45,12 @@ class _OfferViewState extends State<OfferView> {
   @override
   void initState() {
     viewModel = OfferViewModel();
-    viewModel.getAllOffers().then((value) => viewModel.initOfferLists());
-    _searchController.addListener(_searchOffers);
+    viewModel.setCurrentUser().then((value) {
+      viewModel.getAllOffers().then((value) {
+        viewModel.initOfferLists();
+      });
+      _searchController.addListener(_searchOffers);
+    });
     super.initState();
   }
 
@@ -130,8 +134,7 @@ class _OfferViewState extends State<OfferView> {
                   child: ListView.builder(
                     itemCount: viewModel.resultOffers.length,
                     itemBuilder: (BuildContext context, int index) {
-                      DocumentSnapshot document =
-                          viewModel.resultOffers[index];
+                      DocumentSnapshot document = viewModel.resultOffers[index];
                       Map<String, dynamic> data =
                           document.data() as Map<String, dynamic>;
                       OfferModel offer = OfferModel.fromJson(data);

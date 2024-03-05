@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/product/constants/texts/screen_texts.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
-import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/product/widget/buttons/login_register_button.dart';
-import 'package:mobile_app/product/widget/text_fields/login_text_fields.dart';
+import 'package:mobile_app/product/widget/text_fields/custom_text_field.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -14,40 +13,24 @@ class RegisterView extends StatefulWidget {
 }
 
 class _RegisterViewState extends State<RegisterView> {
-  TextEditingController fullnameController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController surnameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(NavigationConstants.LOGIN_VIEW);
-            },
-            icon: const Padding(
-              padding: AppPaddings.SMALL_H,
-              child: Icon(
-                Icons.arrow_back,
-                size: 35,
-              ),
-            )),
         title: const Text(
-          "Let's Sign Up",
-          style: TextStyles.MEDIUM_B,
+          "Kaydol",
         ),
-        centerTitle: true,
       ),
       body: Padding(
-        padding: AppPaddings.LARGE_H + AppPaddings.LARGE_V,
+        padding: AppPaddings.LARGE_H,
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Create Account',
-                style: TextStyles.MEDIUM,
-              ),
               const Padding(
                 padding: AppPaddings.SMALL_V,
                 child: Text(
@@ -55,49 +38,52 @@ class _RegisterViewState extends State<RegisterView> {
                   style: TextStyles.SMALL,
                 ),
               ),
-              const Padding(
-                padding: AppPaddings.SMALL_V,
-                child: Text(
-                  'Full Name',
-                  style: TextStyles.SMALL_B,
-                ),
+              const SizedBox(
+                height: 20,
               ),
-              LoginTextField(controller: fullnameController, isEmail: true),
-              const Padding(
-                padding: AppPaddings.SMALL_V,
-                child: Text(
-                  'Email',
-                  style: TextStyles.SMALL_B,
-                ),
+              const Text(
+                'İsim',
+                style: TextStyles.SMALL_B,
               ),
-              LoginTextField(controller: emailController, isEmail: false),
-              const Padding(
-                padding: AppPaddings.SMALL_V,
-                child: Text(
-                  'Password',
-                  style: TextStyles.SMALL_B,
-                ),
+              CustomTextField(controller: nameController, isEmail: true),
+              const Text(
+                'Soyisim',
+                style: TextStyles.SMALL_B,
               ),
-              LoginTextField(controller: passwordController, isEmail: false),
+              CustomTextField(controller: surnameController, isEmail: true),
+              const Text(
+                'Email',
+                style: TextStyles.SMALL_B,
+              ),
+              CustomTextField(controller: emailController, isEmail: false),
+              const Text(
+                'Şifre',
+                style: TextStyles.SMALL_B,
+              ),
+              CustomTextField(controller: passwordController, isEmail: false),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: LoginAndRegisterButton(
                     emailController: emailController,
                     passwordController: passwordController,
-                    fullnameController: fullnameController,
+                    nameController: nameController,
+                    surnameController: surnameController,
                     isLoginButton: false,
-                    buttonText: 'Create Account'),
+                    buttonText: 'Hesap Oluştur'),
               ),
               const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Already have an account?'),
-                  Padding(
-                    padding: AppPaddings.LARGE_H,
-                    child: Text(
-                      'Log In',
-                      style: TextStyles.BUTTON_TEXTSTYLE,
-                    ),
+                  Text(
+                    'Zaten bir hesabın var mı?',
+                    style: TextStyles.SMALL,
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'Giriş Yap',
+                    style: TextStyles.TEXT_BUTTON,
                   ),
                 ],
               )

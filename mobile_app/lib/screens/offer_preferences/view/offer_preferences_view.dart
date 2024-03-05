@@ -32,7 +32,12 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
   @override
   void initState() {
     viewModel = OfferPreferencesViewModel();
-    viewModel.getAllSites().then((value) => viewModel.splitPreferencesSites());
+    viewModel.setCurrentUser().then((value) {
+      viewModel.getAllSites().then((value) {
+        viewModel.splitPreferencesSites();
+      });
+    });
+
     super.initState();
   }
 
@@ -126,7 +131,8 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
                                           "Girilen site aşağıda yer almaktadır";
                                     }
                                   });
-                                  if (viewModel.urlCheck.hasMatch(text) && !viewModel.siteExist(text)) {
+                                  if (viewModel.urlCheck.hasMatch(text) &&
+                                      !viewModel.siteExist(text)) {
                                     setState(() {
                                       isScraperRunning = true;
                                     });
