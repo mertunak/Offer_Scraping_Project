@@ -6,6 +6,8 @@ import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/screens/fav_offers/view/fav_offers_view.dart';
 import 'package:mobile_app/screens/offer/view/offer_view.dart';
 import 'package:mobile_app/screens/offer_preferences/view/offer_preferences_view.dart';
+import 'package:mobile_app/services/auth_service.dart';
+import 'package:mobile_app/services/shared_preferences.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -25,6 +27,18 @@ class _HomeViewState extends BaseState<HomeView> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           scrolledUnderElevation: 0,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.exit_to_app,
+              color: ButtonColors.SECONDARY_COLOR,
+              size: 35,
+            ),
+            onPressed: () async {
+              await SharedManager.clearData();
+              // ignore: use_build_context_synchronously
+              await authService.signOut(context);
+            },
+          ),
           actions: [
             IconButton(
               onPressed: () {},

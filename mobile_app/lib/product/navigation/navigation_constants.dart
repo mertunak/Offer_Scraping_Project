@@ -7,4 +7,5 @@ class NavigationConstants {
   static const OFFER_DETAIL_VIEW = '/offer_detail';
   static const LOGIN_VIEW = '/login_view';
   static const REGISTER_VIEW = '/register_view';
+  static const SPLASH_VIEW = '/splash_view';
 }

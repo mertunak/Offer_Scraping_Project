@@ -5,6 +5,7 @@ import 'package:mobile_app/screens/offer_detail/view/offer_detail_view.dart';
 import 'package:mobile_app/screens/home/view/home_view.dart';
 import 'package:mobile_app/screens/notifications/view/notifications_view.dart';
 import 'package:mobile_app/screens/register/view/register_view.dart';
+import 'package:mobile_app/screens/splash/view/splash_view.dart';
 import 'navigation_constants.dart';
 
 class RouteGenerator {
@@ -28,6 +29,8 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const LoginView());
       case NavigationConstants.REGISTER_VIEW:
         return MaterialPageRoute(builder: (_) => const RegisterView());
+      case NavigationConstants.SPLASH_VIEW:
+        return MaterialPageRoute(builder: (_) => const SplashView());
       default:
         return _errorRoute();
     }

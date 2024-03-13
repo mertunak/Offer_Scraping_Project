@@ -1,12 +1,28 @@
 import requests
-import pandas as pd
 from bs4 import BeautifulSoup
 import re
 import firebase_operations
 import find_offer_tab
 from datetime import date
+import json
+import time
 
-def scrape_offers(base_url):
+def handle_rate_limit():
+    print("Rate limit exceeded. Waiting for cooldown...")
+    time.sleep(600)  # 600 saniye (10 dakika) bekleyin
+    print("Cooldown period is over. Resuming...")
+def ocr_space_url(url, overlay=False, api_key='K87650191288957', language='tur'):
+
+    payload = {'url': url,
+               'isOverlayRequired': overlay,
+               'apikey': api_key,
+               'language': language,
+               }
+    r = requests.post('https://api.ocr.space/parse/image',
+                      data=payload,
+                      )
+    return r.content.decode()
+def scrape_offers(base_url, ):
     header = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -17,48 +33,50 @@ def scrape_offers(base_url):
 
     offers = []
     offerPageLink = find_offer_tab.findOfferTab(baseUrl=base_url, header=header)
-    print(offerPageLink,)
-    # if offerPageLink != "":
-    #     httpRequest = requests.get(offerPageLink, headers=header)
-    #     parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "html.parser")
-    #     offerSection = parsedOfferPageHtml.find("div", class_=re.compile("(kampanya|kamp)", re.I))
-    #     offerCardArr = offerSection.find_all("div", class_="kamp_cards33C")
-    #     for offerCard in offerCardArr:
-    #         offerLink = offerCard.find("a").get("href")  # Link
-    #         if not re.match(base_url, offerLink):
-    #             offerLink = base_url + offerLink
+    print(offerPageLink)
 
-    #         offerTitle = offerCard.find(class_=re.compile("title", re.I)).string.strip()  # Title
+    if offerPageLink != "":
+        httpRequest = requests.get(offerPageLink, headers=header)
+        parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "html.parser")
+        offerSection = parsedOfferPageHtml.find("div", class_=re.compile("(kampanya|kamp|campaign)", re.I))
+        offerCardArr = offerSection.find_all("div", class_="kamp_cards33C")
+        for offerCard in offerCardArr:
+            offerLink = offerCard.find("a").get("href")  # Link
+            if not re.match(base_url, offerLink):
+                offerLink = base_url + offerLink
 
-    #         offerDescription = offerCard.find(class_=re.compile("(description|desc)", re.I)).string.strip()  # Description
+            offerTitle = offerCard.find(class_=re.compile("title", re.I)).string.strip()  # Title
 
-    #         offerImageLink = offerCard.find(class_=re.compile("(image|img)", re.I)).find("img").get("src")  # Image
-    #         if not re.match(base_url, offerImageLink):
-    #             offerImageLink = base_url + offerImageLink
+            offerDescription = offerCard.find(class_=re.compile("(description|desc)", re.I)).string.strip()  # Description
 
-    #         dateSection = offerCard.find(class_=re.compile("date", re.I))  # Date
-    #         offerEndDate = dateSection.find(string=re.compile("(\d{2})[/.-](\d{2})[/.-](\d{4})$"))
+            offerImageLink = offerCard.find(class_=re.compile("(image|img)", re.I)).find("img").get("src")  # Image
+            if not re.match(base_url, offerImageLink):
+                offerImageLink = base_url + offerImageLink
 
-    #         offer = {
-    #             "link": offerLink,
-    #             "title": offerTitle,
-    #             "description": offerDescription,
-    #             "image": offerImageLink,
-    #             "startDate": "-",
-    #             "endDate": offerEndDate,
-    #             "site": site
-    #         }
+            dateSection = offerCard.find(class_=re.compile("date", re.I))  # Date
+            offerEndDate = dateSection.find(string=re.compile("(\d{2})[/.-](\d{2})[/.-](\d{4})$"))
 
-    #         offers.append(offer)
-    # else:
-    #     print("Search in slider")
+            offer = {
+                "link": offerLink,
+                "title": offerTitle,
+                "description": offerDescription,
+                "image": offerImageLink,
+                "startDate": "-",
+                "endDate": offerEndDate,
+                "site": site
+            }
+
+            offers.append(offer)
+    else:
+       print("Search in slider")
+            
+                
 
     # scraped_site = {
     #     "site_name": site,
     #     "url": base_url,
     #     "scraping_date": date.today().strftime("%d-%m-%Y"),
-    # }
+    # }relative overflow-auto w-full carousel
     # firebase_operations.add_scraped_site(scraped_site, firestoreDb)
     # firebase_operations.add_offers_to_firestore(offers, firestoreDb)
-
-scrape_offers("https://www.lcwaikiki.com")
+scrape_offers("https://www.suwen.com.tr",)
