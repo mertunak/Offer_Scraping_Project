@@ -109,7 +109,7 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
 
   @action
   void changeCheckboxFilter(
-      String filterKey, String choiceKey, bool isSelected) {
+    String filterKey, String choiceKey, bool isSelected) {
     filterKey = filterKey.toLowerCase();
     choiceKey = choiceKey.toLowerCase().replaceAll(".", "_");
     Map<String, bool> filterMap = choiceFilters[filterKey]!;

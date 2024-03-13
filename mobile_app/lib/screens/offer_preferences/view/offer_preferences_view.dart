@@ -10,11 +10,16 @@ import 'package:mobile_app/product/models/site_model.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
 import 'package:mobile_app/product/widget/custom_search_bar.dart';
 import 'package:mobile_app/product/widget/list_tiles/site_list_tile.dart';
+import 'package:mobile_app/screens/offer/viewmodel/offer_viewmodel.dart';
 import 'package:mobile_app/screens/offer_preferences/viewmodel/offer_preferences_viewmodel.dart';
 import 'package:mobile_app/services/flask.dart';
 
 class OfferPreferencesView extends StatefulWidget {
-  const OfferPreferencesView({super.key});
+  final OfferViewModel offerViewModel;
+  const OfferPreferencesView({
+    super.key,
+    required this.offerViewModel,
+  });
 
   @override
   State<OfferPreferencesView> createState() => _OfferPreferencesViewState();
@@ -136,12 +141,24 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
                                     setState(() {
                                       isScraperRunning = true;
                                     });
-                                    flaskService
-                                        .runScraper(siteUrlController.text)
-                                        .then((_) {
+                                    flaskService.runScraper(text).then((_) {
                                       setState(() {
                                         isScraperRunning = false;
                                         siteUrlController.clear();
+                                        viewModel
+                                            .changeNewSitePreference(text)
+                                            .then((value) {
+                                          viewModel.getAllSites().then((value) {
+                                            viewModel.splitPreferencesSites();
+                                          });
+                                        });
+                                        widget.offerViewModel
+                                            .getAllOffers()
+                                            .then((value) {
+                                          widget.offerViewModel
+                                              .updateResultOffers(widget
+                                                  .offerViewModel.allOffers);
+                                        });
                                       });
                                     });
                                   }

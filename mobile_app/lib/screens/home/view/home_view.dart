@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
+import 'package:mobile_app/core/base/view/base_view.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/screens/fav_offers/view/fav_offers_view.dart';
+import 'package:mobile_app/screens/home/viewmodel/home_viewmodel.dart';
 import 'package:mobile_app/screens/offer/view/offer_view.dart';
 import 'package:mobile_app/screens/offer_preferences/view/offer_preferences_view.dart';
 import 'package:mobile_app/services/auth_service.dart';
@@ -18,8 +20,27 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends BaseState<HomeView> {
   int currentPageIndex = 0;
+  late HomeViewModel viewModel;
+
+  @override
+  void initState() {
+    viewModel = HomeViewModel();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    return BaseStatefulView<HomeViewModel>(
+      viewModel: viewModel,
+      onModelReady: (model) {
+        model.setContext(context);
+        viewModel = model;
+      },
+      onPageBuilder: (context, value) => buildPage(context),
+    );
+  }
+
+  SafeArea buildPage(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -121,9 +142,14 @@ class _HomeViewState extends BaseState<HomeView> {
             child: IndexedStack(
               index: currentPageIndex,
               children: [
-                const OfferView(),
-                const OfferPreferencesView(),
-                FavOffersView(),
+                OfferView(
+                  viewModel: viewModel.offerviewModel,
+                ),
+                OfferPreferencesView(
+                  offerViewModel: viewModel.offerviewModel,
+                ),
+                Scaffold()
+                // FavOffersView(),
               ],
             )),
       ),

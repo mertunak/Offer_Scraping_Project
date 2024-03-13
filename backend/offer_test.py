@@ -1,7 +1,7 @@
 import requests
+import pandas as pd
 from bs4 import BeautifulSoup
 import re
-import firebase_operations
 import find_offer_tab
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -23,7 +23,8 @@ dateRangePatern = re.compile(dateRangeRegex)
 altin = "https://www.altinyildizclassics.com"
 ets = "https://www.etstur.com"
 isbank = "https://www.isbank.com.tr"
-# instreet = "https://www.instreet.com.tr"
+instreet = "https://www.instreet.com.tr"
+hayat = "https://www.hayatsu.com.tr"
 
 def dateFormater(date):
     months = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"]
@@ -57,7 +58,7 @@ def dateFormater(date):
         return formatedDate
         
 
-def scrape_offers(baseUrl, firestoreDb):
+def scrape_offers(baseUrl):
     site = baseUrl.split('/')[-1].split('.')[1].capitalize()
 
     offers = []
@@ -66,7 +67,7 @@ def scrape_offers(baseUrl, firestoreDb):
     if offerPageLink != "":
         httpRequest = requests.get(offerPageLink, headers=header)
         parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "lxml")
-        possibleOfferSections = parsedOfferPageHtml.find_all("div", class_=re.compile("(kampanya|kamp|campaign)", re.I))
+        possibleOfferSections = parsedOfferPageHtml.find_all("div", {"class": re.compile("(kampanya|kamp|campaign)", re.I)}) +parsedOfferPageHtml.find_all("div", {"id": re.compile("(kampanya|kamp|campaign)", re.I)})
         for possibleOfferSection in possibleOfferSections:
             offerCardArr = []
             for child in possibleOfferSection.contents:
@@ -80,7 +81,9 @@ def scrape_offers(baseUrl, firestoreDb):
                         break
                 except:
                     continue
+        print(offerCardArr)
         for offerCard in offerCardArr:
+            # print(offerCard)
             #Link
             if(offerCard.find("a")):
                 offerLink = offerCard.find("a").get("href")
@@ -89,12 +92,16 @@ def scrape_offers(baseUrl, firestoreDb):
             if not re.match(baseUrl, offerLink):
                 offerLink = baseUrl + offerLink
 
+            print(offerLink)
+
             #Title
             offerTitleSection = offerCard.find(class_=re.compile("title", re.I))
             if(offerTitleSection.string):
                 offerTitle = offerTitleSection.string.strip()
             else:
                 offerTitle = offerTitleSection.find(re.compile("h")).string.strip()
+            
+            print(offerTitle)
             
             # Image
             isImageDynamic = False
@@ -108,6 +115,8 @@ def scrape_offers(baseUrl, firestoreDb):
                 if offerCard.find('div', style=re.compile("(image|img)", re.I)):
                     isImageDynamic = True
                 offerImageLink = ""
+            
+            print(offerImageLink)
             
             # Description
             offerDescriptionSection = offerCard.find(class_=re.compile("(description|desc)", re.I))
@@ -130,6 +139,8 @@ def scrape_offers(baseUrl, firestoreDb):
                 if len(offerDescription) < 20 and re.match("detay", offerDescription, re.I):
                     offerDescription = ""
 
+            print(offerDescription)
+            
             #Date
             startDate = ""
             endDate = ""
@@ -199,6 +210,9 @@ def scrape_offers(baseUrl, firestoreDb):
                 else:
                     print("2)Alt linke git")
             
+            print(startDate)
+            print(endDate)
+            
             offer = {
                 "link": offerLink,
                 "title" : offerTitle,
@@ -213,26 +227,17 @@ def scrape_offers(baseUrl, firestoreDb):
     else:
         print("Search in slider")
 
-    scraped_site = {
-        "site_name": site,
-        "url": baseUrl,
-        "scraping_date": datetime.date.today().strftime("%d-%m-%Y"),
-    }
-
-    firebase_operations.add_scraped_site(scraped_site, firestoreDb)
-    firebase_operations.add_offers_to_firestore(offers, firestoreDb)
-
     # for o in offers:
-    #     print("\n\nLink: " + o["Link"],
-    #             "\nTitle: " + o["Title"],
-    #             "\nDescription: " + o["Description"],
-    #             "\nImage: " + o["Image"],
-    #             "\nStartDate: " + o["StartDate"],
-    #             "\nEndDate: " + o["EndDate"],
-    #             "\nSite: " + o["Site"])
+    #     print("\n\nLink: " + o["link"],
+    #             "\nTitle: " + o["title"],
+    #             "\nDescription: " + o["description"],
+    #             "\nImage: " + o["image"],
+    #             "\nStartDate: " + o["startDate"],
+    #             "\nEndDate: " + o["endDate"],
+    #             "\nSite: " + o["site"])
 
 # scrape_offers(altin)
 # scrape_offers(ets)
 # scrape_offers(isbank)
-# scrape_offers(instreet)
+scrape_offers(hayat)
 
