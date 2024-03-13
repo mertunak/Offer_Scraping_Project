@@ -4,145 +4,61 @@ from bs4 import BeautifulSoup
 import re
 import firebase_operations
 import find_offer_tab
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-import time
+from datetime import date
 
-header = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/119.0.0.0 Safari/537.36"
-}
-singleDateRegex = r'\d{1,2}(\.\d{1,2}\.|\s(Ocak|Şubat|Mart|Nisan|Mayıs|Haziran|Temmuz|Ağustos|Eylül|Ekim|Kasım|Aralık)\s)\d{4}'
-dateRangeRegex = r'\b\d{1,2}(\.\d{1,2}\.|\s(Ocak|Şubat|Mart|Nisan|Mayıs|Haziran|Temmuz|Ağustos|Eylül|Ekim|Kasım|Aralık)\s*)*(\d{4})*\s*-\s*\d{1,2}(\.\d{1,2}\.|\s(Ocak|Şubat|Mart|Nisan|Mayıs|Haziran|Temmuz|Ağustos|Eylül|Ekim|Kasım|Aralık)\s)(\d{4})*'
+def scrape_offers(base_url, firestoreDb):
+    header = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/119.0.0.0 Safari/537.36"
+    }
 
-singleDatePatern = re.compile(singleDateRegex)
-dateRangePatern = re.compile(dateRangeRegex)
-
-altin = "https://www.altinyildizclassics.com"
-ets = "https://www.etstur.com"
-isbank = "https://www.isbank.com.tr"
-# instreet = "https://www.instreet.com.tr"
-
-def dateFormater(offerDates, index):
-    return f"{offerDates[index][0]}.{offerDates[index][1]}.{offerDates[index][2]}"
-
-def scrape_offers(baseUrl):
-    site = baseUrl.split('/')[-1].split('.')[1].capitalize()
+    site = base_url.split('/')[-1].split('.')[1].capitalize()
 
     offers = []
-    offerPageLink = find_offer_tab.findOfferTab(baseUrl=baseUrl, header=header)
+    offerPageLink = find_offer_tab.findOfferTab(baseUrl=base_url, header=header)
+    print(offerPageLink)
+    # if offerPageLink != "":
+    #     httpRequest = requests.get(offerPageLink, headers=header)
+    #     parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "html.parser")
+    #     offerSection = parsedOfferPageHtml.find("div", class_=re.compile("(kampanya|kamp)", re.I))
+    #     offerCardArr = offerSection.find_all("div", class_="kamp_cards33C")
+    #     for offerCard in offerCardArr:
+    #         offerLink = offerCard.find("a").get("href")  # Link
+    #         if not re.match(base_url, offerLink):
+    #             offerLink = base_url + offerLink
 
-    if offerPageLink != "":
-        httpRequest = requests.get(offerPageLink, headers=header)
-        parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "html.parser")
-        possibleOfferSections = parsedOfferPageHtml.find_all("div", class_=re.compile("(kampanya|kamp|campaign)", re.I))
-        for possibleOfferSection in possibleOfferSections:
-            offerCardArr = []
-            for child in possibleOfferSection.contents:
-                if child.name:
-                    offerCardArr.append(child)
-            offerCardArrLen = len(offerCardArr)
-            if offerCardArrLen > 1:
-                try:
-                    if offerCardArr[0]['class'][0] == offerCardArr[1]['class'][0]:
-                        print(offerCardArrLen)
-                        break
-                except:
-                    continue
-        for offerCard in offerCardArr:
-            #Link
-            # if(offerCard.find("a")):
-            #     offerLink = offerCard.find("a").get("href")
-            # else:
-            #     offerLink = offerCard.get("href")
-            # if not re.match(baseUrl, offerLink):
-            #     offerLink = baseUrl + offerLink
+    #         offerTitle = offerCard.find(class_=re.compile("title", re.I)).string.strip()  # Title
 
-            #Title
-            offerTitleSection = offerCard.find(class_=re.compile("title", re.I))
-            # if(offerTitleSection.string):
-            #     offerTitle = offerTitleSection.string.strip()
-            # else:
-            #     offerTitle = offerTitleSection.find(re.compile("h")).string.strip()
-            
-            #Image
-            # isImageDynamic = False
-            # offeImageSection = offerCard.find(class_=re.compile("(image|img)", re.I))
-            # if offeImageSection:
-            #     offerImageLink = offeImageSection.find("img").get("src")
-            #     if not re.match(baseUrl, offerImageLink):
-            #         if not re.match("https://", offerImageLink):
-            #             offerImageLink = baseUrl + offerImageLink
-            # else:
-            #     if offerCard.find('div', style=re.compile("(image|img)", re.I)):
-            #         isImageDynamic = True
-            #     offerImageLink = ""
-            
-            # Description
-            offerDescriptionSection = offerCard.find(class_=re.compile("(description|desc)", re.I))
-            if offerDescriptionSection:
-                if(offerDescriptionSection.string):
-                    offerDescription = offerDescriptionSection.string.strip()
-                else:
-                    offerDescription = offerDescriptionSection.find(re.compile("h")).string.strip()
-            else:
-                offerDescription = ""
-                possibleDescriptionSections = []
-                for possibleSection in offerTitleSection.next_siblings:
-                    if possibleSection.name:
-                        possibleDescriptionSections.append(possibleSection)
-                for section in possibleDescriptionSections:
-                    try:
-                        offerDescription += section.get_text().strip() + " "
-                    except:
-                        continue
-                if len(offerDescription) < 20 and re.match("detay", offerDescription, re.I):
-                    offerDescription = ""
+    #         offerDescription = offerCard.find(class_=re.compile("(description|desc)", re.I)).string.strip()  # Description
 
-            #Date
-            dateSection = offerCard.find(class_=re.compile("date", re.I))
-            if dateSection:
-                offerDates = re.findall("(\d{2})[/.-](\d{2})[/.-](\d{4})", dateSection.get_text())
-                # if len(offerDates) == 1:
-                #     offerEndDate = dateFormater(offerDates=offerDates, index=0)
-                #     print(offerEndDate)
-                # else:
-                #     offerStartDate = dateFormater(offerDates=offerDates, index=0)
-                #     offerEndDate = dateFormater(offerDates=offerDates, index=1)
-            else:
-                if offerDescription:
-                    dates = list(dateRangePatern.finditer(desc))
-                    if dates:
-                        dateRange = dates[-1].group()
-                        
-                    else:
-                        dates = list(singleDatePatern.finditer(desc))
-                        for date in dates:
-                            print(date.group())
-                else:
-                    print("2)Alt linke git")
-            # print(dateSection)
-            
-            # offer = {
-            #     "Link": offerLink,
-            #     "Title" : offerTitle,
-            #     "Description" : offerDescription,
-            #     "Image": offerImageLink,
-            #     "StartDate" : "-",
-            #     "EndDate" : offerEndDate,
-            #     "Site": site
-            # }
+    #         offerImageLink = offerCard.find(class_=re.compile("(image|img)", re.I)).find("img").get("src")  # Image
+    #         if not re.match(base_url, offerImageLink):
+    #             offerImageLink = base_url + offerImageLink
 
-            # offers.append(offer)
-    else:
-        print("Search in slider")
+    #         dateSection = offerCard.find(class_=re.compile("date", re.I))  # Date
+    #         offerEndDate = dateSection.find(string=re.compile("(\d{2})[/.-](\d{2})[/.-](\d{4})$"))
 
-    # print(offers)
+    #         offer = {
+    #             "link": offerLink,
+    #             "title": offerTitle,
+    #             "description": offerDescription,
+    #             "image": offerImageLink,
+    #             "startDate": "-",
+    #             "endDate": offerEndDate,
+    #             "site": site
+    #         }
 
-scrape_offers(altin)
-# scrape_offers(ets)
-# scrape_offers(isbank)
-# scrape_offers(instreet)
+    #         offers.append(offer)
+    # else:
+    #     print("Search in slider")
 
-# firebase_operations.add_offers_to_firestore(offers, site)
+    # scraped_site = {
+    #     "site_name": site,
+    #     "url": base_url,
+    #     "scraping_date": date.today().strftime("%d-%m-%Y"),
+    # }
+    # firebase_operations.add_scraped_site(scraped_site, firestoreDb)
+    # firebase_operations.add_offers_to_firestore(offers, firestoreDb)
+
+scrape_offers("https://www.lcwaikiki.com")

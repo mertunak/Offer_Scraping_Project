@@ -22,7 +22,7 @@ class SiteListTile extends StatelessWidget {
         subtitle: Text(site.url!),
         trailing: IconButton(
           onPressed: () {
-            viewModel.changePreference(isPrefered, site);
+            viewModel.changePreference(isPrefered, site.id!);
           },
           icon: Icon(
             isPrefered == true

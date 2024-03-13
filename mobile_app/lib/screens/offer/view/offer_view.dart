@@ -15,7 +15,11 @@ import 'package:mobile_app/services/firestore.dart';
 import '../../../core/base/view/base_view.dart';
 
 class OfferView extends StatefulWidget {
-  const OfferView({super.key});
+  final OfferViewModel viewModel;
+  const OfferView({
+    super.key,
+    required this.viewModel,
+  });
 
   @override
   State<OfferView> createState() => _OfferViewState();
@@ -26,28 +30,26 @@ class _OfferViewState extends State<OfferView> {
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController leastPriceController = TextEditingController();
   final TextEditingController mostPriceController = TextEditingController();
-  late OfferViewModel viewModel;
 
   _searchOffers() {
     if (_searchController.text != "") {
-      viewModel.clearResultOffers();
-      for (var offerSnapshot in viewModel.filterResults) {
+      widget.viewModel.clearResultOffers();
+      for (var offerSnapshot in widget.viewModel.filterResults) {
         var name = offerSnapshot["product_name"].toString().toLowerCase();
         if (name.contains(_searchController.text.toLowerCase())) {
-          viewModel.addResultOffers(offerSnapshot);
+          widget.viewModel.addResultOffers(offerSnapshot);
         }
       }
     } else {
-      viewModel.updateResultOffers(viewModel.filterResults);
+      widget.viewModel.updateResultOffers(widget.viewModel.filterResults);
     }
   }
 
   @override
   void initState() {
-    viewModel = OfferViewModel();
-    viewModel.setCurrentUser().then((value) {
-      viewModel.getAllOffers().then((value) {
-        viewModel.initOfferLists();
+    widget.viewModel.setCurrentUser().then((value) {
+      widget.viewModel.getAllOffers().then((value) {
+        widget.viewModel.initOfferLists();
       });
       _searchController.addListener(_searchOffers);
     });
@@ -63,10 +65,9 @@ class _OfferViewState extends State<OfferView> {
   @override
   Widget build(BuildContext context) {
     return BaseStatefulView<OfferViewModel>(
-      viewModel: viewModel,
+      viewModel: widget.viewModel,
       onModelReady: (model) {
         model.setContext(context);
-        viewModel = model;
       },
       onPageBuilder: (context, value) => buildPage(context),
     );
@@ -99,7 +100,7 @@ class _OfferViewState extends State<OfferView> {
                     isScrollControlled: true,
                     builder: (BuildContext context) {
                       return FilterBottomSheet(
-                        viewModel: viewModel,
+                        viewModel: widget.viewModel,
                         leastPriceController: leastPriceController,
                         mostPriceController: mostPriceController,
                       );
@@ -123,7 +124,7 @@ class _OfferViewState extends State<OfferView> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "${viewModel.resultCount} sonuç gösteriliyor...",
+                    "${widget.viewModel.resultCount} sonuç gösteriliyor...",
                     style: const TextStyle(
                       fontStyle: FontStyle.italic,
                     ),
@@ -132,9 +133,9 @@ class _OfferViewState extends State<OfferView> {
                 Expanded(
                   flex: 14,
                   child: ListView.builder(
-                    itemCount: viewModel.resultOffers.length,
+                    itemCount: widget.viewModel.resultOffers.length,
                     itemBuilder: (BuildContext context, int index) {
-                      DocumentSnapshot document = viewModel.resultOffers[index];
+                      DocumentSnapshot document = widget.viewModel.resultOffers[index];
                       Map<String, dynamic> data =
                           document.data() as Map<String, dynamic>;
                       OfferModel offer = OfferModel.fromJson(data);
