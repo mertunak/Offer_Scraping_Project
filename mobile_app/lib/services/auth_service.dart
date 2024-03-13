@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
+import 'package:mobile_app/services/shared_preferences.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -20,7 +21,7 @@ class AuthService {
         email: email,
         password: password,
       );
-
+      await SharedManager.setIsFirstTime(false);
       return userCredential.user;
     } catch (e) {
       return null;
@@ -47,6 +48,7 @@ class AuthService {
 
   Future<void> signOut(BuildContext context) async {
     await _auth.signOut();
+    await SharedManager.setIsFirstTime(true);
     // ignore: use_build_context_synchronously
     Navigator.of(context).pushNamed(NavigationConstants.LOGIN_VIEW);
   }

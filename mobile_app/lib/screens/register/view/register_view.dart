@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/product/constants/texts/screen_texts.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
+import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/product/widget/buttons/login_register_button.dart';
 import 'package:mobile_app/product/widget/text_fields/custom_text_field.dart';
 
@@ -21,8 +22,10 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(
-          "Kaydol",
+          "KAYIT OL",
+          style: TextStyles.TEXT_BUTTON,
         ),
       ),
       body: Padding(
@@ -71,19 +74,25 @@ class _RegisterViewState extends State<RegisterView> {
                     isLoginButton: false,
                     buttonText: 'Hesap Oluştur'),
               ),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'Zaten bir hesabın var mı?',
                     style: TextStyles.SMALL,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 20,
                   ),
-                  Text(
-                    'Giriş Yap',
-                    style: TextStyles.TEXT_BUTTON,
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          NavigationConstants.LOGIN_VIEW, (route) => false);
+                    },
+                    child: const Text(
+                      'Giriş Yap',
+                      style: TextStyles.TEXT_BUTTON,
+                    ),
                   ),
                 ],
               )
