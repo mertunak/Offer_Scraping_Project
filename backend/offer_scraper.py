@@ -211,7 +211,150 @@ def scrape_offers(baseUrl, firestoreDb):
 
             offers.append(offer)
     else:
-        print("Search in slider")
+        #print("Search in slider")
+        httpRequest = requests.get(base_url, headers=header)
+        parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "html.parser")
+        #print(parsedOfferPageHtml.prettify)
+        # sliderInner=parsedOfferPageHtml.find("div",class_="swiper swiper-initialized swiper-horizontal swiper-pointer-events")
+        # print(sliderInner.prettify)
+        sliderInner=parsedOfferPageHtml.find(["section","div","li","ul"],class_=re.compile("swiper-wrapper|home-slider|banner owl|slider-component|hero-slider|slick-list|carousel__wrapper|owl-stage|slick-track", re.I))
+        #print(sliderInner)
+        offerList=sliderInner.find_all(["div","a","img","li","ul"],class_=re.compile("item|swiper-slide|slider|slick-slide|carousel-slide|owl-item|slick-slide|uk-slider-items",re.I))  
+        print(len(offerList))
+        #print(offerList)
+        count=0
+        # offerLinks=[]
+        offerImageLink=""
+        for offerCard in offerList:
+            print(count)
+            # print("offer:\n")
+            # print(offerCard)
+            # print("\n")
+            offerImageLink=""
+            if offerCard.name=="img":
+                offerImageLink=offerCard.get("src") or offerCard.find("img").get("data-src")
+                #print("gets1 here\n")
+                print(offerImageLink)
+                print("\n")
+            else :
+                if offerCard.name=="a":
+                    offerLink=offerCard.get("href")
+                    offerImageLink=offerCard.find("img").get("src") or offerCard.find("img").get("data-src")
+                    #print("gets2 here\n")
+                    print(offerImageLink)
+                elif offerCard.find("a") is not None:
+                    #print("aaaa")
+                    offerLink=offerCard.find("a").get("href")
+                    if offerImageLink=="":
+                        if offerCard.find("a").find("img") is not None:
+                            offerImageLink=offerCard.find("a").find("img").get("src") or offerCard.find("a").find("img").get("data-src")
+                            #print("gets3 here\n")
+                            print(offerImageLink)
+                if not re.match("https://", offerLink):
+                        offerLink = base_url + offerLink
+                print(offerLink)
+                count=count+1
+                # if offerLink not in offerLinks:
+                #      if count < len(offerLinks):
+                #         offerLinks[count] = offerLink
+                #      else:
+                #         offerLinks.append(offerLink)
+                #         count += 1
+            jsonStr = ocr_space_url(url=offerImageLink)
+            #print(jsonStr)
+            data_dict = json.loads(jsonStr)
+            if "ParsedResults" in data_dict and data_dict["ParsedResults"]:
+            # "ParsedResults" listesi var mı ve boş değil mi kontrolü
+                parsed_text = data_dict["ParsedResults"][0]["ParsedText"]
+                print(parsed_text)
+            elif "ErrorMessage" in data_dict:
+            # API'den gelen bir hata mesajı varsa
+                if "Rate limit exceeded" in data_dict["ErrorMessage"]:
+                    handle_rate_limit()
+                else:
+                    print("OCR işlemi başarısız oldu. Hata mesajı:", data_dict["ErrorMessage"])
+            else:
+                print("OCR işlemi başarısız oldu veya sonuç alınamadı.")
+            lines = parsed_text.split('\n')
+            offerTitle=""
+            offerDescription=""
+            startDate=""
+            endDate=""
+            
+            if(base_url=="https://www.columbia.com.tr"):
+                discount_index = next((index for index, line in enumerate(lines) if "İNDİRİM" in line), None)
+
+                if discount_index is not None:
+                # Assign the expression "DISCOUNT" and the lines 2 lines after it to offerDescription
+
+                # Extract the 2nd word 2 lines after "DISCOUNT" to startDate
+                    if discount_index + 2 < len(lines):
+                        offerDescription = '\n'.join(lines[discount_index + 2:]).strip()
+                    else:
+                        offerDescription = None
+                # Assign the first 3 words of the first line to offerTitle, or the first 2 words if not enough words
+                
+                    if discount_index > 0:
+                        offerTitle = ' '.join(lines[discount_index - 1].split()[:2]).strip()
+                    else:
+                        offerTitle = None
+
+                    if discount_index + 2 < len(lines):
+                        startDate = lines[discount_index + 2].split()[1]
+                        if len(lines[discount_index + 2].split()) >= 4:
+                            endDate = ' '.join(lines[discount_index + 2].split()[2:4])
+                        else:
+                            endDate = None
+                    else:
+                        startDate = None
+                        endDate = None
+                else:
+                    start_shopping_index = next((index for index, line in enumerate(lines) if "ALIŞVERİŞE BAŞLA" in line), None)
+                    if start_shopping_index is not None:
+                        if start_shopping_index + 1 < len(lines):
+                            offerDescription = lines[start_shopping_index + 1].strip()
+                        else:
+                            offerDescription = None
+                        if start_shopping_index > 0:
+                            offerTitle = ' '.join(lines[start_shopping_index - 1].split()[:2]).strip()
+                        else:
+                            offerTitle = None
+                    # Extract the 2nd word in offerDescription to startDate
+                        if offerDescription:
+                            startDate = offerDescription.split()[1]
+
+                        # Extract the 3rd and 4th words in offerDescription to endDate
+                            if len(offerDescription.split()) >= 3:
+                                endDate = ' '.join(offerDescription.split()[2:4])
+                            else:
+                                endDate = None
+                        else:
+                            startDate = endDate = None
+                    else:
+                        offerDescription = offerTitle = startDate = endDate = None
+                print("Offer Description:", offerDescription)
+                print("Offer Title:", offerTitle)
+                print("Start Date:", startDate)
+                print("End Date:", endDate)
+                
+            else:
+                # Find the line containing the expression "DISCOUNT"
+                discount_index = next((index for index, line in enumerate(lines) if "İNDİRİM" in line or "indirim" in line or "İndirim" in line), None)
+
+                if discount_index is not None:
+                     # Add the line containing "DISCOUNT" to offerTitle
+                    offerTitle = lines[discount_index].strip()
+
+                    # Assign the line containing "DISCOUNT" to offerDescription, along with lines before and after
+                    offerDescription_lines = lines[max(0, discount_index - 1):discount_index + 2]
+                    offerDescription = '\n'.join(offerDescription_lines).strip()
+
+                else:
+                    offerTitle = offerDescription = None
+
+                # Print the results
+                print("Offer Title:", offerTitle)
+                print("Offer Description:", offerDescription)
 
     scraped_site = {
         "site_name": site,
