@@ -20,6 +20,15 @@ class FirestoreService {
     return UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>);
   }
 
+  Future<DocumentSnapshot> getSiteByUrl(String url) async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+      .collection("scraped_sites")
+      .where("url", isEqualTo: url)
+      .get();
+    
+    return snapshot.docs.first;
+  }
+
   Future<bool> checkSiteExist(String url) async {
     // DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
     //     .collection('inverted_index')

@@ -46,9 +46,9 @@ mixin _$OfferPreferencesViewModel on _OfferPreferencesViewModelBase, Store {
       context: context);
 
   @override
-  Future<void> changePreference(bool isPrefered, SiteModel site) {
+  Future<void> changePreference(bool isPrefered, String siteId) {
     return _$changePreferenceAsyncAction
-        .run(() => super.changePreference(isPrefered, site));
+        .run(() => super.changePreference(isPrefered, siteId));
   }
 
   @override
