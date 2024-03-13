@@ -6,6 +6,8 @@ import find_offer_tab
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import datetime
+import json
+import time
 
 header = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -24,6 +26,23 @@ altin = "https://www.altinyildizclassics.com"
 ets = "https://www.etstur.com"
 isbank = "https://www.isbank.com.tr"
 # instreet = "https://www.instreet.com.tr"
+
+def handle_rate_limit():
+    print("Rate limit exceeded. Waiting for cooldown...")
+    time.sleep(600)  # 600 saniye (10 dakika) bekleyin
+    print("Cooldown period is over. Resuming...")
+    
+def ocr_space_url(url, overlay=False, api_key='K87650191288957', language='tur'):
+
+    payload = {'url': url,
+               'isOverlayRequired': overlay,
+               'apikey': api_key,
+               'language': language,
+               }
+    r = requests.post('https://api.ocr.space/parse/image',
+                      data=payload,
+                      )
+    return r.content.decode()
 
 def dateFormater(date):
     months = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"]
@@ -378,4 +397,3 @@ def scrape_offers(baseUrl, firestoreDb):
 # scrape_offers(ets)
 # scrape_offers(isbank)
 # scrape_offers(instreet)
-
