@@ -25,6 +25,7 @@ dateRangePatern = re.compile(dateRangeRegex)
 altin = "https://www.altinyildizclassics.com"
 ets = "https://www.etstur.com"
 isbank = "https://www.isbank.com.tr"
+ebebek = "https://www.e-bebek.com"
 # instreet = "https://www.instreet.com.tr"
 
 def handle_rate_limit():
@@ -81,7 +82,7 @@ def scrape_offers(baseUrl, firestoreDb):
 
     offers = []
     offerPageLink = find_offer_tab.findOfferTab(baseUrl=baseUrl, header=header)
-
+    print(offerPageLink)
     if offerPageLink != "":
         httpRequest = requests.get(offerPageLink, headers=header)
         parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "lxml")
@@ -100,6 +101,10 @@ def scrape_offers(baseUrl, firestoreDb):
                 except:
                     continue
         for offerCard in offerCardArr:
+            offerStringSections = offerCard.find_all(re.compile("h|span"))
+            offerStrings = []
+            for offerStringSection in offerStringSections:
+                offerStrings.append(offerStringSection.string.strip())
             #Link
             if(offerCard.find("a")):
                 offerLink = offerCard.find("a").get("href")
@@ -110,11 +115,15 @@ def scrape_offers(baseUrl, firestoreDb):
 
             #Title
             offerTitleSection = offerCard.find(class_=re.compile("title", re.I))
-            if(offerTitleSection.string):
-                offerTitle = offerTitleSection.string.strip()
+            if offerTitleSection:
+                if offerTitleSection.string:
+                    offerTitle = offerTitleSection.string.strip()
+                else:
+                    offerTitle = offerTitleSection.find(re.compile("h")).string.strip()
             else:
-                offerTitle = offerTitleSection.find(re.compile("h")).string.strip()
-            
+                offerTitle = offerStrings[0]
+                del offerStrings[0]
+                
             # Image
             isImageDynamic = False
             offeImageSection = offerCard.find(class_=re.compile("(image|img)", re.I))
@@ -137,17 +146,20 @@ def scrape_offers(baseUrl, firestoreDb):
                     offerDescription = offerDescriptionSection.find(re.compile("h")).string.strip()
             else:
                 offerDescription = ""
-                possibleDescriptionSections = []
-                for possibleSection in offerTitleSection.next_siblings:
-                    if possibleSection.name:
-                        possibleDescriptionSections.append(possibleSection)
-                for section in possibleDescriptionSections:
-                    try:
-                        offerDescription += section.get_text().strip() + " "
-                    except:
-                        continue
-                if len(offerDescription) < 20 and re.match("detay", offerDescription, re.I):
-                    offerDescription = ""
+                if offerTitleSection:
+                    possibleDescriptionSections = []
+                    for possibleSection in offerTitleSection.next_siblings:
+                        if possibleSection.name:
+                            possibleDescriptionSections.append(possibleSection)
+                    for section in possibleDescriptionSections:
+                        try:
+                            offerDescription += section.get_text().strip() + " "
+                        except:
+                            continue
+                    if len(offerDescription) < 20 and re.match("detay", offerDescription, re.I):
+                        offerDescription = ""
+                else:
+                    offerDescription = " ".join(offerStrings)
 
             #Date
             startDate = ""
@@ -216,7 +228,43 @@ def scrape_offers(baseUrl, firestoreDb):
                                 endDate = dateFormater(singleDates[-1].group())
                     
                 else:
-                    print("2)Alt linke git")
+                    httpRequest = requests.get(offerLink, headers=header)
+                    parsedOfferDetailPageHtml = BeautifulSoup(httpRequest.text, "lxml")
+                    dPCampaignSections = parsedOfferDetailPageHtml.find_all("div", {"class": re.compile("(kampanya|kamp|campaign)", re.I)}) + parsedOfferDetailPageHtml.find_all("div", {"id": re.compile("(kampanya|kamp|campaign)", re.I)})
+                    possibleDateStrings = []
+                    for dPCampaignSection in dPCampaignSections:
+                        if dPCampaignSection.stripped_strings:
+                            possibleDateStrings += [text.strip() for text in dPCampaignSection.stripped_strings]
+                    for possibleDateString in possibleDateStrings:
+                        dateRanges = list(dateRangePatern.finditer(possibleDateString))
+                    if dateRanges:
+                        dateRange = dateRanges[-1].group()
+                        dates = list(digitDatePatern.finditer(dateRange))
+                        if dates:
+                            startDate = dates[0].group()
+                            endDate = dates[1].group()
+                        else:
+                            dates = dateRange.split("-")
+                            endDate = dateFormater(dates[1].strip())
+                            startDateParts = dates[0].strip().split(" ")
+                            if len(startDateParts) < 2:
+                                startDate = dateFormater(startDateParts[0] + " " + dates[1].strip().split(" ")[1])
+                            else: 
+                                startDate = dateFormater(dates[0].strip())
+                    else:
+                        singleDates = list(singleDatePatern.finditer(offerDescription))
+                        match len(singleDates):
+                            case 0:
+                                print("Date not found")
+                            case 1:
+                                startDate = ""
+                                endDate = dateFormater(singleDates[0].group())
+                            case 2:
+                                startDate = dateFormater(singleDates[0].group())
+                                endDate = dateFormater(singleDates[1].group())
+                            case default:
+                                startDate = dateFormater(singleDates[-2].group())
+                                endDate = dateFormater(singleDates[-1].group())
             
             offer = {
                 "link": offerLink,
@@ -231,61 +279,45 @@ def scrape_offers(baseUrl, firestoreDb):
             offers.append(offer)
     else:
         #print("Search in slider")
-        httpRequest = requests.get(base_url, headers=header)
+        httpRequest = requests.get(baseUrl, headers=header)
         parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "html.parser")
-        #print(parsedOfferPageHtml.prettify)
-        # sliderInner=parsedOfferPageHtml.find("div",class_="swiper swiper-initialized swiper-horizontal swiper-pointer-events")
-        # print(sliderInner.prettify)
         sliderInner=parsedOfferPageHtml.find(["section","div","li","ul"],class_=re.compile("swiper-wrapper|home-slider|banner owl|slider-component|hero-slider|slick-list|carousel__wrapper|owl-stage|slick-track", re.I))
-        #print(sliderInner)
         offerList=sliderInner.find_all(["div","a","img","li","ul"],class_=re.compile("item|swiper-slide|slider|slick-slide|carousel-slide|owl-item|slick-slide|uk-slider-items",re.I))  
         print(len(offerList))
-        #print(offerList)
         count=0
-        # offerLinks=[]
         offerImageLink=""
         for offerCard in offerList:
             print(count)
-            # print("offer:\n")
-            # print(offerCard)
-            # print("\n")
+            #print(offerCard)
             offerImageLink=""
             if offerCard.name=="img":
                 offerImageLink=offerCard.get("src") or offerCard.find("img").get("data-src")
-                #print("gets1 here\n")
                 print(offerImageLink)
                 print("\n")
             else :
                 if offerCard.name=="a":
                     offerLink=offerCard.get("href")
-                    offerImageLink=offerCard.find("img").get("src") or offerCard.find("img").get("data-src")
-                    #print("gets2 here\n")
-                    print(offerImageLink)
+                    if offerCard.find("img") is not None:
+                        offerImageLink=offerCard.find("img").get("src") or offerCard.find("img").get("data-src")
+                    elif offerCard.find("video") is not None:
+                        offerImageLink=offerCard.find("video").get("poster")
+                        
                 elif offerCard.find("a") is not None:
-                    #print("aaaa")
                     offerLink=offerCard.find("a").get("href")
                     if offerImageLink=="":
                         if offerCard.find("a").find("img") is not None:
                             offerImageLink=offerCard.find("a").find("img").get("src") or offerCard.find("a").find("img").get("data-src")
-                            #print("gets3 here\n")
-                            print(offerImageLink)
                 if not re.match("https://", offerLink):
-                        offerLink = base_url + offerLink
-                print(offerLink)
+                        offerLink = baseUrl + offerLink
+                #print(offerLink)
                 count=count+1
-                # if offerLink not in offerLinks:
-                #      if count < len(offerLinks):
-                #         offerLinks[count] = offerLink
-                #      else:
-                #         offerLinks.append(offerLink)
-                #         count += 1
             jsonStr = ocr_space_url(url=offerImageLink)
-            #print(jsonStr)
             data_dict = json.loads(jsonStr)
+            parsed_text=""
             if "ParsedResults" in data_dict and data_dict["ParsedResults"]:
             # "ParsedResults" listesi var mı ve boş değil mi kontrolü
                 parsed_text = data_dict["ParsedResults"][0]["ParsedText"]
-                print(parsed_text)
+                #print(parsed_text)
             elif "ErrorMessage" in data_dict:
             # API'den gelen bir hata mesajı varsa
                 if "Rate limit exceeded" in data_dict["ErrorMessage"]:
@@ -294,86 +326,46 @@ def scrape_offers(baseUrl, firestoreDb):
                     print("OCR işlemi başarısız oldu. Hata mesajı:", data_dict["ErrorMessage"])
             else:
                 print("OCR işlemi başarısız oldu veya sonuç alınamadı.")
-            lines = parsed_text.split('\n')
+            #lines = parsed_text.split('\n')
             offerTitle=""
             offerDescription=""
             startDate=""
             endDate=""
             
-            if(base_url=="https://www.columbia.com.tr"):
-                discount_index = next((index for index, line in enumerate(lines) if "İNDİRİM" in line), None)
-
-                if discount_index is not None:
-                # Assign the expression "DISCOUNT" and the lines 2 lines after it to offerDescription
-
-                # Extract the 2nd word 2 lines after "DISCOUNT" to startDate
-                    if discount_index + 2 < len(lines):
-                        offerDescription = '\n'.join(lines[discount_index + 2:]).strip()
-                    else:
-                        offerDescription = None
-                # Assign the first 3 words of the first line to offerTitle, or the first 2 words if not enough words
+            pattern = re.compile(r'ALIŞVERİŞE BAŞLA', re.IGNORECASE)
+            words_after_match = []
+            matches=pattern.finditer(parsed_text)
+            for match in matches:
+                start_index = match.end()  # Get the end index of the match
+                words = parsed_text[start_index:].split()  # Split the text after the match into words
+                words_after_match.extend(words)
+                merged_words=' '.join(words_after_match)
+                if(merged_words!=""):
+                    offerDescription=merged_words
                 
-                    if discount_index > 0:
-                        offerTitle = ' '.join(lines[discount_index - 1].split()[:2]).strip()
-                    else:
-                        offerTitle = None
-
-                    if discount_index + 2 < len(lines):
-                        startDate = lines[discount_index + 2].split()[1]
-                        if len(lines[discount_index + 2].split()) >= 4:
-                            endDate = ' '.join(lines[discount_index + 2].split()[2:4])
-                        else:
-                            endDate = None
-                    else:
-                        startDate = None
-                        endDate = None
-                else:
-                    start_shopping_index = next((index for index, line in enumerate(lines) if "ALIŞVERİŞE BAŞLA" in line), None)
-                    if start_shopping_index is not None:
-                        if start_shopping_index + 1 < len(lines):
-                            offerDescription = lines[start_shopping_index + 1].strip()
-                        else:
-                            offerDescription = None
-                        if start_shopping_index > 0:
-                            offerTitle = ' '.join(lines[start_shopping_index - 1].split()[:2]).strip()
-                        else:
-                            offerTitle = None
-                    # Extract the 2nd word in offerDescription to startDate
-                        if offerDescription:
-                            startDate = offerDescription.split()[1]
-
-                        # Extract the 3rd and 4th words in offerDescription to endDate
-                            if len(offerDescription.split()) >= 3:
-                                endDate = ' '.join(offerDescription.split()[2:4])
-                            else:
-                                endDate = None
-                        else:
-                            startDate = endDate = None
-                    else:
-                        offerDescription = offerTitle = startDate = endDate = None
-                print("Offer Description:", offerDescription)
-                print("Offer Title:", offerTitle)
-                print("Start Date:", startDate)
-                print("End Date:", endDate)
-                
-            else:
-                # Find the line containing the expression "DISCOUNT"
-                discount_index = next((index for index, line in enumerate(lines) if "İNDİRİM" in line or "indirim" in line or "İndirim" in line), None)
-
-                if discount_index is not None:
-                     # Add the line containing "DISCOUNT" to offerTitle
-                    offerTitle = lines[discount_index].strip()
-
-                    # Assign the line containing "DISCOUNT" to offerDescription, along with lines before and after
-                    offerDescription_lines = lines[max(0, discount_index - 1):discount_index + 2]
-                    offerDescription = '\n'.join(offerDescription_lines).strip()
-
-                else:
-                    offerTitle = offerDescription = None
-
-                # Print the results
-                print("Offer Title:", offerTitle)
-                print("Offer Description:", offerDescription)
+            
+            pattern = re.compile(r'.*?(?=ALIŞVERİŞE BAŞLA)', re.DOTALL | re.IGNORECASE)
+            matches = pattern.findall(parsed_text)
+            merged_lines = "\n".join(matches)
+            if merged_lines!="":
+                offerTitle=merged_lines
+            
+            if offerTitle!="" and offerDescription!="":
+                   print("Offer Link:"+offerLink)
+                   print("Offer Image Link:"+offerImageLink)
+                   print("Offer Title:"+offerTitle)
+                   print("Offer Description:"+offerDescription) 
+            
+            #date
+            pattern=re.compile(r'\d\d(\s)?([a-zA-ZğüşıöçĞÜŞİÖÇ]+)?[-•](\s)?\d\d(\s)?([a-zA-ZğüşıöçĞÜŞİÖÇ]+)')
+            matches=pattern.finditer(offerDescription)
+            datePattern=""
+            for matchs in matches:
+                datePattern=matchs.group(0)
+                print("date:"+datePattern)
+                break
+            # if datePattern is not None:
+            #     print("date:"+datePattern)
 
     scraped_site = {
         "site_name": site,

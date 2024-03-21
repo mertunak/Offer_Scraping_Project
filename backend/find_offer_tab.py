@@ -17,7 +17,7 @@ def findOfferTab(baseUrl, header):
     baseWithoutHttps = baseUrl.split(":")[-1]
     
     httpRequest = requests.get(baseUrl, headers=header)
-    parsedHomeHtml = BeautifulSoup(httpRequest.text, "html.parser")
+    parsedHomeHtml = BeautifulSoup(httpRequest.text, "lxml")
     
     isDynamic = False if parsedHomeHtml.find("div") else True
     if isDynamic:

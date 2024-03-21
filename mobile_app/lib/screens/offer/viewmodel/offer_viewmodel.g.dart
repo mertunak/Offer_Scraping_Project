@@ -13,13 +13,13 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
       Atom(name: '_OfferViewModelBase.resultOffers', context: context);
 
   @override
-  List<DocumentSnapshot<Object?>> get resultOffers {
+  ObservableList<DocumentSnapshot<Object?>> get resultOffers {
     _$resultOffersAtom.reportRead();
     return super.resultOffers;
   }
 
   @override
-  set resultOffers(List<DocumentSnapshot<Object?>> value) {
+  set resultOffers(ObservableList<DocumentSnapshot<Object?>> value) {
     _$resultOffersAtom.reportWrite(value, super.resultOffers, () {
       super.resultOffers = value;
     });
@@ -87,17 +87,6 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
       ActionController(name: '_OfferViewModelBase', context: context);
 
   @override
-  void addResultOffers(DocumentSnapshot<Object?> offerSnapshot) {
-    final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
-        name: '_OfferViewModelBase.addResultOffers');
-    try {
-      return super.addResultOffers(offerSnapshot);
-    } finally {
-      _$_OfferViewModelBaseActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void initOfferLists() {
     final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
         name: '_OfferViewModelBase.initOfferLists');
@@ -109,22 +98,33 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
   }
 
   @override
-  void clearResultOffers() {
+  void updateResultOffers(List<DocumentSnapshot<Object?>> resultList) {
     final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
-        name: '_OfferViewModelBase.clearResultOffers');
+        name: '_OfferViewModelBase.updateResultOffers');
     try {
-      return super.clearResultOffers();
+      return super.updateResultOffers(resultList);
     } finally {
       _$_OfferViewModelBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void updateResultOffers(List<DocumentSnapshot<Object?>> resultList) {
+  void addResultOffers(DocumentSnapshot<Object?> offerSnapshot) {
     final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
-        name: '_OfferViewModelBase.updateResultOffers');
+        name: '_OfferViewModelBase.addResultOffers');
     try {
-      return super.updateResultOffers(resultList);
+      return super.addResultOffers(offerSnapshot);
+    } finally {
+      _$_OfferViewModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void clearResultOffers() {
+    final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
+        name: '_OfferViewModelBase.clearResultOffers');
+    try {
+      return super.clearResultOffers();
     } finally {
       _$_OfferViewModelBaseActionController.endAction(_$actionInfo);
     }

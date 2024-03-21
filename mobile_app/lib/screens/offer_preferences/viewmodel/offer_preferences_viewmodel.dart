@@ -28,11 +28,11 @@ abstract class _OfferPreferencesViewModelBase extends BaseViewModel with Store {
   Future<void> changePreference(bool isPrefered, String siteId) async {
     final siteDoc = allSites.firstWhere((element) => element.id == siteId);
     if (isPrefered) {
-      currentUser.favSites!.remove(siteId);
+      currentUser.favSites.remove(siteId);
       prefered.remove(siteDoc);
       notPrefered.add(siteDoc);
     } else {
-      currentUser.favSites!.add(siteId);
+      currentUser.favSites.add(siteId);
       notPrefered.remove(siteDoc);
       prefered.add(siteDoc);
     }
@@ -48,7 +48,7 @@ abstract class _OfferPreferencesViewModelBase extends BaseViewModel with Store {
 
   Future<void> changeNewSitePreference(String url) async {
     final siteDoc = await firestoreService.getSiteByUrl(url);
-    currentUser.favSites!.add(siteDoc.id);
+    currentUser.favSites.add(siteDoc.id);
     await firestoreService.users
         .doc(currentUser.id)
         .update({'fav_sites': currentUser.favSites});
@@ -65,7 +65,7 @@ abstract class _OfferPreferencesViewModelBase extends BaseViewModel with Store {
     prefered.clear();
     notPrefered.clear();
     for (var siteDoc in allSites) {
-      if (currentUser.favSites!.contains(siteDoc.id)) {
+      if (currentUser.favSites.contains(siteDoc.id)) {
         prefered.add(siteDoc);
       } else {
         notPrefered.add(siteDoc);

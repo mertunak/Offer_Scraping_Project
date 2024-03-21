@@ -151,8 +151,7 @@ class _HomeViewState extends BaseState<HomeView> {
                 OfferPreferencesView(
                   offerViewModel: viewModel.offerviewModel,
                 ),
-                Scaffold()
-                // FavOffersView(),
+                FavOffersView(),
               ],
             )),
       ),

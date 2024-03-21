@@ -1,7 +1,7 @@
 def add_scraped_site(scraped_site, firestoreDb):
 
     if not firestoreDb.collection("scraped_sites").where("site_name", "==", scraped_site.get("site_name")).get():
-            firestoreDb.collection("scraped_sites").add(scraped_site)
+        firestoreDb.collection("scraped_sites").add(scraped_site)
 
 def add_offers_to_firestore(offers, firestoreDb):
     for offer in offers:

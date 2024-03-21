@@ -151,13 +151,16 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
                                           viewModel.getAllSites().then((value) {
                                             viewModel.splitPreferencesSites();
                                           });
-                                        });
-                                        widget.offerViewModel
-                                            .getAllOffers()
-                                            .then((value) {
                                           widget.offerViewModel
-                                              .updateResultOffers(widget
-                                                  .offerViewModel.allOffers);
+                                              .updateCurrentUser()
+                                              .then((value) {
+                                            widget.offerViewModel
+                                                .getAllOffers()
+                                                .then((value) {
+                                              widget.offerViewModel
+                                                  .initOfferLists();
+                                            });
+                                          });
                                         });
                                       });
                                     });
@@ -220,6 +223,7 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
                               site: site,
                               isPrefered: true,
                               viewModel: viewModel,
+                              offerViewModel: widget.offerViewModel,
                             );
                           },
                         ),
@@ -236,6 +240,7 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
                               site: site,
                               isPrefered: false,
                               viewModel: viewModel,
+                              offerViewModel: widget.offerViewModel,
                             );
                           },
                         ),
