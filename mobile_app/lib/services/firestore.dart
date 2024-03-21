@@ -15,17 +15,16 @@ class FirestoreService {
   Future<QuerySnapshot> getscrapedSites() => _scrapedSites.get();
 
   Future<UserModel> getCurrentUser(String uid) async {
-    DocumentSnapshot documentSnapshot =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    DocumentSnapshot documentSnapshot = await users.doc(uid).get();
     return UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>);
   }
 
   Future<DocumentSnapshot> getSiteByUrl(String url) async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
-      .collection("scraped_sites")
-      .where("url", isEqualTo: url)
-      .get();
-    
+        .collection("scraped_sites")
+        .where("url", isEqualTo: url)
+        .get();
+
     return snapshot.docs.first;
   }
 
@@ -53,5 +52,9 @@ class FirestoreService {
 
   Future<void> addNewUser(UserModel userModel) async {
     await users.doc(userModel.id).set(userModel.toJson());
+  }
+
+  Future<void> updateUserInformations(UserModel userModel) async {
+    await users.doc(userModel.id).update(userModel.toJson());
   }
 }

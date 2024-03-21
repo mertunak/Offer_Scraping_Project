@@ -58,12 +58,12 @@ class _RegisterViewState extends State<RegisterView> {
                 'Email',
                 style: TextStyles.SMALL_B,
               ),
-              CustomTextField(controller: emailController, isEmail: false),
+              CustomTextField(controller: emailController),
               const Text(
                 'Şifre',
                 style: TextStyles.SMALL_B,
               ),
-              CustomTextField(controller: passwordController, isEmail: false),
+              CustomTextField(controller: passwordController),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: LoginAndRegisterButton(

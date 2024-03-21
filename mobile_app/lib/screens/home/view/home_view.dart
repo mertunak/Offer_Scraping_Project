@@ -62,7 +62,10 @@ class _HomeViewState extends BaseState<HomeView> {
           ),
           actions: [
             IconButton(
-              onPressed: () {},
+              onPressed: () async {
+                await Navigator.of(context)
+                    .pushNamed(NavigationConstants.PROFILE_VIEW);
+              },
               icon: const Icon(
                 Icons.person,
                 color: AssetColors.SECONDARY_COLOR,
@@ -70,8 +73,8 @@ class _HomeViewState extends BaseState<HomeView> {
               ),
             ),
             IconButton(
-              onPressed: () {
-                Navigator.of(context)
+              onPressed: () async {
+                await Navigator.of(context)
                     .pushNamed(NavigationConstants.NOTIFICATIONS_VIEW);
               },
               icon: const Icon(

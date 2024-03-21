@@ -8,4 +8,5 @@ class NavigationConstants {
   static const LOGIN_VIEW = '/login_view';
   static const REGISTER_VIEW = '/register_view';
   static const SPLASH_VIEW = '/splash_view';
+  static const PROFILE_VIEW = '/profile_view';
 }
