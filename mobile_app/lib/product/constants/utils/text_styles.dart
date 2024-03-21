@@ -38,7 +38,8 @@ class TextStyles {
     fontSize: 16,
     fontWeight: FontWeight.bold,
   );
-
+  static const HINT_TEXT =
+      TextStyle(color: TextColors.HINT_COLOR, fontSize: 16);
   static const BUTTON = TextStyle(
     color: TextColors.BUTTON_TEXT_COLOR,
     fontSize: 16,

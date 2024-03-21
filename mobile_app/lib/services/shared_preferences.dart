@@ -9,8 +9,17 @@ class SharedManager {
     return _sharedPreferences;
   }
 
-  static Future<void> saveUserInformations(String key, String value) async {
+  static Future<void> saveUserInformation(String key, String value) async {
     await _sharedPreferences?.setString(key, value);
+  }
+
+  static Future<void> saveUserInformations(
+      String key, List<String> values) async {
+    await _sharedPreferences?.setStringList(key, values);
+  }
+
+  static List<String>? getUserInformations(String key) {
+    return _sharedPreferences?.getStringList(key);
   }
 
   static String? getString(String key) {

@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
-import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
-import 'package:mobile_app/product/constants/utils/text_styles.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
+import 'package:mobile_app/product/widget/buttons/custom_button.dart';
 import 'package:mobile_app/services/auth_service.dart';
 import 'package:mobile_app/services/firestore.dart';
+import 'package:mobile_app/services/shared_preferences.dart';
 
 import '../../models/user_model.dart';
 
@@ -33,39 +33,33 @@ class LoginAndRegisterButton extends StatefulWidget {
 }
 
 class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
+  late UserModel currentUser;
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: AppPaddings.MEDIUM_V,
       child: InkWell(
-        child: Container(
-          height: dynamicHeightDevice(0.065),
-          decoration: BoxDecoration(
-              color: ButtonColors.PRIMARY_COLOR,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  //Bilemedim çok ??
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 3,
-                  blurRadius: 3,
-                  offset: const Offset(3, 4),
-                ),
-              ]),
-          child: Center(
-            child: Text(
-              widget.buttonText,
-              style: TextStyles.BUTTON,
-            ),
-          ),
-        ),
+        child: CustomButton(buttonText: widget.buttonText),
         onTap: () async {
           if (widget.isLoginButton) {
             User? user = await authService.signIn(
                 widget.emailController.text, widget.passwordController.text);
             if (user != null) {
+              currentUser = await FirestoreService().getCurrentUser(user.uid);
+              await SharedManager.saveUserInformations('informations', [
+                currentUser.id ?? "",
+                currentUser.name ?? "",
+                currentUser.surname ?? "",
+                currentUser.email ?? "",
+                currentUser.password ?? ""
+              ]);
+              await SharedManager.saveUserInformations(
+                  'favSites', currentUser.favSites ?? []);
+              await SharedManager.saveUserInformations(
+                  'favOffers', currentUser.favOffers ?? []);
               // ignore: use_build_context_synchronously
-              Navigator.of(context).pushNamedAndRemoveUntil(NavigationConstants.HOME_VIEW, (route)=>false);
+              await Navigator.of(context).pushNamedAndRemoveUntil(
+                  NavigationConstants.HOME_VIEW, (route) => false);
             }
           } else {
             User? user = await authService.signUp(
@@ -82,7 +76,13 @@ class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
                 [],
               );
               await FirestoreService().addNewUser(newUser);
-
+              await SharedManager.saveUserInformations('informations', [
+                user.uid,
+                widget.nameController.text,
+                widget.surnameController.text,
+                widget.emailController.text,
+                widget.passwordController.text,
+              ]);
               Navigator.of(context).pop;
             }
           }
