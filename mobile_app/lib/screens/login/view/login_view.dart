@@ -63,7 +63,6 @@ class _LoginViewState extends BaseState<LoginView> {
                   ),
                   CustomTextField(
                     controller: passwordController,
-                    isEmail: false,
                   ),
                   const Align(
                     alignment: Alignment.centerRight,

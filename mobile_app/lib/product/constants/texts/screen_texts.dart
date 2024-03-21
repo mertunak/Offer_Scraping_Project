@@ -7,4 +7,5 @@ class ScreenTexts {
       'Paranızın Cebinizde Kalması İçin En Uygun Kampanya Önerileri';
   static const SPLASH_TITLE = 'Bütçe Dostu Uygulama';
   static const SPLASH_SUBTITLE = 'Kampanyalarım';
+  static const PROFILE_TITLE = 'Profilim';
 }
