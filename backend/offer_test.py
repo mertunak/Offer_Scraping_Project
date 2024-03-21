@@ -24,7 +24,7 @@ altin = "https://www.altinyildizclassics.com"
 ets = "https://www.etstur.com"
 isbank = "https://www.isbank.com.tr"
 instreet = "https://www.instreet.com.tr"
-hayat = "https://www.hayatsu.com.tr"
+site = "https://www.e-bebek.com"
 
 def dateFormater(date):
     months = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"]
@@ -63,7 +63,7 @@ def scrape_offers(baseUrl):
 
     offers = []
     offerPageLink = find_offer_tab.findOfferTab(baseUrl=baseUrl, header=header)
-
+    print(offerPageLink)
     if offerPageLink != "":
         httpRequest = requests.get(offerPageLink, headers=header)
         parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "lxml")
@@ -81,9 +81,17 @@ def scrape_offers(baseUrl):
                         break
                 except:
                     continue
-        print(offerCardArr)
+        # print(offerCardArr)
+        # print(offerCard)
+        i = 0
         for offerCard in offerCardArr:
-            # print(offerCard)
+            i += 1
+            if i > 10:
+                break
+            offerStringSections = offerCard.find_all(re.compile("h|span"))
+            offerStrings = []
+            for offerStringSection in offerStringSections:
+                offerStrings.append(offerStringSection.string.strip())
             #Link
             if(offerCard.find("a")):
                 offerLink = offerCard.find("a").get("href")
@@ -92,16 +100,19 @@ def scrape_offers(baseUrl):
             if not re.match(baseUrl, offerLink):
                 offerLink = baseUrl + offerLink
 
-            print(offerLink)
-
+            print("Link: " + offerLink)
+            
             #Title
             offerTitleSection = offerCard.find(class_=re.compile("title", re.I))
-            if(offerTitleSection.string):
-                offerTitle = offerTitleSection.string.strip()
+            if offerTitleSection:
+                if offerTitleSection.string:
+                    offerTitle = offerTitleSection.string.strip()
+                else:
+                    offerTitle = offerTitleSection.find(re.compile("h")).string.strip()
             else:
-                offerTitle = offerTitleSection.find(re.compile("h")).string.strip()
-            
-            print(offerTitle)
+                offerTitle = offerStrings[0]
+                del offerStrings[0]
+            print("Title: " + offerTitle)
             
             # Image
             isImageDynamic = False
@@ -116,7 +127,7 @@ def scrape_offers(baseUrl):
                     isImageDynamic = True
                 offerImageLink = ""
             
-            print(offerImageLink)
+            print("Image: " + offerImageLink)
             
             # Description
             offerDescriptionSection = offerCard.find(class_=re.compile("(description|desc)", re.I))
@@ -127,19 +138,22 @@ def scrape_offers(baseUrl):
                     offerDescription = offerDescriptionSection.find(re.compile("h")).string.strip()
             else:
                 offerDescription = ""
-                possibleDescriptionSections = []
-                for possibleSection in offerTitleSection.next_siblings:
-                    if possibleSection.name:
-                        possibleDescriptionSections.append(possibleSection)
-                for section in possibleDescriptionSections:
-                    try:
-                        offerDescription += section.get_text().strip() + " "
-                    except:
-                        continue
-                if len(offerDescription) < 20 and re.match("detay", offerDescription, re.I):
-                    offerDescription = ""
+                if offerTitleSection:
+                    possibleDescriptionSections = []
+                    for possibleSection in offerTitleSection.next_siblings:
+                        if possibleSection.name:
+                            possibleDescriptionSections.append(possibleSection)
+                    for section in possibleDescriptionSections:
+                        try:
+                            offerDescription += section.get_text().strip() + " "
+                        except:
+                            continue
+                    if len(offerDescription) < 20 and re.match("detay", offerDescription, re.I):
+                        offerDescription = ""
+                else:
+                    offerDescription = " ".join(offerStrings)
 
-            print(offerDescription)
+            print("Desc: " + offerDescription)
             
             #Date
             startDate = ""
@@ -208,10 +222,46 @@ def scrape_offers(baseUrl):
                                 endDate = dateFormater(singleDates[-1].group())
                     
                 else:
-                    print("2)Alt linke git")
-            
-            print(startDate)
-            print(endDate)
+                    httpRequest = requests.get(offerLink, headers=header)
+                    parsedOfferDetailPageHtml = BeautifulSoup(httpRequest.text, "lxml")
+                    dPCampaignSections = parsedOfferDetailPageHtml.find_all("div", {"class": re.compile("(kampanya|kamp|campaign)", re.I)}) + parsedOfferDetailPageHtml.find_all("div", {"id": re.compile("(kampanya|kamp|campaign)", re.I)})
+                    possibleDateStrings = []
+                    for dPCampaignSection in dPCampaignSections:
+                        if dPCampaignSection.stripped_strings:
+                            possibleDateStrings += [text.strip() for text in dPCampaignSection.stripped_strings]
+                    for possibleDateString in possibleDateStrings:
+                        dateRanges = list(dateRangePatern.finditer(possibleDateString))
+                    if dateRanges:
+                        dateRange = dateRanges[-1].group()
+                        dates = list(digitDatePatern.finditer(dateRange))
+                        if dates:
+                            startDate = dates[0].group()
+                            endDate = dates[1].group()
+                        else:
+                            dates = dateRange.split("-")
+                            endDate = dateFormater(dates[1].strip())
+                            startDateParts = dates[0].strip().split(" ")
+                            if len(startDateParts) < 2:
+                                startDate = dateFormater(startDateParts[0] + " " + dates[1].strip().split(" ")[1])
+                            else: 
+                                startDate = dateFormater(dates[0].strip())
+                    else:
+                        singleDates = list(singleDatePatern.finditer(offerDescription))
+                        match len(singleDates):
+                            case 0:
+                                print("Date not found")
+                            case 1:
+                                startDate = ""
+                                endDate = dateFormater(singleDates[0].group())
+                            case 2:
+                                startDate = dateFormater(singleDates[0].group())
+                                endDate = dateFormater(singleDates[1].group())
+                            case default:
+                                startDate = dateFormater(singleDates[-2].group())
+                                endDate = dateFormater(singleDates[-1].group())
+
+            print("StartDate: " + startDate)
+            print("EndDate: " + endDate)
             
             offer = {
                 "link": offerLink,
@@ -239,5 +289,5 @@ def scrape_offers(baseUrl):
 # scrape_offers(altin)
 # scrape_offers(ets)
 # scrape_offers(isbank)
-scrape_offers(hayat)
+scrape_offers(site)
 

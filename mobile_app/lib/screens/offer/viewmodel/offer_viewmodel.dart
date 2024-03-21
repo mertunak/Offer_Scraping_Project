@@ -51,7 +51,7 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   };
 
   @observable
-  List<DocumentSnapshot> resultOffers = [];
+  ObservableList<DocumentSnapshot> resultOffers = ObservableList.of([]);
 
   @observable
   int resultCount = 0;
@@ -72,21 +72,8 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   }
 
   Future<void> getAllOffers() async {
-    final data = await firestoreService.getOffers();
-    allOffers = data.docs;
-  }
-
-  Future<void> setCurrentUser() async {
-    final User user = auth.currentUser!;
-    final uid = user.uid;
-    currentUser = await firestoreService.getCurrentUser(uid);
-    print(currentUser.favSites);
-  }
-
-  @action
-  void addResultOffers(DocumentSnapshot offerSnapshot) {
-    resultOffers.add(offerSnapshot);
-    resultCount = resultOffers.length;
+    allOffers = await firestoreService.getOffersBySites(
+        await firestoreService.getSiteNamesByIds(currentUser.favSites));
   }
 
   @action
@@ -96,20 +83,36 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   }
 
   @action
+  void updateResultOffers(List<DocumentSnapshot> resultList) {
+    resultOffers = ObservableList.of(resultList);
+    resultCount = resultOffers.length;
+  }
+
+  Future<void> setCurrentUser() async {
+    final User user = auth.currentUser!;
+    final uid = user.uid;
+    currentUser = await firestoreService.getCurrentUser(uid);
+  }
+
+  Future<void> updateCurrentUser() async {
+    currentUser.setFavSites = await firestoreService.getCurrentUserFavSites(auth.currentUser!.uid);
+  }
+
+  @action
+  void addResultOffers(DocumentSnapshot offerSnapshot) {
+    resultOffers.add(offerSnapshot);
+    resultCount = resultOffers.length;
+  }
+
+  @action
   void clearResultOffers() {
     resultOffers.clear();
     resultCount = resultOffers.length;
   }
 
   @action
-  void updateResultOffers(List<DocumentSnapshot> resultList) {
-    resultOffers = List.from(resultList);
-    resultCount = resultOffers.length;
-  }
-
-  @action
   void changeCheckboxFilter(
-    String filterKey, String choiceKey, bool isSelected) {
+      String filterKey, String choiceKey, bool isSelected) {
     filterKey = filterKey.toLowerCase();
     choiceKey = choiceKey.toLowerCase().replaceAll(".", "_");
     Map<String, bool> filterMap = choiceFilters[filterKey]!;
