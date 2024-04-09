@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedManager {
@@ -52,5 +54,23 @@ class SharedManager {
   static Future<void> setIsFirstTime(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('first_time', value);
+  }
+
+  static Future<void> saveUserToken(String token) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    Map<String, dynamic> data = {
+      'email': user!.email,
+      'token': token,
+    };
+    try {
+      await FirebaseFirestore.instance
+          .collection('user_data')
+          .doc(user.uid)
+          .set(data);
+      print("Document added to ${user.uid}");
+    } catch (e) {
+      print("error adding document");
+      print(e);
+    }
   }
 }
