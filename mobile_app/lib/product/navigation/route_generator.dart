@@ -22,7 +22,7 @@ class RouteGenerator {
       case NavigationConstants.HOME_VIEW:
         return MaterialPageRoute(builder: (_) => const HomeView());
       case NavigationConstants.NOTIFICATIONS_VIEW:
-        return MaterialPageRoute(builder: (_) => const NotificationsView());
+        return MaterialPageRoute(builder: (_) => NotificationsView());
       case NavigationConstants.OFFER_DETAIL_VIEW:
         final args = settings.arguments as OfferModel;
         return MaterialPageRoute(builder: (_) => OfferDetailView(args));

@@ -9,6 +9,7 @@ import 'package:mobile_app/screens/home/viewmodel/home_viewmodel.dart';
 import 'package:mobile_app/screens/offer/view/offer_view.dart';
 import 'package:mobile_app/screens/offer_preferences/view/offer_preferences_view.dart';
 import 'package:mobile_app/services/auth_service.dart';
+import 'package:mobile_app/services/notifications_service.dart';
 import 'package:mobile_app/services/shared_preferences.dart';
 
 class HomeView extends StatefulWidget {
@@ -24,6 +25,7 @@ class _HomeViewState extends BaseState<HomeView> {
 
   @override
   void initState() {
+    PushNotifications.getDeviceToken();
     viewModel = HomeViewModel();
     super.initState();
   }
