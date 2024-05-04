@@ -1,11 +1,11 @@
 class UserModel {
-  late final String _id;
-  late final String _email;
-  late final String _password;
-  late final String _name;
-  late final String _surname;
-  late final List<String> _favSites;
-  late final List<String> _favOffers;
+  late String _id;
+  late String _email;
+  late String _password;
+  late String _name;
+  late String _surname;
+  late List<String> _favSites;
+  late List<String> _favOffers;
 
   UserModel.mock(this._id, this._email, this._password, this._name,
       this._surname, this._favSites, this._favOffers);
@@ -19,8 +19,11 @@ class UserModel {
   String? get password => _password;
   String? get name => _name;
   String? get surname => _surname;
-  List<String>? get favSites => _favSites;
-  List<String>? get favOffers => _favOffers;
+  List<String> get favSites => _favSites;
+  List<String> get favOffers => _favOffers;
+  set setFavSites(List<String> favSites) {
+    _favSites = favSites;
+  }
 
   UserModel.fromJson(Map<String, dynamic> json) {
     _id = json['id'];

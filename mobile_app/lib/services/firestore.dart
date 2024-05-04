@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/product/models/user_model.dart';
 
 class FirestoreService {
@@ -19,6 +20,24 @@ class FirestoreService {
     return UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>);
   }
 
+  Future<List<String>> getCurrentUserFavSites(String uid) async {
+    DocumentSnapshot documentSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    return UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>).favSites;
+  }
+
+Future<List<DocumentSnapshot>> getOffersBySites(List<String> siteNames) async {
+  if (siteNames.isEmpty) {
+    return [];
+  }
+
+  QuerySnapshot snapshot = await FirebaseFirestore.instance
+      .collection("offers")
+      .where("site", whereIn: siteNames)
+      .get();
+  return snapshot.docs;
+}
+
   Future<DocumentSnapshot> getSiteByUrl(String url) async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection("scraped_sites")
@@ -26,6 +45,22 @@ class FirestoreService {
         .get();
 
     return snapshot.docs.first;
+  }
+
+  Future<List<String>> getSiteNamesByIds(List<String> siteIds) async {
+    List<String> favSiteNames = [];
+    for (String id in siteIds) {
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('scraped_sites')
+          .doc(id)
+          .get();
+      if (documentSnapshot.exists) {
+        String name = documentSnapshot.get('site_name');
+        favSiteNames.add(name);
+      }
+    }
+
+    return favSiteNames;
   }
 
   Future<bool> checkSiteExist(String url) async {
@@ -53,7 +88,6 @@ class FirestoreService {
   Future<void> addNewUser(UserModel userModel) async {
     await users.doc(userModel.id).set(userModel.toJson());
   }
-
   Future<void> updateUserInformations(UserModel userModel) async {
     await users.doc(userModel.id).update(userModel.toJson());
   }

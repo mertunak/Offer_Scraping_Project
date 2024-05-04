@@ -95,6 +95,10 @@ class _OfferViewState extends State<OfferView> {
               const SizedBox(width: 20),
               IconButton(
                 onPressed: () {
+                  setState(() {
+                    print(widget.viewModel.allOffers);
+                    print(widget.viewModel.resultOffers);
+                  });
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,

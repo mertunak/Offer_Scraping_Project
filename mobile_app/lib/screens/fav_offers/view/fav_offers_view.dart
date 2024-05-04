@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/product/widget/cards/offer_card.dart';
+import 'package:mobile_app/screens/fav_offers/viewmodel/fav_offers_viewmodel.dart';
 import 'package:mobile_app/screens/offer/viewmodel/offer_viewmodel.dart';
 
 import '../../../core/base/view/base_view.dart';
@@ -15,19 +16,17 @@ class FavOffersView extends StatefulWidget {
 }
 
 class _FavOffersViewState extends State<FavOffersView> {
-  late OfferViewModel viewModel;
+  late FavOffersViewModel viewModel;
 
   @override
   void initState() {
-    viewModel = OfferViewModel();
-    viewModel.getAllOffers().then((value) => viewModel.initOfferLists());
-    viewModel.updateResultOffers(viewModel.allOffers);
+    viewModel = FavOffersViewModel();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BaseStatefulView<OfferViewModel>(
+    return BaseStatefulView<FavOffersViewModel>(
       viewModel: viewModel,
       onModelReady: (model) {
         model.setContext(context);
@@ -42,19 +41,9 @@ class _FavOffersViewState extends State<FavOffersView> {
       return Observer(
         builder: (_) {
           return ListView.builder(
-            itemCount: viewModel.resultOffers.length,
+            itemCount: 1,
             itemBuilder: (BuildContext context, int index) {
-              DocumentSnapshot document = viewModel.resultOffers[index];
-              Map<String, dynamic> data =
-                  document.data() as Map<String, dynamic>;
-              OfferModel offer = OfferModel.fromJson(data);
-              offer.setId(document.id);
-              return Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: OfferCard(
-                  offer: offer,
-                ),
-              );
+              return Center();
             },
           );
         },
