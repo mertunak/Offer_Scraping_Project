@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/border_radius_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
+import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
+import 'package:mobile_app/product/widget/alert/notification_setting_alert.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
+import 'package:mobile_app/screens/fav_offers/viewmodel/fav_offers_viewmodel.dart';
 import '../../constants/utils/color_constants.dart';
 import '../../models/offer_model.dart';
+import 'package:share_plus/share_plus.dart';
 
 class OfferCard extends StatefulWidget {
   final OfferModel offer;
+  final FavOffersViewModel favOffersViewModel;
+  final bool isHome;
   const OfferCard({
     super.key,
     required this.offer,
+    required this.favOffersViewModel,
+    required this.isHome,
   });
 
   @override
   State<OfferCard> createState() => _OfferCardState();
 }
 
-class _OfferCardState extends State<OfferCard> {
+class _OfferCardState extends BaseState<OfferCard> {
   bool isFav = false;
 
   @override
@@ -45,27 +54,97 @@ class _OfferCardState extends State<OfferCard> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              CircleAvatar(
-                backgroundColor: Colors.transparent,
-                radius: 15,
-                child: IconButton(
-                  highlightColor: Colors.transparent,
-                  padding: EdgeInsets.zero,
-                  iconSize: 30,
-                  icon: isFav
-                      ? const Icon(
-                          Icons.favorite_rounded,
-                          color: Colors.red,
+              Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    radius: 15,
+                    child: IconButton(
+                      highlightColor: Colors.transparent,
+                      padding: EdgeInsets.zero,
+                      iconSize: 30,
+                      icon: Icon(Icons.share_rounded),
+                      onPressed: () {
+                        Share.share('Bu Kampanyaya Göz At!!!\n\n${widget.offer.header}\n${widget.offer.link}');
+                      },
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  widget.isHome
+                      ? CircleAvatar(
+                          backgroundColor: Colors.transparent,
+                          radius: 15,
+                          child: IconButton(
+                            highlightColor: Colors.transparent,
+                            padding: EdgeInsets.zero,
+                            iconSize: 30,
+                            icon: isFav
+                                ? const Icon(
+                                    Icons.favorite_rounded,
+                                    color: Colors.red,
+                                  )
+                                : const Icon(
+                                    Icons.favorite_border_rounded,
+                                  ),
+                            onPressed: () {
+                              UserManager.instance
+                                  .changeFavorite(isFav, widget.offer.id)
+                                  .then((value) {
+                                widget.favOffersViewModel.getFavOffers();
+                              });
+                              setState(() {
+                                isFav = !isFav;
+                              });
+                            },
+                          ),
                         )
-                      : const Icon(
-                          Icons.favorite_border_rounded,
+                      : Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              radius: 15,
+                              child: IconButton(
+                                highlightColor: Colors.transparent,
+                                padding: EdgeInsets.zero,
+                                iconSize: 30,
+                                icon: Icon(Icons.edit_notifications),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return NotificationSettingAlert(
+                                          width: dyanmicWidthDevice(0.8),
+                                          height: dynamicHeightDevice(0.5),
+                                        );
+                                      });
+                                },
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              radius: 15,
+                              child: IconButton(
+                                highlightColor: Colors.transparent,
+                                padding: EdgeInsets.zero,
+                                iconSize: 30,
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  UserManager.instance
+                                      .changeFavorite(!isFav, widget.offer.id)
+                                      .then((value) {
+                                    widget.favOffersViewModel.getFavOffers();
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                  onPressed: () {
-                    setState(() {
-                      isFav = !isFav;
-                    });
-                  },
-                ),
+                ],
               ),
             ],
           ),
@@ -82,26 +161,29 @@ class _OfferCardState extends State<OfferCard> {
             overlayColor: const MaterialStatePropertyAll(Colors.transparent),
             highlightColor: Colors.transparent,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: AppBorderRadius.MEDIUM,
-                  child: Image.network(
-                    widget.offer.img,
-                    loadingBuilder: (BuildContext context, Widget child,
-                        ImageChunkEvent? loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return SizedBox(
-                        height: 200,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
+                Center(
+                  child: ClipRRect(
+                    borderRadius: AppBorderRadius.MEDIUM,
+                    child: Image.network(
+                      widget.offer.img,
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return SizedBox(
+                          height: 200,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
                 const SizedBox(
@@ -133,50 +215,90 @@ class _OfferCardState extends State<OfferCard> {
                 const SizedBox(
                   height: 10,
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          const Text(
-                            "Başlangıç Tarihi",
-                            style: TextStyle(
-                              color: TextColors.HIGHLIGHTED_COLOR,
-                              fontSize: 16,
-                            ),
+                widget.offer.startDate.isEmpty
+                    ? widget.offer.endDate.isEmpty
+                        ? const SizedBox()
+                        : Row(
+                            children: [
+                              const Text(
+                                "Bitiş Tarihi: ",
+                                style: TextStyle(
+                                  color: TextColors.HIGHLIGHTED_COLOR,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                widget.offer.endDate,
+                                style: const TextStyle(
+                                  color: TextColors.PRIMARY_COLOR,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          )
+                    : widget.offer.endDate.isEmpty
+                        ? Row(
+                            children: [
+                              const Text(
+                                "Başlangıç Tarihi",
+                                style: TextStyle(
+                                  color: TextColors.HIGHLIGHTED_COLOR,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                widget.offer.startDate,
+                                style: const TextStyle(
+                                  color: TextColors.PRIMARY_COLOR,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      "Başlangıç Tarihi",
+                                      style: TextStyle(
+                                        color: TextColors.HIGHLIGHTED_COLOR,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      widget.offer.startDate,
+                                      style: const TextStyle(
+                                        color: TextColors.PRIMARY_COLOR,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      "Bitiş Tarihi",
+                                      style: TextStyle(
+                                        color: TextColors.HIGHLIGHTED_COLOR,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      widget.offer.endDate,
+                                      style: const TextStyle(
+                                        color: TextColors.PRIMARY_COLOR,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            widget.offer.startDate,
-                            style: const TextStyle(
-                              color: TextColors.PRIMARY_COLOR,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          const Text(
-                            "Bitiş Tarihi",
-                            style: TextStyle(
-                              color: TextColors.HIGHLIGHTED_COLOR,
-                              fontSize: 16,
-                            ),
-                          ),
-                          Text(
-                            widget.offer.endDate,
-                            style: const TextStyle(
-                              color: TextColors.PRIMARY_COLOR,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
                 const SizedBox(
                   height: 5,
                 ),

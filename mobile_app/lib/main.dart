@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/services/notifications_service.dart';
 import 'package:mobile_app/services/shared_preferences.dart';
 import 'product/navigation/navigation_constants.dart';
@@ -67,6 +68,7 @@ void main() async {
   }
 
   await SharedManager.init();
+  await UserManager.instance.setCurrentUser();
   runApp(const MyApp());
 }
 

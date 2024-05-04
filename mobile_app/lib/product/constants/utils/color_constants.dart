@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 class SurfaceColors {
   static const PRIMARY_COLOR = Color(0xFFEEEEEE);
+  static const SECONDARY_COLOR = Color(0xFF85C88A);
 }
 
 class ShadowColors {

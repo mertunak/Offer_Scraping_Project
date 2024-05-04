@@ -9,6 +9,7 @@ import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/product/widget/custom_search_bar.dart';
 import 'package:mobile_app/product/widget/bottom_sheets/filter_bottom_sheet.dart';
 import 'package:mobile_app/product/widget/cards/offer_card.dart';
+import 'package:mobile_app/screens/fav_offers/viewmodel/fav_offers_viewmodel.dart';
 import 'package:mobile_app/screens/offer/viewmodel/offer_viewmodel.dart';
 import 'package:mobile_app/services/firestore.dart';
 
@@ -16,9 +17,11 @@ import '../../../core/base/view/base_view.dart';
 
 class OfferView extends StatefulWidget {
   final OfferViewModel viewModel;
+  final FavOffersViewModel favOffersViewModel;
   const OfferView({
     super.key,
     required this.viewModel,
+    required this.favOffersViewModel,
   });
 
   @override
@@ -35,7 +38,8 @@ class _OfferViewState extends State<OfferView> {
     if (_searchController.text != "") {
       widget.viewModel.clearResultOffers();
       for (var offerSnapshot in widget.viewModel.filterResults) {
-        var name = offerSnapshot["product_name"].toString().toLowerCase();
+        var name = offerSnapshot["title"].toString().toLowerCase();
+        name += " ${offerSnapshot["description"].toString().toLowerCase()}";
         if (name.contains(_searchController.text.toLowerCase())) {
           widget.viewModel.addResultOffers(offerSnapshot);
         }
@@ -47,12 +51,10 @@ class _OfferViewState extends State<OfferView> {
 
   @override
   void initState() {
-    widget.viewModel.setCurrentUser().then((value) {
-      widget.viewModel.getAllOffers().then((value) {
-        widget.viewModel.initOfferLists();
-      });
-      _searchController.addListener(_searchOffers);
+    widget.viewModel.getAllOffers().then((value) {
+      widget.viewModel.initOfferLists();
     });
+    _searchController.addListener(_searchOffers);
     super.initState();
   }
 
@@ -139,7 +141,8 @@ class _OfferViewState extends State<OfferView> {
                   child: ListView.builder(
                     itemCount: widget.viewModel.resultOffers.length,
                     itemBuilder: (BuildContext context, int index) {
-                      DocumentSnapshot document = widget.viewModel.resultOffers[index];
+                      DocumentSnapshot document =
+                          widget.viewModel.resultOffers[index];
                       Map<String, dynamic> data =
                           document.data() as Map<String, dynamic>;
                       OfferModel offer = OfferModel.fromJson(data);
@@ -148,6 +151,8 @@ class _OfferViewState extends State<OfferView> {
                         padding: EdgeInsets.only(top: 8),
                         child: OfferCard(
                           offer: offer,
+                          favOffersViewModel: widget.favOffersViewModel,
+                          isHome: true,
                         ),
                       );
                     },

@@ -6,6 +6,7 @@ import 'package:mobile_app/core/base/view/base_view.dart';
 import 'package:mobile_app/product/constants/utils/border_radius_constants.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
+import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/models/site_model.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
 import 'package:mobile_app/product/widget/custom_search_bar.dart';
@@ -37,10 +38,8 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
   @override
   void initState() {
     viewModel = OfferPreferencesViewModel();
-    viewModel.setCurrentUser().then((value) {
-      viewModel.getAllSites().then((value) {
-        viewModel.splitPreferencesSites();
-      });
+    viewModel.getAllSites().then((value) {
+      viewModel.splitPreferencesSites();
     });
 
     super.initState();
@@ -145,21 +144,18 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
                                       setState(() {
                                         isScraperRunning = false;
                                         siteUrlController.clear();
-                                        viewModel
+                                        UserManager.instance
                                             .changeNewSitePreference(text)
                                             .then((value) {
                                           viewModel.getAllSites().then((value) {
                                             viewModel.splitPreferencesSites();
                                           });
+
                                           widget.offerViewModel
-                                              .updateCurrentUser()
+                                              .getAllOffers()
                                               .then((value) {
                                             widget.offerViewModel
-                                                .getAllOffers()
-                                                .then((value) {
-                                              widget.offerViewModel
-                                                  .initOfferLists();
-                                            });
+                                                .initOfferLists();
                                           });
                                         });
                                       });
