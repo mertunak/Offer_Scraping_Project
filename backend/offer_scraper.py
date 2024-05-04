@@ -275,95 +275,95 @@ def scrape_offers(baseUrl, firestoreDb):
                 "endDate" : endDate,
                 "site": site
             }
-
+            # print(offer)
             offers.append(offer)
     else:
-        #print("Search in slider")
-        httpRequest = requests.get(baseUrl, headers=header)
-        parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "html.parser")
-        sliderInner=parsedOfferPageHtml.find(["section","div","li","ul"],class_=re.compile("swiper-wrapper|home-slider|banner owl|slider-component|hero-slider|slick-list|carousel__wrapper|owl-stage|slick-track", re.I))
-        offerList=sliderInner.find_all(["div","a","img","li","ul"],class_=re.compile("item|swiper-slide|slider|slick-slide|carousel-slide|owl-item|slick-slide|uk-slider-items",re.I))  
-        print(len(offerList))
-        count=0
-        offerImageLink=""
-        for offerCard in offerList:
-            print(count)
-            #print(offerCard)
-            offerImageLink=""
-            if offerCard.name=="img":
-                offerImageLink=offerCard.get("src") or offerCard.find("img").get("data-src")
-                print(offerImageLink)
-                print("\n")
-            else :
-                if offerCard.name=="a":
-                    offerLink=offerCard.get("href")
-                    if offerCard.find("img") is not None:
-                        offerImageLink=offerCard.find("img").get("src") or offerCard.find("img").get("data-src")
-                    elif offerCard.find("video") is not None:
-                        offerImageLink=offerCard.find("video").get("poster")
+        print("Search in slider")
+        # httpRequest = requests.get(baseUrl, headers=header)
+        # parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "html.parser")
+        # sliderInner=parsedOfferPageHtml.find(["section","div","li","ul"],class_=re.compile("swiper-wrapper|home-slider|banner owl|slider-component|hero-slider|slick-list|carousel__wrapper|owl-stage|slick-track", re.I))
+        # offerList=sliderInner.find_all(["div","a","img","li","ul"],class_=re.compile("item|swiper-slide|slider|slick-slide|carousel-slide|owl-item|slick-slide|uk-slider-items",re.I))  
+        # print(len(offerList))
+        # count=0
+        # offerImageLink=""
+        # for offerCard in offerList:
+        #     print(count)
+        #     #print(offerCard)
+        #     offerImageLink=""
+        #     if offerCard.name=="img":
+        #         offerImageLink=offerCard.get("src") or offerCard.find("img").get("data-src")
+        #         print(offerImageLink)
+        #         print("\n")
+        #     else :
+        #         if offerCard.name=="a":
+        #             offerLink=offerCard.get("href")
+        #             if offerCard.find("img") is not None:
+        #                 offerImageLink=offerCard.find("img").get("src") or offerCard.find("img").get("data-src")
+        #             elif offerCard.find("video") is not None:
+        #                 offerImageLink=offerCard.find("video").get("poster")
                         
-                elif offerCard.find("a") is not None:
-                    offerLink=offerCard.find("a").get("href")
-                    if offerImageLink=="":
-                        if offerCard.find("a").find("img") is not None:
-                            offerImageLink=offerCard.find("a").find("img").get("src") or offerCard.find("a").find("img").get("data-src")
-                if not re.match("https://", offerLink):
-                        offerLink = baseUrl + offerLink
-                #print(offerLink)
-                count=count+1
-            jsonStr = ocr_space_url(url=offerImageLink)
-            data_dict = json.loads(jsonStr)
-            parsed_text=""
-            if "ParsedResults" in data_dict and data_dict["ParsedResults"]:
-            # "ParsedResults" listesi var mı ve boş değil mi kontrolü
-                parsed_text = data_dict["ParsedResults"][0]["ParsedText"]
-                #print(parsed_text)
-            elif "ErrorMessage" in data_dict:
-            # API'den gelen bir hata mesajı varsa
-                if "Rate limit exceeded" in data_dict["ErrorMessage"]:
-                    handle_rate_limit()
-                else:
-                    print("OCR işlemi başarısız oldu. Hata mesajı:", data_dict["ErrorMessage"])
-            else:
-                print("OCR işlemi başarısız oldu veya sonuç alınamadı.")
-            #lines = parsed_text.split('\n')
-            offerTitle=""
-            offerDescription=""
-            startDate=""
-            endDate=""
+        #         elif offerCard.find("a") is not None:
+        #             offerLink=offerCard.find("a").get("href")
+        #             if offerImageLink=="":
+        #                 if offerCard.find("a").find("img") is not None:
+        #                     offerImageLink=offerCard.find("a").find("img").get("src") or offerCard.find("a").find("img").get("data-src")
+        #         if not re.match("https://", offerLink):
+        #                 offerLink = baseUrl + offerLink
+        #         #print(offerLink)
+        #         count=count+1
+        #     jsonStr = ocr_space_url(url=offerImageLink)
+        #     data_dict = json.loads(jsonStr)
+        #     parsed_text=""
+        #     if "ParsedResults" in data_dict and data_dict["ParsedResults"]:
+        #     # "ParsedResults" listesi var mı ve boş değil mi kontrolü
+        #         parsed_text = data_dict["ParsedResults"][0]["ParsedText"]
+        #         #print(parsed_text)
+        #     elif "ErrorMessage" in data_dict:
+        #     # API'den gelen bir hata mesajı varsa
+        #         if "Rate limit exceeded" in data_dict["ErrorMessage"]:
+        #             handle_rate_limit()
+        #         else:
+        #             print("OCR işlemi başarısız oldu. Hata mesajı:", data_dict["ErrorMessage"])
+        #     else:
+        #         print("OCR işlemi başarısız oldu veya sonuç alınamadı.")
+        #     #lines = parsed_text.split('\n')
+        #     offerTitle=""
+        #     offerDescription=""
+        #     startDate=""
+        #     endDate=""
             
-            pattern = re.compile(r'ALIŞVERİŞE BAŞLA', re.IGNORECASE)
-            words_after_match = []
-            matches=pattern.finditer(parsed_text)
-            for match in matches:
-                start_index = match.end()  # Get the end index of the match
-                words = parsed_text[start_index:].split()  # Split the text after the match into words
-                words_after_match.extend(words)
-                merged_words=' '.join(words_after_match)
-                if(merged_words!=""):
-                    offerDescription=merged_words
+        #     pattern = re.compile(r'ALIŞVERİŞE BAŞLA', re.IGNORECASE)
+        #     words_after_match = []
+        #     matches=pattern.finditer(parsed_text)
+        #     for match in matches:
+        #         start_index = match.end()  # Get the end index of the match
+        #         words = parsed_text[start_index:].split()  # Split the text after the match into words
+        #         words_after_match.extend(words)
+        #         merged_words=' '.join(words_after_match)
+        #         if(merged_words!=""):
+        #             offerDescription=merged_words
                 
             
-            pattern = re.compile(r'.*?(?=ALIŞVERİŞE BAŞLA)', re.DOTALL | re.IGNORECASE)
-            matches = pattern.findall(parsed_text)
-            merged_lines = "\n".join(matches)
-            if merged_lines!="":
-                offerTitle=merged_lines
+        #     pattern = re.compile(r'.*?(?=ALIŞVERİŞE BAŞLA)', re.DOTALL | re.IGNORECASE)
+        #     matches = pattern.findall(parsed_text)
+        #     merged_lines = "\n".join(matches)
+        #     if merged_lines!="":
+        #         offerTitle=merged_lines
             
-            if offerTitle!="" and offerDescription!="":
-                   print("Offer Link:"+offerLink)
-                   print("Offer Image Link:"+offerImageLink)
-                   print("Offer Title:"+offerTitle)
-                   print("Offer Description:"+offerDescription) 
+        #     if offerTitle!="" and offerDescription!="":
+        #            print("Offer Link:"+offerLink)
+        #            print("Offer Image Link:"+offerImageLink)
+        #            print("Offer Title:"+offerTitle)
+        #            print("Offer Description:"+offerDescription) 
             
-            #date
-            pattern=re.compile(r'\d\d(\s)?([a-zA-ZğüşıöçĞÜŞİÖÇ]+)?[-•](\s)?\d\d(\s)?([a-zA-ZğüşıöçĞÜŞİÖÇ]+)')
-            matches=pattern.finditer(offerDescription)
-            datePattern=""
-            for matchs in matches:
-                datePattern=matchs.group(0)
-                print("date:"+datePattern)
-                break
+        #     #date
+        #     pattern=re.compile(r'\d\d(\s)?([a-zA-ZğüşıöçĞÜŞİÖÇ]+)?[-•](\s)?\d\d(\s)?([a-zA-ZğüşıöçĞÜŞİÖÇ]+)')
+        #     matches=pattern.finditer(offerDescription)
+        #     datePattern=""
+        #     for matchs in matches:
+        #         datePattern=matchs.group(0)
+        #         print("date:"+datePattern)
+        #         break
             # if datePattern is not None:
             #     print("date:"+datePattern)
 
