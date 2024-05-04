@@ -83,7 +83,8 @@ class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
                 widget.emailController.text,
                 widget.passwordController.text,
               ]);
-              Navigator.of(context).pop;
+              await Navigator.of(context).pushNamedAndRemoveUntil(
+                  NavigationConstants.HOME_VIEW, (route) => false);
             }
           }
         },
