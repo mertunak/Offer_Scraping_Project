@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/services/shared_preferences.dart';
 import 'product/navigation/navigation_constants.dart';
 import 'product/navigation/route_generator.dart';
@@ -11,6 +12,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await SharedManager.init();
+  await UserManager.instance.setCurrentUser();
   runApp(const MyApp());
 }
 

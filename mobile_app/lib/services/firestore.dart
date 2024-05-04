@@ -23,20 +23,29 @@ class FirestoreService {
   Future<List<String>> getCurrentUserFavSites(String uid) async {
     DocumentSnapshot documentSnapshot =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    return UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>).favSites;
+    return UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>)
+        .favSites;
   }
 
-Future<List<DocumentSnapshot>> getOffersBySites(List<String> siteNames) async {
-  if (siteNames.isEmpty) {
-    return [];
+  Future<List<String>> getCurrentUserFavOffers(String uid) async {
+    DocumentSnapshot documentSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    return UserModel.fromJson(documentSnapshot.data() as Map<String, dynamic>)
+        .favOffers;
   }
 
-  QuerySnapshot snapshot = await FirebaseFirestore.instance
-      .collection("offers")
-      .where("site", whereIn: siteNames)
-      .get();
-  return snapshot.docs;
-}
+  Future<List<DocumentSnapshot>> getOffersBySites(
+      List<String> siteNames) async {
+    if (siteNames.isEmpty) {
+      return [];
+    }
+
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection("offers")
+        .where("site", whereIn: siteNames)
+        .get();
+    return snapshot.docs;
+  }
 
   Future<DocumentSnapshot> getSiteByUrl(String url) async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
@@ -61,6 +70,21 @@ Future<List<DocumentSnapshot>> getOffersBySites(List<String> siteNames) async {
     }
 
     return favSiteNames;
+  }
+
+  Future<List<DocumentSnapshot>> getOffersByIds(List<String> offerIds) async {
+    List<DocumentSnapshot> offers = [];
+    for (String id in offerIds) {
+      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+          .collection('offers')
+          .doc(id)
+          .get();
+      if (documentSnapshot.exists) {
+        offers.add(documentSnapshot);
+      }
+    }
+
+    return offers;
   }
 
   Future<bool> checkSiteExist(String url) async {
@@ -88,6 +112,7 @@ Future<List<DocumentSnapshot>> getOffersBySites(List<String> siteNames) async {
   Future<void> addNewUser(UserModel userModel) async {
     await users.doc(userModel.id).set(userModel.toJson());
   }
+
   Future<void> updateUserInformations(UserModel userModel) async {
     await users.doc(userModel.id).update(userModel.toJson());
   }
