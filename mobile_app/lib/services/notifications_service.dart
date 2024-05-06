@@ -3,12 +3,13 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mobile_app/main.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/services/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class PushNotifications {
   static final _firebaseMessaging = FirebaseMessaging.instance;
   static final FlutterLocalNotificationsPlugin
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
+  static int _notificationIdCounter = 0;
   //request permission for notifications
   static Future init() async {
     await _firebaseMessaging.requestPermission(
@@ -79,13 +80,14 @@ class PushNotifications {
   }
 
   //show a simple notification
-  static Future<void> showNotification(
+  Future<void> showNotification(
       {required String title,
       required String body,
       required String payload}) async {
-    const AndroidNotificationDetails androidNotificationDetails =
+    final String channelId = Uuid().v4();
+    AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
-      'your channel id',
+      channelId,
       'your channel name',
       channelDescription: 'your channel description',
       importance: Importance.max,
@@ -93,9 +95,10 @@ class PushNotifications {
       enableVibration: true,
       ticker: 'ticker',
     );
-    const NotificationDetails notificationDetails =
+    NotificationDetails notificationDetails =
         NotificationDetails(android: androidNotificationDetails);
-    int notificationId = 0;
+    int notificationId = _notificationIdCounter++;
+    print('notification id: $notificationId');
     await _flutterLocalNotificationsPlugin.show(
       notificationId,
       title,

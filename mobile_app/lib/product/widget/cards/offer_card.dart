@@ -65,7 +65,8 @@ class _OfferCardState extends BaseState<OfferCard> {
                       iconSize: 30,
                       icon: Icon(Icons.share_rounded),
                       onPressed: () {
-                        Share.share('Bu Kampanyaya Göz At!!!\n\n${widget.offer.header}\n${widget.offer.link}');
+                        Share.share(
+                            'Bu Kampanyaya Göz At!!!\n\n${widget.offer.header}\n${widget.offer.link}');
                       },
                     ),
                   ),
@@ -153,8 +154,8 @@ class _OfferCardState extends BaseState<OfferCard> {
             horizontalOffset: 0,
           ),
           InkWell(
-            onTap: () {
-              Navigator.of(context).pushNamed(
+            onTap: () async {
+              await Navigator.of(context).pushNamed(
                   NavigationConstants.OFFER_DETAIL_VIEW,
                   arguments: widget.offer);
             },

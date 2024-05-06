@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
@@ -44,7 +42,7 @@ void main() async {
   });
 
   //to handle foreground notifications
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  /*  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     String payloadData = jsonEncode(message.data);
     if (message.notification != null) {
       print("Notification received in foreground");
@@ -53,7 +51,7 @@ void main() async {
           body: message.notification!.body!,
           payload: payloadData);
     }
-  });
+  }); */
 
   //for handling notifications when app is terminated
   final RemoteMessage? message =
@@ -68,7 +66,7 @@ void main() async {
   }
 
   await SharedManager.init();
-  await UserManager.instance.setCurrentUser();
+
   runApp(const MyApp());
 }
 

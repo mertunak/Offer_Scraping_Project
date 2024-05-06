@@ -34,6 +34,7 @@ class _OfferViewState extends State<OfferView> {
   final TextEditingController leastPriceController = TextEditingController();
   final TextEditingController mostPriceController = TextEditingController();
 
+  bool notificationsScheduled = false;
   _searchOffers() {
     if (_searchController.text != "") {
       widget.viewModel.clearResultOffers();
@@ -51,16 +52,20 @@ class _OfferViewState extends State<OfferView> {
 
   @override
   void initState() {
+    widget.viewModel.resetNotificationFlags();
     widget.viewModel.getAllOffers().then((value) {
       widget.viewModel.initOfferLists();
     });
+
     _searchController.addListener(_searchOffers);
+
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
     _searchOffers();
+
     super.didChangeDependencies();
   }
 
@@ -98,6 +103,7 @@ class _OfferViewState extends State<OfferView> {
               IconButton(
                 onPressed: () {
                   setState(() {
+                    print("aaaaa");
                     print(widget.viewModel.allOffers);
                     print(widget.viewModel.resultOffers);
                   });
@@ -148,7 +154,7 @@ class _OfferViewState extends State<OfferView> {
                       OfferModel offer = OfferModel.fromJson(data);
                       offer.setId(document.id);
                       return Padding(
-                        padding: EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.only(top: 8),
                         child: OfferCard(
                           offer: offer,
                           favOffersViewModel: widget.favOffersViewModel,

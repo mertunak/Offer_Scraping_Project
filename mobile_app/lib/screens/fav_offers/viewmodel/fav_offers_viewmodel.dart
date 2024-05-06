@@ -17,7 +17,7 @@ abstract class _FavOffersVieModelBase extends BaseViewModel with Store {
   Future<void> getFavOffers() async {
     favOffers = ObservableList.of(await firestoreService
         .getOffersByIds(UserManager.instance.currentUser.favOffers));
-    print(favOffers);
+    print("Fav Offers: $favOffers");
   }
 
   @override
