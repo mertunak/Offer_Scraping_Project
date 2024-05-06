@@ -52,7 +52,7 @@ class _OfferViewState extends State<OfferView> {
 
   @override
   void initState() {
-    widget.viewModel.resetNotificationFlags();
+    //widget.viewModel.resetNotificationFlags();
     widget.viewModel.getAllOffers().then((value) {
       widget.viewModel.initOfferLists();
     });
