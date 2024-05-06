@@ -73,6 +73,14 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
     });
   }
 
+  late final _$getAllOffersAsyncAction =
+      AsyncAction('_OfferViewModelBase.getAllOffers', context: context);
+
+  @override
+  Future<void> getAllOffers() {
+    return _$getAllOffersAsyncAction.run(() => super.getAllOffers());
+  }
+
   late final _$filterOffersAsyncAction =
       AsyncAction('_OfferViewModelBase.filterOffers', context: context);
 

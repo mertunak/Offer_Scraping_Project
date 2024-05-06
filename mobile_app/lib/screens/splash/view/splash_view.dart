@@ -52,14 +52,12 @@ class _SplashViewState extends BaseState<SplashView> {
           await Navigator.of(context).pushNamedAndRemoveUntil(
               NavigationConstants.LOGIN_VIEW, (route) => false);
         } else {
-          User? user = FirebaseAuth.instance.currentUser;
-          if (user == null) {
-            await Navigator.pushReplacementNamed(
-                context, NavigationConstants.LOGIN_VIEW);
-          } else {
-            await UserManager.instance.setCurrentUser();
+          if (FirebaseAuth.instance.currentUser != null) {
             await Navigator.pushReplacementNamed(
                 context, NavigationConstants.HOME_VIEW);
+          } else {
+            await Navigator.pushReplacementNamed(
+                context, NavigationConstants.LOGIN_VIEW);
           }
         }
       });
