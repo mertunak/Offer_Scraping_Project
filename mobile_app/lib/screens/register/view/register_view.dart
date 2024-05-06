@@ -85,8 +85,8 @@ class _RegisterViewState extends State<RegisterView> {
                     width: 20,
                   ),
                   InkWell(
-                    onTap: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
+                    onTap: () async {
+                      await Navigator.of(context).pushNamedAndRemoveUntil(
                           NavigationConstants.LOGIN_VIEW, (route) => false);
                     },
                     child: const Text(

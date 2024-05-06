@@ -1,9 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_app/core/base/viewmodel/base_viewmodel.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
+import 'package:mobile_app/product/models/offer_model.dart';
+import 'package:mobile_app/services/notifications_service.dart';
 import 'package:mobx/mobx.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../services/firestore.dart';
 part 'offer_viewmodel.g.dart';
@@ -13,9 +17,10 @@ class OfferViewModel = _OfferViewModelBase with _$OfferViewModel;
 abstract class _OfferViewModelBase extends BaseViewModel with Store {
   final FirestoreService firestoreService = FirestoreService();
   final FirebaseAuth auth = FirebaseAuth.instance;
-
+  final Map<OfferModel, String> uniqueIds = {};
   List<DocumentSnapshot> allOffers = [];
   List<DocumentSnapshot> filterResults = [];
+  DateTime currentDate = DateTime.now();
 
   Map<String, bool> brandMap = {
     'filterActive': false,
@@ -61,6 +66,15 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   @observable
   List<String> priceFilter = [];
 
+  @observable
+  Map<String, bool> _notificationDisplayedMap = {};
+
+  @observable
+  List<String> notificationIds = [];
+
+  @observable
+  bool isGnerated = false;
+
   @override
   void init() {
     choiceFilters = {
@@ -70,9 +84,55 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
     };
   }
 
+  @action
   Future<void> getAllOffers() async {
-    allOffers = await firestoreService.getOffersBySites(
-        await firestoreService.getSiteNamesByIds(UserManager.instance.currentUser.favSites));
+    allOffers = await firestoreService.getOffersBySites(await firestoreService
+        .getSiteNamesByIds(UserManager.instance.currentUser.favSites));
+
+    List<OfferModel> offerModels = allOffers.map((snapshot) {
+      Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+      return OfferModel.fromJson(data);
+    }).toList();
+    if (!isGnerated) {
+      generateUniqueIds(offerModels);
+      isGnerated = true;
+    }
+    scheduleNotifications(offerModels);
+  }
+
+  void generateUniqueIds(List<OfferModel> offerModels) {
+    for (OfferModel offer in offerModels) {
+      var uuid = const Uuid();
+      String uniqueId = uuid.v4();
+      uniqueIds[offer] = uniqueId;
+    }
+  }
+
+  @action
+  Future<void> scheduleNotifications(List<OfferModel> offerModels) async {
+    print("allOffers length: ${offerModels.length}");
+    for (OfferModel offer in offerModels) {
+      if (offer.endDate != "") {
+        String offerDate = offer.endDate;
+        DateFormat format = DateFormat("dd.MM.yyyy");
+        DateTime endDate = format.parse(offerDate);
+
+        if (endDate.isAfter(currentDate) &&
+            endDate.isBefore(currentDate.add(const Duration(days: 1)))) {
+          print("got here");
+          // Schedule notification for each offer
+
+          if (!checkSent(uniqueIds[offer]!)) {
+            await sendLastDayNotificationInForeGround(
+              endDate,
+              offer.site,
+              offer.header,
+              uniqueIds[offer]!,
+            );
+          }
+        }
+      }
+    }
   }
 
   @action
@@ -161,5 +221,55 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   @override
   void setContext(BuildContext context) {
     viewModelContext = context;
+  }
+
+  //foreground notification
+  @action
+  Future<void> sendLastDayNotificationInForeGround(
+      DateTime endDate, String offerSite, String offerHeader, String id) async {
+    print(checkSent(id));
+    if (checkSent(id) == false) {
+      // Check if the end date is within 1 day from the current date
+      notificationIds.add(id);
+      // Show notification using a notification service
+
+      await PushNotifications().showNotification(
+        title: offerSite,
+        body: offerHeader,
+        payload: id,
+      );
+      setTrueForSentNotification(id);
+      print("Last day notification sent in foreground");
+    }
+  }
+
+  @action
+  void resetNotificationFlags() {
+    for (String notificationId in notificationIds) {
+      _notificationDisplayedMap[notificationId] = false;
+    }
+  }
+
+  @action
+  bool checkSent(String notificationId) {
+    //Bildirim gönderildi mi kontrol et. Gönderildiyse true
+
+    if (_notificationDisplayedMap[notificationId] == true ||
+        notificationIds.contains(notificationId)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @action
+  void setTrueForSentNotification(String notificationId) {
+    if (notificationIds.contains(notificationId)) {
+      // Display the notification
+      print('Notification $notificationId displayed');
+
+      // Set flag to indicate that notification has been displayed
+      _notificationDisplayedMap[notificationId] = true;
+    }
   }
 }

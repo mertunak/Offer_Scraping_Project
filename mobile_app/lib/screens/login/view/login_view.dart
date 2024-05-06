@@ -98,8 +98,8 @@ class _LoginViewState extends BaseState<LoginView> {
                             'Kaydol',
                             style: TextStyles.TEXT_BUTTON,
                           ),
-                          onTap: () {
-                            Navigator.of(context)
+                          onTap: () async {
+                            await Navigator.of(context)
                                 .pushNamed(NavigationConstants.REGISTER_VIEW);
                           },
                         )

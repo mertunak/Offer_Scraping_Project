@@ -5,6 +5,7 @@ import 'package:mobile_app/product/constants/paths/image_paths.dart';
 import 'package:mobile_app/product/constants/texts/screen_texts.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
+import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/services/shared_preferences.dart';
 
@@ -48,7 +49,7 @@ class _SplashViewState extends BaseState<SplashView> {
     await Future.delayed(const Duration(seconds: 2), () async {
       await SharedManager.checkIsFirstTime().then((isFirstTime) async {
         if (isFirstTime) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
+          await Navigator.of(context).pushNamedAndRemoveUntil(
               NavigationConstants.LOGIN_VIEW, (route) => false);
         } else {
           User? user = FirebaseAuth.instance.currentUser;
@@ -56,6 +57,7 @@ class _SplashViewState extends BaseState<SplashView> {
             await Navigator.pushReplacementNamed(
                 context, NavigationConstants.LOGIN_VIEW);
           } else {
+            await UserManager.instance.setCurrentUser();
             await Navigator.pushReplacementNamed(
                 context, NavigationConstants.HOME_VIEW);
           }

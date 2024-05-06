@@ -50,7 +50,7 @@ class AuthService {
     await _auth.signOut();
     await SharedManager.setIsFirstTime(true);
     // ignore: use_build_context_synchronously
-    Navigator.of(context).pushNamed(NavigationConstants.LOGIN_VIEW);
+    await Navigator.of(context).pushNamed(NavigationConstants.LOGIN_VIEW);
   }
 }
 
