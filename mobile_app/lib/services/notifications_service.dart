@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import 'package:intl/intl.dart';
 import 'package:mobile_app/main.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/services/firestore.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tzdata;
-import 'package:timezone/timezone.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:uuid/uuid.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class PushNotifications {
   static final FlutterLocalNotificationsPlugin
@@ -22,12 +22,11 @@ class PushNotifications {
   List<String> notificationIds = [];
   Map<String, bool> _notificationDisplayedMap = {};
   DateTime currentDate = DateTime.now();
-  late tz.Location _local = tz.getLocation('Europe/Istanbul');
   bool isGnerated = false;
 
   //initialize local notifications
   static Future initLocalNotifications() async {
-    tzdata.initializeTimeZones();
+    tz.initializeTimeZones();
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/launcher_icon');
     final DarwinInitializationSettings initializationSettingsDarwin =
@@ -82,7 +81,7 @@ class PushNotifications {
     );
     NotificationDetails notificationDetails =
         NotificationDetails(android: androidNotificationDetails);
-    int notificationId = _notificationIdCounter++;
+    final int notificationId = _notificationIdCounter++;
     print('notification id: $notificationId');
     await _flutterLocalNotificationsPlugin.show(
       notificationId,
@@ -96,7 +95,7 @@ class PushNotifications {
   static Future<void> scheduleNotification({
     required String title,
     required String body,
-    required TZDateTime scheduledDate,
+    required DateTime scheduledDate,
     required String payload,
   }) async {
     final String channelId = const Uuid().v4();
@@ -107,19 +106,19 @@ class PushNotifications {
       channelDescription: 'your channel description',
       importance: Importance.max,
       priority: Priority.high,
-      enableVibration: true,
-      ticker: 'ticker',
     );
-    final NotificationDetails notificationDetails =
-        NotificationDetails(android: androidNotificationDetails);
+    var iosDetails = const DarwinNotificationDetails();
+    final NotificationDetails notificationDetails = NotificationDetails(
+        android: androidNotificationDetails, iOS: iosDetails);
     final int notificationId = _notificationIdCounter++;
+
     await _flutterLocalNotificationsPlugin.zonedSchedule(
       notificationId,
       title,
       body,
-      scheduledDate,
+      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 30)),
       notificationDetails,
-      androidAllowWhileIdle: true,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       payload: payload,
@@ -187,9 +186,8 @@ class PushNotifications {
 
   Future<void> sendLastDayNotificationBackGround(
       String offerSite, String offerHeader, String id) async {
-    final now = DateTime.now();
-    final scheduledDate =
-        TZDateTime.from(now.add(const Duration(seconds: 40)), _local);
+    final scheduledDate = DateTime.now().add(const Duration(seconds: 10));
+
     print(scheduledDate);
     print(checkSent(id));
     if (checkSent(id) == false) {
