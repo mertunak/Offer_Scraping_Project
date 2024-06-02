@@ -77,7 +77,7 @@ def dateFormater(date):
         return formatedDate
         
 
-def scrape_offers(baseUrl, firestoreDb):
+def scrape_offers(baseUrl):
     site = baseUrl.split('/')[-1].split('.')[1].capitalize()
 
     offers = []
@@ -87,12 +87,15 @@ def scrape_offers(baseUrl, firestoreDb):
         httpRequest = requests.get(offerPageLink, headers=header)
         parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "lxml")
         possibleOfferSections = parsedOfferPageHtml.find_all("div", class_=re.compile("(kampanya|kamp|campaign)", re.I))
+        print(len(possibleOfferSections))
         for possibleOfferSection in possibleOfferSections:
+            print(possibleOfferSection.get("class", []))
             offerCardArr = []
             for child in possibleOfferSection.contents:
                 if child.name:
                     offerCardArr.append(child)
             offerCardArrLen = len(offerCardArr)
+            print(offerCardArrLen)
             if offerCardArrLen > 1:
                 try:
                     if offerCardArr[0]['class'][0] == offerCardArr[1]['class'][0]:
@@ -101,6 +104,8 @@ def scrape_offers(baseUrl, firestoreDb):
                 except:
                     continue
         for offerCard in offerCardArr:
+            print("offerCard------\n")
+            print(offerCard)
             offerStringSections = offerCard.find_all(re.compile("h|span"))
             offerStrings = []
             for offerStringSection in offerStringSections:
@@ -373,8 +378,8 @@ def scrape_offers(baseUrl, firestoreDb):
         "scraping_date": datetime.date.today().strftime("%d-%m-%Y"),
     }
 
-    firebase_operations.add_scraped_site(scraped_site, firestoreDb)
-    firebase_operations.add_offers_to_firestore(offers, firestoreDb)
+    # firebase_operations.add_scraped_site(scraped_site, firestoreDb)
+    # firebase_operations.add_offers_to_firestore(offers, firestoreDb)
 
     # for o in offers:
     #     print("\n\nLink: " + o["Link"],
@@ -387,5 +392,5 @@ def scrape_offers(baseUrl, firestoreDb):
 
 # scrape_offers(altin)
 # scrape_offers(ets)
-# scrape_offers(isbank)
+scrape_offers(isbank)
 # scrape_offers(instreet)

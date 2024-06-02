@@ -8,6 +8,7 @@ import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/services/firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:uuid/uuid.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -17,12 +18,36 @@ class PushNotifications {
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   static int _notificationIdCounter = 0;
   final FirestoreService firestoreService = FirestoreService();
-  final Map<OfferModel, String> uniqueIds = {};
+  static const _notificationsEnabledKey = 'notifications_enabled';
+
+  Map<String, String> uniqueIds = {}; // Map by offer ID
   List<DocumentSnapshot> allOffers = [];
   List<String> notificationIds = [];
   Map<String, bool> _notificationDisplayedMap = {};
   DateTime currentDate = DateTime.now();
-  bool isGnerated = false;
+  bool isGenerated = false;
+
+  static Future<void> setNotificationsEnabled(bool enabled) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_notificationsEnabledKey, enabled);
+  }
+
+  static Future<bool> areNotificationsEnabled() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_notificationsEnabledKey) ??
+        true; // Default to true if not set
+  }
+
+  static Future<void> cancelFavNotification(String id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(id, false);
+    print("Notification cancelled for $id");
+  }
+
+  static Future<bool> isFavNotificationEnabled(String id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(id) ?? true;
+  }
 
   //initialize local notifications
   static Future initLocalNotifications() async {
@@ -64,10 +89,13 @@ class PushNotifications {
   }
 
   //show a simple notification
-  Future<void> showNotification(
-      {required String title,
-      required String body,
-      required String payload}) async {
+  Future<void> showNotification({
+    required String title,
+    required String body,
+    required String payload,
+  }) async {
+    bool notificationsEnabled = await areNotificationsEnabled();
+    if (!notificationsEnabled) return;
     final String channelId = Uuid().v4();
     AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
@@ -98,6 +126,9 @@ class PushNotifications {
     required DateTime scheduledDate,
     required String payload,
   }) async {
+    bool notificationsEnabled = await areNotificationsEnabled();
+    if (!notificationsEnabled) return;
+
     final String channelId = const Uuid().v4();
     final AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
@@ -129,45 +160,61 @@ class PushNotifications {
     for (OfferModel offer in offerModels) {
       var uuid = const Uuid();
       String uniqueId = uuid.v4();
-      uniqueIds[offer] = uniqueId;
+      uniqueIds[offer.id] = uniqueId; // Use offer.id as the key
+      print('Generated uniqueId for ${offer.id}: $uniqueId');
     }
   }
 
   Future<void> getAllOffers() async {
-    allOffers = await firestoreService.getOffersBySites(await firestoreService
-        .getSiteNamesByIds(UserManager.instance.currentUser.favSites));
+    allOffers = await firestoreService.getOffersBySites(
+      await firestoreService
+          .getSiteNamesByIds(UserManager.instance.currentUser.favSites),
+    );
 
     List<OfferModel> offerModels = allOffers.map((snapshot) {
       Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+      data['id'] = snapshot.id; // Ensure this is provided
       return OfferModel.fromJson(data);
     }).toList();
-    if (!isGnerated) {
+
+    if (!isGenerated) {
+      print(isGenerated);
       generateUniqueIds(offerModels);
-      isGnerated = true;
+      isGenerated = true;
+      print("Generated unique IDs: $uniqueIds");
+    } else {
+      print("isGenerated: $isGenerated");
     }
-    scheduleNotifications(offerModels);
   }
 
-  Future<void> scheduleNotifications(List<OfferModel> offerModels) async {
-    print("allOffers length: ${offerModels.length}");
-    for (OfferModel offer in offerModels) {
-      if (offer.endDate != "") {
-        String offerDate = offer.endDate;
-        DateFormat format = DateFormat("dd.MM.yyyy");
-        DateTime endDate = format.parse(offerDate);
+  Future<void> scheduleFavOfferNotification(
+      OfferModel offerModel, int scheduledDate) async {
+    if (!isGenerated) {
+      print("Error: Unique IDs have not been generated yet.");
+      return;
+    }
 
-        if (endDate.isAfter(currentDate) &&
-            endDate.isBefore(currentDate.add(const Duration(days: 1)))) {
-          print("got here");
-          // Schedule notification for each offer
+    if (offerModel.endDate != "") {
+      String offerDate = offerModel.endDate;
+      DateFormat format = DateFormat("dd.MM.yyyy");
+      DateTime endDate = format.parse(offerDate);
 
-          if (!checkSent(uniqueIds[offer]!)) {
-            await sendLastDayNotificationBackGround(
-              offer.site,
-              offer.header,
-              uniqueIds[offer]!,
-            );
-          }
+      if (endDate.isAfter(currentDate) &&
+          endDate.isBefore(currentDate.add(Duration(days: scheduledDate)))) {
+        print("got here");
+        String? uniqueId =
+            uniqueIds[offerModel.id]; // Use offerModel.id as the key
+
+        if (uniqueId != null && !checkSent(uniqueId)) {
+          await sendLastDayNotificationBackGround(
+            offerModel.site,
+            offerModel.header,
+            uniqueId,
+          );
+        } else {
+          print(offerModel.id);
+          print(uniqueId ?? "neden");
+          print("uniqueIds[offerModel.id] is null or already sent");
         }
       }
     }
@@ -190,7 +237,8 @@ class PushNotifications {
 
     print(scheduledDate);
     print(checkSent(id));
-    if (checkSent(id) == false) {
+    bool isFavNotificationEnable = await isFavNotificationEnabled(id);
+    if (checkSent(id) == false && isFavNotificationEnable) {
       notificationIds.add(id);
       await PushNotifications.scheduleNotification(
         title: offerSite,
