@@ -152,7 +152,7 @@ class _OfferViewState extends State<OfferView> {
                       Map<String, dynamic> data =
                           document.data() as Map<String, dynamic>;
                       OfferModel offer = OfferModel.fromJson(data);
-                      offer.setId(document.id);
+                      //offer.setId(document.id);
                       return Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: OfferCard(
