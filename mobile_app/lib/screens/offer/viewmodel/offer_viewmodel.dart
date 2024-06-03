@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:mobile_app/core/base/viewmodel/base_viewmodel.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
+import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobx/mobx.dart';
 
 import '../../../services/firestore.dart';
@@ -16,41 +17,13 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   final FirebaseAuth auth = FirebaseAuth.instance;
   List<DocumentSnapshot> allOffers = [];
   List<DocumentSnapshot> filterResults = [];
-
-  Map<String, bool> brandMap = {
-    'filterActive': false,
-    'apple': false,
-    'samsung': false,
-    'huawei': false,
-    'xiomi': false,
-    'lenovo': false,
-    'casper': false,
-  };
-
-  Map<String, bool> sizeMap = {
-    'filterActive': false,
-    '10_9 inç': false,
-    '11 inç': false,
-    '12_9 inç': false,
-    '8 inç': false,
-    '11_7 inç': false,
-  };
-
-  Map<String, bool> siteMap = {
-    'filterActive': false,
-    'İş Bankası': false,
-    'Bellona': false,
-    'Migros': false,
-    'OBilet': false,
-    'THY': false,
-    'Koton': false,
-    'Vatan': false,
-    'Mediamarkt': false,
-    'Teknosa': false,
-  };
+  List<bool> isSelected = <bool>[true, false, false, false];
 
   @observable
   ObservableList<DocumentSnapshot> resultOffers = ObservableList.of([]);
+
+  @observable
+  ObservableList<String> favSiteNames = ObservableList.of([]);
 
   @observable
   int resultCount = 0;
@@ -60,15 +33,6 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
 
   @observable
   List<String> priceFilter = [];
-
-  @override
-  void init() {
-    choiceFilters = {
-      'marka': brandMap,
-      'boyut': sizeMap,
-      'site': siteMap,
-    };
-  }
 
   @action
   Future<void> getAllOffers() async {
@@ -85,7 +49,23 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   @action
   void updateResultOffers(List<DocumentSnapshot> resultList) {
     resultOffers = ObservableList.of(resultList);
+    sortResultOffers(true, true);
     resultCount = resultOffers.length;
+  }
+
+  @action
+  void sortResultOffers(bool isDate, bool isDesc) {
+    print(isDate.toString() + " " + isDesc.toString());
+    if (isDate) {
+      resultOffers
+          .sort((a, b) => a.get('endDate').compareTo(b.get('endDate')));
+    } else {
+      resultOffers
+          .sort((a, b) => a.get('site').compareTo(b.get('site')));
+    }
+    if (isDesc){
+      resultOffers = ObservableList.of(resultOffers.reversed);
+    }
   }
 
   @action
@@ -101,63 +81,13 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   }
 
   @action
-  void changeCheckboxFilter(
-      String filterKey, String choiceKey, bool isSelected) {
-    filterKey = filterKey.toLowerCase();
-    choiceKey = choiceKey.toLowerCase().replaceAll(".", "_");
-    Map<String, bool> filterMap = choiceFilters[filterKey]!;
-    filterMap[choiceKey] = isSelected;
-    filterMap["filterActive"] = false;
-    for (var option in filterMap.values) {
-      if (option == true) {
-        filterMap["filterActive"] = true;
-        break;
-      }
-    }
+  Future<void> getFavSiteNames(List<String> siteIds) async {
+    favSiteNames =
+        ObservableList.of(await firestoreService.getSiteNamesByIds(siteIds));
   }
 
-  @action
-  Future<void> filterOffers(
-    TextEditingController leastPriceController,
-    TextEditingController mostPriceController,
-  ) async {
-    List<String> offerIds = [];
-    List<String> tmpIds = [];
-    List<String> filterOfferIds = [];
-    Map<String, bool> filterMap;
-    for (DocumentSnapshot offerSnapshot in allOffers) {
-      offerIds.add(offerSnapshot.id);
-    }
-    for (var choiceFilterKey in choiceFilters.keys) {
-      filterMap = choiceFilters[choiceFilterKey]!;
-      if (filterMap["filterActive"] == true) {
-        tmpIds = [];
-        for (var filterMapKey in filterMap.keys) {
-          if (filterMap[filterMapKey] == true) {
-            if (filterMapKey.compareTo("filterActive") != 0) {
-              // filterOfferIds = await firestoreService.getFilterOfferIds(filterMapKey);
-              tmpIds = List.from(tmpIds)..addAll(filterOfferIds);
-            }
-          }
-        }
-        offerIds.removeWhere((element) => !tmpIds.contains(element));
-      }
-    }
-
-    filterResults = List.of(allOffers);
-    filterResults.removeWhere((element) => !offerIds.contains(element.id));
-    if (leastPriceController.text != "") {
-      double leastPrice = double.parse(leastPriceController.text);
-      filterResults.removeWhere(
-          (element) => double.parse(element["product_price"]) < leastPrice);
-    }
-    if (mostPriceController.text != "") {
-      double mostPrice = double.parse(mostPriceController.text);
-      filterResults.removeWhere(
-          (element) => double.parse(element["product_price"]) > mostPrice);
-    }
-    updateResultOffers(filterResults);
-  }
+  @override
+  void init() {}
 
   @override
   void setContext(BuildContext context) {

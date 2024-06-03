@@ -5,6 +5,7 @@ import 'package:mobile_app/product/constants/utils/border_radius_constants.dart'
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
+import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/widget/alert/update_profile_alert.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
 import 'package:mobile_app/services/auth_service.dart';
@@ -83,13 +84,13 @@ class _ProfileViewState extends BaseState<ProfileView> {
                 ),
                 child: Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       flex: 8,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Mert Kurnaz",
+                            UserManager.instance.currentUser.name!,
                             style: TextStyles.MEDIUM_B,
                           ),
                           Text(

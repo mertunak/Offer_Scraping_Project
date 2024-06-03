@@ -13,7 +13,7 @@ class FirestoreService {
 
   Future<QuerySnapshot> getOffers() => _offers.get();
 
-  Future<QuerySnapshot> getscrapedSites() => _scrapedSites.get();
+  Future<QuerySnapshot> getScrapedSites() => _scrapedSites.get();
 
   Future<UserModel> getCurrentUser(String uid) async {
     DocumentSnapshot documentSnapshot = await users.doc(uid).get();

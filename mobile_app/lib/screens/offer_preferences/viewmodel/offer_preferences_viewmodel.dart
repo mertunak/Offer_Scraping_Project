@@ -35,7 +35,7 @@ abstract class _OfferPreferencesViewModelBase extends BaseViewModel with Store {
   }
 
   Future<void> getAllSites() async {
-    final data = await firestoreService.getscrapedSites();
+    final data = await firestoreService.getScrapedSites();
     allSites = data.docs;
   }
 
