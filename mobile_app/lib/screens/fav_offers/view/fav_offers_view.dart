@@ -73,8 +73,8 @@ class _FavOffersViewState extends State<FavOffersView> {
                         widget.viewModel.favOffers[index];
                     Map<String, dynamic> data =
                         document.data() as Map<String, dynamic>;
+                    data['id'] = document.id; // Add the document ID to the data
                     OfferModel offer = OfferModel.fromJson(data);
-                    offer.setId(document.id);
                     return OfferCard(
                       offer: offer,
                       favOffersViewModel: widget.viewModel,
@@ -82,7 +82,7 @@ class _FavOffersViewState extends State<FavOffersView> {
                     );
                   },
                 ),
-              ),
+              )
             ],
           );
         },

@@ -112,10 +112,12 @@ class _OfferCardState extends BaseState<OfferCard> {
                                 iconSize: 30,
                                 icon: Icon(Icons.edit_notifications),
                                 onPressed: () {
+                                  print("Uyarı: ${widget.offer.id}");
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) {
                                         return NotificationSettingAlert(
+                                          offerModel: widget.offer,
                                           width: dyanmicWidthDevice(0.8),
                                           height: dynamicHeightDevice(0.5),
                                         );

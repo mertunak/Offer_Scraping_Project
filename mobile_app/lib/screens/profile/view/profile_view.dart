@@ -10,6 +10,7 @@ import 'package:mobile_app/product/widget/alert/update_profile_alert.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
 import 'package:mobile_app/services/auth_service.dart';
 import 'package:mobile_app/services/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -20,6 +21,8 @@ class ProfileView extends StatefulWidget {
 
 class _ProfileViewState extends BaseState<ProfileView> {
   bool light = true;
+  bool _notificationsEnabled = true;
+
   final MaterialStateProperty<Icon?> thumbIcon =
       MaterialStateProperty.resolveWith<Icon?>(
     (Set<MaterialState> states) {
@@ -29,6 +32,26 @@ class _ProfileViewState extends BaseState<ProfileView> {
       return const Icon(Icons.close);
     },
   );
+  Future<void> _loadPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+    });
+  }
+
+  Future<void> _toggleNotifications(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifications_enabled', value);
+    setState(() {
+      _notificationsEnabled = value;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,17 +172,32 @@ class _ProfileViewState extends BaseState<ProfileView> {
                     builder: (BuildContext context) {
                       return Padding(
                         padding: const EdgeInsets.only(left: 16),
-                        child: const Column(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SettingSwitch(
-                              settingName: "Bildirim Gönder",
+                            SwitchListTile(
+                              activeColor: AssetColors.SECONDARY_COLOR,
+                              thumbIcon: MaterialStateProperty.resolveWith(
+                                (states) => const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              title: const Text('Bildirimler Açık/Kapalı'),
+                              value: _notificationsEnabled,
+                              onChanged: _toggleNotifications,
                             ),
-                            SettingSwitch(
-                              settingName: "Yeni Eklenen Siteleri Bildir",
-                            ),
-                            SettingSwitch(
-                              settingName: "Yeni Eklenen Kampanyaları Bildir",
+                            SwitchListTile(
+                              activeColor: AssetColors.SECONDARY_COLOR,
+                              thumbIcon: MaterialStateProperty.resolveWith(
+                                (states) => const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              title: const Text('Yeni Eklenen Siteleri Bildir'),
+                              value: _notificationsEnabled,
+                              onChanged: _toggleNotifications,
                             ),
                           ],
                         ),
@@ -210,7 +248,10 @@ class _SettingSwitchState extends State<SettingSwitch> {
       MaterialStateProperty.resolveWith<Icon?>(
     (Set<MaterialState> states) {
       if (states.contains(MaterialState.selected)) {
-        return const Icon(Icons.check, color: AssetColors.PRIMARY_COLOR,);
+        return const Icon(
+          Icons.check,
+          color: AssetColors.PRIMARY_COLOR,
+        );
       }
       return const Icon(Icons.close);
     },

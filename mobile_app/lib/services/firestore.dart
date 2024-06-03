@@ -75,10 +75,8 @@ class FirestoreService {
   Future<List<DocumentSnapshot>> getOffersByIds(List<String> offerIds) async {
     List<DocumentSnapshot> offers = [];
     for (String id in offerIds) {
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection('offers')
-          .doc(id)
-          .get();
+      DocumentSnapshot documentSnapshot =
+          await FirebaseFirestore.instance.collection('offers').doc(id).get();
       if (documentSnapshot.exists) {
         offers.add(documentSnapshot);
       }

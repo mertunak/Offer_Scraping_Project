@@ -8,10 +8,25 @@ class OfferModel {
   late final String _startDate;
   late final String _endDate;
 
-  OfferModel();
+  OfferModel({
+    required String id,
+    required String header,
+    required String description,
+    required String link,
+    required String site,
+    required String img,
+    required String startDate,
+    required String endDate,
+  })  : _id = id,
+        _header = header,
+        _description = description,
+        _link = link,
+        _site = site,
+        _img = img,
+        _startDate = startDate,
+        _endDate = endDate;
 
   String get id => _id;
-  void setId(String id) => _id = id;
   String get header => _header;
   String get description => _description;
   String get link => _link;
@@ -20,18 +35,19 @@ class OfferModel {
   String get startDate => _startDate;
   String get endDate => _endDate;
 
-  OfferModel.fromJson(Map<String, dynamic> json) {
-    _header = json['title'];
-    _description = json['description'];
-    _link = json['link'];
-    _site = json['site'];
-    _img = json['image'];
-    _startDate = json['startDate'];
-    _endDate = json['endDate'];
-  }
+  OfferModel.fromJson(Map<String, dynamic> json)
+      : _id = json['id'] ?? '', // Initialize in the initializer list
+        _header = json['title'],
+        _description = json['description'],
+        _link = json['link'],
+        _site = json['site'],
+        _img = json['image'],
+        _startDate = json['startDate'],
+        _endDate = json['endDate'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = _id;
     data['title'] = _header;
     data['description'] = _description;
     data['link'] = _link;

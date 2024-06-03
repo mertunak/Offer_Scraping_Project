@@ -1,0 +1,93 @@
+1-----------------------Giyim------------------------
+Altın Yıldız: https://www.altinyildizclassics.com - 'campaign-wrapper'    - 8 Kampanya var. 4 ünü çekti başarıyla. Kalan yarısı aynı isimli başka classın içinde.
+Desa: https://www.desa.com.tr - 'row', 'campaign-item-wrapper'     - Description yanlış çekiliyor. Start-End Date den oluşuyor.
+Flo: https://www.flo.com.tr - 'campaign__card', 'campaign__item', 'campaign__link'    - Her şeyi çekti.
+InStreet: https://www.instreet.com.tr - 'campaign-box'   - Bazılarının start datei sitede yok, onun dışında her şeyi çekiliyor.
+Koton: https://www.koton.com - Bulduk ama kontrol lazım / 'project__item', 'js-project-item' twig item bozdu
+Lumberjack: https://www.lumberjack.com.tr - 'campaign-box'      - Bir kampanyanın(garanti) start ve end datei detayda olduğu halde çekmedi. Onun haricinde her şeyi çekiliyor. 
+Mudo: https://www.mudo.com.tr - 'campaign-list-item'           - Title yanlış çekiliyor.
+Nine West: https://www.ninewest.com.tr - 'campaign-box'          - Her şeyi çekiliyor. 
+Penti: https://www.penti.com - Bulduk ama kontrol lazım / item col-4 col-xs-12 women(men, child gibi farklılaşıyor)   -Her şeyi çekiliyor.
+Reebok: https://www.reebok.com.tr - 'campaign-box'     -  Her şeyi çekiliyor. (Kampanyaların sitede linki yok) 
+Slazenger: https://www.slazenger.com.tr - id den bulduk / 'box', 'col-6', 'col-mr-3', 'col-ml-3', 'col-sm-12', 'mb', 'mt'     - Title çekilemiyor ya da yanlış çekiliyor.
+US Polo: https://tr.uspoloassn.com - 'campaigns__banner--content'     - Description title ile aynı çekiliyor. Image hiç çekilemiyor. 
+
+Adidas: https://www.adidas.com.tr - Kampanya sekmesi yok / Ana sayfadan çekilebilir
+Benetton: https://tr.benetton.com - Kampanya sekmesinde ürünler var
+Bershka: https://www.bershka.com - Kampanya sekmesi yok
+Hotiç: https://www.hotic.com.tr - Kampanya kartları bulunamadı / Class isimleri farklı ve arada seperator var
+Kappa: https://www.kappa-tr.com - Kampanya sekmesi yok
+Levis: https://www.levis.com.tr - Kampanya sekmesinde ürünler var / Farklı bir campaign buldu riskli
+Mango: https://shop.mango.com - Kampanya sekmesi yok
+NewBalance: https://www.newbalance.com.tr - Kampanya sekmesinde ürünler var
+Nike: https://www.nike.com - Kampanya sekmesi yok
+Oxxo: https://www.oxxo.com.tr - Kampanya sekmesi yok
+Pull and Bear: https://www.pullandbear.com - Kampanya sekmesi yok
+SuperStep: https://www.superstep.com.tr - Kampanya kartları bulunamadı / md:w-[48%] md:mb-0
+Zara: https://www.zara.com - Kampanya sekmesi yok
+
+2-----------------------Elektronik------------------------
+Arçelik: https://www.arcelik.com.tr - Dinamik eklenirse bulduk ama kontrol lazım / banner bnr-promo bnr-bg-3(bnr-bg-10) js-filter-media-item   - Kampanyaları resim sadece uğraşma. 
+Bosch: https://www.bosch-home.com.tr - Bulduk ama kontrol lazım / m-contenttextmedia   - Her şeyi çekiliyor.
+Kumtel: https://www.kumtel.com - 'kampanya-icerik'    - Her şeyi çekiliyor(Start End date sitenin kendisinde yok zaten)
+Tefal: https://www.tefal.com.tr - 'col-md-4', 'camp-cnt', 'js-camp-cnt'   - Her şeyi çekiliyor.
+
+Dyson: https://www.dyson.com.tr - Kampanya sekmesinde ürünler var
+Korkmaz: https://www.korkmazstore.com.tr - Kampanya kartları bulunamadı / col-12 col-sm-6 col-md-4 mb-2
+Philips: https://www.philips.com.tr - Kampanya kartları bulunamadı / p-pr01-promotion-card p-inverted-yes farklı seviyedeler
+Sinbo: https://www.sinbo.com.tr - Kampanya kartları bulunamadı / 1 tane resim var
+Vestel: https://www.vestel.com.tr - Kampanya kartları bulunamadı / col col-12 col-lg-4
+
+3-----------------------Ev & Yaşam------------------------
+Karaca: https://www.karaca.com - campaignBox / span??
+Madame Coco: https://www.madamecoco.com - campaigns__card
+Pierre Cardin: https://www.pierrecardin.com.tr - campaigns__banner--content
+
+Bauhaus: https://www.bauhaus.com.tr - Kampanya sekmesinde ürün var
+İstikbal: https://www.istikbal.com.tr - Kampanyalar text olarak verilmiş
+Yataş: https://www.yatasbedding.com.tr - Kampanya kartları bulunamadı / col-lg-4 col-md-4 col-sm-4 col-xs-12
+
+4-----------------------Finans & Banka------------------------
+Teb: https://www.teb.com.tr - mhContBox kContBox
+Is Bankası: https://www.isbank.com.tr - kamp_cards33C
+Yapı Kredi: https://www.yapikredi.com.tr - Bulduk ama kontrol lazım / item col-md-6 col-sm-12
+
+Akbank: https://www.akbank.com - Kampanya kartları bulunamadı/Dinamik
+Bankkart: https://www.bankkart.com.tr - Kampanya kartları bulunamadı / col-md-3 col-sm-4 col-xs-6
+Denizbank: https://www.denizbank.com - Kampanya kartları bulunamadı / Dinamik / col-md-4
+Garanti: https://www.garantibbva.com.tr - Kampanya kartları bulunamadı / card__griditem
+Halkbank: https://www.halkbank.com.tr - Kampanya sekmesi yok
+Ing: https://www.ing.com.tr - Kampanya kartları bulunamadı / Farklı seviye / group
+Kuveyt: https://www.kuveytturk.com.tr - Kampanya kartları bulunamadı / Dinamik / campaign-box col-xs-12 col-sm-6 col-md-4
+Qnb: https://www.qnbfinansbank.com - Kampanya kartları bulunamadı / Dinamik / page-landing-col col-xs-12 col-sm-6 col-md-4
+Vakıf: https://www.vakifbank.com.tr - Kampanya kartları bulunamadı / col-sm-4 col-xs-6
+
+5-----------------------Tatil------------------------
+Ets: https://www.etstur.com - campaigns-list-item col-12 col-md-6
+
+JollyTur: https://www.jollytur.com - Kampanya kartları bulunamadı / col-xs-6
+
+6-----------------------Ulaşım------------------------
+Enuygun: https://www.enuygun.com - styled__CampaignCardWrapper-sc-15sauxr-1 fOkqTO
+
+Turna: https://www.turna.com - Eski kampanyalar geldi old check? / card-item campaign-card
+
+7-----------------------Telekom------------------------
+Pttcell: https://pttcell.com.tr - campaign-card
+Turk Telekom: https://www.turktelekom.com.tr - mega-menu-img type2 ct__bidunyafirsat
+Vodafone: https://www.vodafone.com.tr - cmp-card
+
+Turkcell: https://www.turkcell.com.tr - Alt dallara ayrılıyor
+
+8-----------------------Anne & Çocuk------------------------
+E-bebek: https://www.e-bebek.com - col-lg-4 box
+
+9-----------------------Araba------------------------
+Doğuş Oto: https://www.dogusoto.com.tr - Kampanya kartları bulunamadı / campaigns-index__tabContent-tabs--campaigns-item/ Farklı seviye
+Kia: https://www.kia.com - Kampanya kartları bulunamadı
+Toyota: https://www.toyota.com.tr - Kampanya kartları bulunamadı
+
+10-----------------------Kozmetik------------------------
+Rossman: https://www.rossmann.com.tr - Yanlış kampanya sekmesi / Kampanya sekmesinde ürünler var
+Watsons: https://www.watsons.com.tr - Kampanya kartları bulunamadı / Textler şeklinde kart yapısı yok
+Yves Rocher: https://www.yvesrocher.com.tr - Kampanya kartları bulunamadı / column   mob_24 tab_8 m-b_default tab_m-b_0 p_M farklı seviyedeler
