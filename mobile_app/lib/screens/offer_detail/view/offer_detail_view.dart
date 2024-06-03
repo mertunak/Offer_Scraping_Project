@@ -1,6 +1,8 @@
 import 'package:easy_image_viewer/easy_image_viewer.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -43,7 +45,11 @@ class OfferDetailView extends BaseStatelessWidget {
                 Stack(
                   alignment: Alignment.topRight,
                   children: [
-                    Image.network(offer.img),
+                    ClipRRect(
+                        borderRadius: AppBorderRadius.MEDIUM,
+                        child: Image.network(
+                          offer.img,
+                        )),
                     Padding(
                       padding: AppPaddings.SMALL_V + AppPaddings.SMALL_H,
                       child: InkWell(
@@ -78,50 +84,79 @@ class OfferDetailView extends BaseStatelessWidget {
                 SizedBox(
                   height: dynamicHeightDevice(context, 0.01),
                 ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: RichText(
-                    text: TextSpan(
-                      text:
-                          "${offer.startDate} - ${offer.endDate}",
-                      style: const TextStyle(
-                        color: TextColors.PRIMARY_COLOR,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      children: const <TextSpan>[
-                        TextSpan(
-                          text: " tarihleri arasında geçerli.",
-                          style: TextStyle(
-                            color: TextColors.PRIMARY_COLOR,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                offer.endDate != ""
+                    ? offer.startDate != ""
+                        ? Align(
+                            alignment: Alignment.centerLeft,
+                            child: RichText(
+                              text: TextSpan(
+                                text: "${offer.startDate} - ${offer.endDate}",
+                                style: const TextStyle(
+                                  color: TextColors.PRIMARY_COLOR,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                children: const <TextSpan>[
+                                  TextSpan(
+                                    text: " tarihleri arasında geçerli.",
+                                    style: TextStyle(
+                                        color: TextColors.PRIMARY_COLOR,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.normal),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : Align(
+                            alignment: Alignment.centerLeft,
+                            child: RichText(
+                              text: TextSpan(
+                                text: "${offer.endDate}",
+                                style: const TextStyle(
+                                  color: TextColors.PRIMARY_COLOR,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                children: const <TextSpan>[
+                                  TextSpan(
+                                    text: " tarihine kadar geçerli.",
+                                    style: TextStyle(
+                                        color: TextColors.PRIMARY_COLOR,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.normal),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                    : Center(),
                 SizedBox(
                   height: dynamicHeightDevice(context, 0.03),
                 ),
-                Text(
-                  offer.header,
-                  style: const TextStyle(
-                    color: TextColors.PRIMARY_COLOR,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    offer.header,
+                    style: const TextStyle(
+                      color: TextColors.PRIMARY_COLOR,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 SizedBox(
                   height: dynamicHeightDevice(context, 0.02),
                 ),
-                Text(
-                  offer.description,
-                  textAlign: TextAlign.justify,
-                  style: const TextStyle(
-                    color: TextColors.PRIMARY_COLOR,
-                    fontSize: 16,
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    offer.description,
+                    textAlign: TextAlign.justify,
+                    style: const TextStyle(
+                      color: TextColors.PRIMARY_COLOR,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ],

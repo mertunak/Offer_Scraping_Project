@@ -28,7 +28,7 @@ def getParsedHtml(baseUrl, header, isDynamic=False):
 
 def extractOfferLink(parsedHtml, baseWithoutHttps, baseUrl):
     offerPageTagList = parsedHtml.find_all(
-        "a", href=re.compile("(kampanya|fırsat|promotion)", re.I))
+        "a", href=re.compile("(kampanya|promotion)", re.I))
 
     offerPageLinkList = [tag.get("href") for tag in offerPageTagList]
 
@@ -36,6 +36,17 @@ def extractOfferLink(parsedHtml, baseWithoutHttps, baseUrl):
     for iterPageLink in offerPageLinkList:
         if offerPageLink == "" or len(iterPageLink) < len(offerPageLink):
             offerPageLink = iterPageLink
+
+    if not offerPageLink:
+        offerPageTagList = parsedHtml.find_all(
+        "a", href=re.compile("(firsat)", re.I))
+
+        offerPageLinkList = [tag.get("href") for tag in offerPageTagList]
+
+        offerPageLink = ""
+        for iterPageLink in offerPageLinkList:
+            if offerPageLink == "" or len(iterPageLink) < len(offerPageLink):
+                offerPageLink = iterPageLink
 
     if offerPageLink:
         if baseWithoutHttps in offerPageLink:
@@ -64,14 +75,3 @@ def findOfferTab(baseUrl, header):
         offerPageLink = extractOfferLink(parsedHtml, baseWithoutHttps, baseUrl)
     
     return offerPageLink if offerPageLink else ""
-
-
-# is_bank = "https://www.isbank.com.tr"
-# bellona = "https://www.bellona.com.tr"
-# migros = "https://www.migros.com.tr"
-# media = "https://www.mediamarkt.com.tr"
-
-# print("is: " + find_offer_tab(is_bank, header))
-# print("bel: " + find_offer_tab(bellona, header))
-# print("mig: " + find_offer_tab(migros, header))
-# print("mm: " + find_offer_tab(media, header))
