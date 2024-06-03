@@ -34,4 +34,5 @@ class BorderColors {
 class AssetColors {
   static const PRIMARY_COLOR = Colors.white;
   static const SECONDARY_COLOR = Color(0xFF6FB2D2);
+  static const SORT_COLOR = Colors.black;
 }

@@ -150,7 +150,6 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
                                           viewModel.getAllSites().then((value) {
                                             viewModel.splitPreferencesSites();
                                           });
-
                                           widget.offerViewModel
                                               .getAllOffers()
                                               .then((value) {

@@ -25,6 +25,22 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
     });
   }
 
+  late final _$favSiteNamesAtom =
+      Atom(name: '_OfferViewModelBase.favSiteNames', context: context);
+
+  @override
+  ObservableList<String> get favSiteNames {
+    _$favSiteNamesAtom.reportRead();
+    return super.favSiteNames;
+  }
+
+  @override
+  set favSiteNames(ObservableList<String> value) {
+    _$favSiteNamesAtom.reportWrite(value, super.favSiteNames, () {
+      super.favSiteNames = value;
+    });
+  }
+
   late final _$resultCountAtom =
       Atom(name: '_OfferViewModelBase.resultCount', context: context);
 
@@ -81,14 +97,13 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
     return _$getAllOffersAsyncAction.run(() => super.getAllOffers());
   }
 
-  late final _$filterOffersAsyncAction =
-      AsyncAction('_OfferViewModelBase.filterOffers', context: context);
+  late final _$getFavSiteNamesAsyncAction =
+      AsyncAction('_OfferViewModelBase.getFavSiteNames', context: context);
 
   @override
-  Future<void> filterOffers(TextEditingController leastPriceController,
-      TextEditingController mostPriceController) {
-    return _$filterOffersAsyncAction.run(
-        () => super.filterOffers(leastPriceController, mostPriceController));
+  Future<void> getFavSiteNames(List<String> siteIds) {
+    return _$getFavSiteNamesAsyncAction
+        .run(() => super.getFavSiteNames(siteIds));
   }
 
   late final _$_OfferViewModelBaseActionController =
@@ -117,6 +132,17 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
   }
 
   @override
+  void sortResultOffers(bool isDate, bool isDesc) {
+    final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
+        name: '_OfferViewModelBase.sortResultOffers');
+    try {
+      return super.sortResultOffers(isDate, isDesc);
+    } finally {
+      _$_OfferViewModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void addResultOffers(DocumentSnapshot<Object?> offerSnapshot) {
     final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
         name: '_OfferViewModelBase.addResultOffers');
@@ -139,21 +165,10 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
   }
 
   @override
-  void changeCheckboxFilter(
-      String filterKey, String choiceKey, bool isSelected) {
-    final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
-        name: '_OfferViewModelBase.changeCheckboxFilter');
-    try {
-      return super.changeCheckboxFilter(filterKey, choiceKey, isSelected);
-    } finally {
-      _$_OfferViewModelBaseActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   String toString() {
     return '''
 resultOffers: ${resultOffers},
+favSiteNames: ${favSiteNames},
 resultCount: ${resultCount},
 choiceFilters: ${choiceFilters},
 priceFilter: ${priceFilter}
