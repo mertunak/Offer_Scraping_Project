@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
-import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/product/widget/buttons/custom_button.dart';
+import 'package:mobile_app/screens/home/view/home_view.dart';
 import 'package:mobile_app/services/auth_service.dart';
 import 'package:mobile_app/services/firestore.dart';
 import 'package:mobile_app/services/shared_preferences.dart';
@@ -60,8 +60,8 @@ class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
                   'favOffers', currentUser.favOffers ?? []);
               // ignore: use_build_context_synchronously
               await UserManager.instance.setCurrentUser();
-              await Navigator.of(context).pushNamedAndRemoveUntil(
-                  NavigationConstants.HOME_VIEW, (route) => false);
+              await Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const HomeView()));
             }
           } else {
             User? user = await authService.signUp(
@@ -85,8 +85,11 @@ class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
                 widget.emailController.text,
                 widget.passwordController.text,
               ]);
-              await Navigator.of(context).pushNamedAndRemoveUntil(
-                  NavigationConstants.LOGIN_VIEW, (route) => false);
+              await Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => HomeView()),
+                (route) => false,
+              );
             }
           }
         },
