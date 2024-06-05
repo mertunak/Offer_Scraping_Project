@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:mobile_app/main.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
+import 'package:mobile_app/product/models/offer_notifcation_model.dart';
 import 'package:mobile_app/screens/notifications/view/notifications_view.dart';
 import 'package:mobile_app/services/firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -68,9 +69,9 @@ class PushNotifications {
 
   //on tap local notification in foreground
   static void onNotificationTap(NotificationResponse notificationResponse) {
-     navigatorKey.currentState!.push(MaterialPageRoute(
-    builder: (context) => NotificationsView(),
-  ));
+    navigatorKey.currentState!.push(MaterialPageRoute(
+      builder: (context) => NotificationsView(),
+    ));
   }
 
   //show a simple notification
@@ -105,7 +106,7 @@ class PushNotifications {
     );
   }
 
-  static Future<void> scheduleNotification({
+  static Future<void> sendNotificationInBackground({
     required String title,
     required String body,
     required DateTime scheduledDate,
@@ -127,12 +128,14 @@ class PushNotifications {
     final NotificationDetails notificationDetails = NotificationDetails(
         android: androidNotificationDetails, iOS: iosDetails);
     final int notificationId = _notificationIdCounter++;
+    final tz.TZDateTime tzScheduledDate =
+        tz.TZDateTime.from(scheduledDate, tz.local);
 
     await _flutterLocalNotificationsPlugin.zonedSchedule(
       notificationId,
       title,
       body,
-      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 30)),
+      tzScheduledDate,
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
@@ -141,40 +144,17 @@ class PushNotifications {
     );
   }
 
-  Future<void> scheduleFavOfferNotification(
-      OfferModel offerModel, int scheduledDate) async {
-    if (offerModel.endDate != "") {
-      String offerDate = offerModel.endDate;
-      DateFormat format = DateFormat("dd.MM.yyyy");
-      DateTime endDate = format.parse(offerDate);
+  Future<void> scheduleNotification(
+      OfferModel offerModel, DateTime scheduledDate) async {
+    final scheduledDate2 = scheduledDate.add(const Duration(seconds: 10));
 
-      if (endDate.isAfter(currentDate) &&
-          endDate.isBefore(currentDate.add(Duration(days: scheduledDate)))) {
-        print("got here");
-        // Use offerModel.id as the key
-        String uniqueId = offerModel.id;
-        if (uniqueId != null) {
-          await sendLastDayNotificationBackGround(
-            offerModel.site,
-            offerModel.header,
-            uniqueId,
-          );
-        }
-      }
-    }
-  }
-
-  Future<void> sendLastDayNotificationBackGround(
-      String offerSite, String offerHeader, String id) async {
-    final scheduledDate = DateTime.now().add(const Duration(seconds: 10));
-
-    print(scheduledDate);
+    print(scheduledDate2);
     //if ( isFavNotificationEnable) {
-    await PushNotifications.scheduleNotification(
-      title: offerSite,
-      body: offerHeader,
+    await PushNotifications.sendNotificationInBackground(
+      title: offerModel.site,
+      body: offerModel.header,
       scheduledDate: scheduledDate,
-      payload: id,
+      payload: offerModel.id,
     );
     print("Last day notification sent in background");
     //}

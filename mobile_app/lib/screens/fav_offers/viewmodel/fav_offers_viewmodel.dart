@@ -10,6 +10,7 @@ class FavOffersViewModel = _FavOffersVieModelBase with _$FavOffersViewModel;
 
 abstract class _FavOffersVieModelBase extends BaseViewModel with Store {
   final FirestoreService firestoreService = FirestoreService();
+  List<DocumentSnapshot> allOffers = [];
 
   @observable
   ObservableList<DocumentSnapshot> favOffers = ObservableList.of([]);
@@ -26,5 +27,11 @@ abstract class _FavOffersVieModelBase extends BaseViewModel with Store {
   @override
   void setContext(BuildContext context) {
     viewModelContext = context;
+  }
+
+  @action
+  Future<void> getAllOffers() async {
+    allOffers = await firestoreService.getOffersBySites(await firestoreService
+        .getSiteNamesByIds(UserManager.instance.currentUser.favSites));
   }
 }

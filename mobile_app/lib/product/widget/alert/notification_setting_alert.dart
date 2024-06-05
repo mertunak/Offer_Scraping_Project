@@ -5,9 +5,13 @@ import 'package:mobile_app/product/constants/utils/border_radius_constants.dart'
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
+import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
+import 'package:mobile_app/product/models/offer_notifcation_model.dart';
+import 'package:mobile_app/product/models/user_model.dart';
 import 'package:mobile_app/product/widget/buttons/custom_filled_button.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
+import 'package:mobile_app/services/firestore.dart';
 import 'package:mobile_app/services/notifications_service.dart';
 
 class NotificationSettingAlert extends StatelessWidget {
@@ -221,13 +225,32 @@ class _CustomDropdownState extends BaseState<CustomDropdown> {
       print("No action needed for 'Send Notification'");
     } else {
       // Get the corresponding integer value
+      UserModel currentUser = UserManager.instance.currentUser;
       int? intValue = valueMap[value];
-      if (intValue != null) {
-        print("Selected integer value: $intValue");
-        await pushNotifications.scheduleFavOfferNotification(
-            widget.offerModel, intValue);
-        // Your function logic here using intValue
+      String offerDate = widget.offerModel.endDate;
+      DateFormat format = DateFormat("dd.MM.yyyy");
+      DateTime endDate = format.parse(offerDate);
+      DateTime scheduledDate = endDate.subtract(Duration(days: intValue!));
+      String formattedDate = DateFormat("dd.MM.yyyy").format(scheduledDate);
+      print("Selected integer value: $intValue");
+      OfferNotificationModel offerNotificationModel = OfferNotificationModel(
+        currentUser.id!,
+        {
+          widget.offerModel.id: {
+            "notificationTime": intValue,
+            "isNotified": false,
+            "scheduledDate": formattedDate,
+          }
+        },
+      );
+      if (await FirestoreService().favOffersExists(currentUser.id!)) {
+        await FirestoreService().addOrUpdateOfferData(offerNotificationModel);
+      } else {
+        await FirestoreService()
+            .saveFavOfferNotification(offerNotificationModel);
       }
+      await PushNotifications()
+          .scheduleNotification(widget.offerModel, scheduledDate);
     }
   }
 

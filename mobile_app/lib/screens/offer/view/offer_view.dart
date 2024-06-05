@@ -1,11 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-// import 'package:mobile_app/product/constants/texts/screen_texts.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
-// import 'package:mobile_app/product/constants/utils/padding_constants.dart';
-// import 'package:mobile_app/product/constants/utils/text_styles.dart';
+import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
+import 'package:mobile_app/product/models/user_model.dart';
 import 'package:mobile_app/product/widget/custom_search_bar.dart';
 import 'package:mobile_app/product/widget/bottom_sheets/filter_bottom_sheet.dart';
 import 'package:mobile_app/product/widget/cards/offer_card.dart';
@@ -48,6 +47,15 @@ class _OfferViewState extends State<OfferView> {
     } else {
       widget.viewModel.updateResultOffers(widget.viewModel.filterResults);
     }
+  }
+
+  bool checkisFavOffer(String offerId) {
+    UserModel currentUser = UserManager.instance.currentUser;
+    if (currentUser.favOffers.contains(offerId)) {
+      return true;
+    }
+
+    return false;
   }
 
   @override
@@ -152,13 +160,14 @@ class _OfferViewState extends State<OfferView> {
                       Map<String, dynamic> data =
                           document.data() as Map<String, dynamic>;
                       OfferModel offer = OfferModel.fromJson(data, document.id);
-                      //offer.setId(document.id);
+
                       return Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: OfferCard(
                           offer: offer,
                           favOffersViewModel: widget.favOffersViewModel,
                           isHome: true,
+                          isFav: checkisFavOffer(offer.id),
                         ),
                       );
                     },

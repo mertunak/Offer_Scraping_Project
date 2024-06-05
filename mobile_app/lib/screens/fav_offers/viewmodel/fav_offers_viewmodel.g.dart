@@ -25,6 +25,14 @@ mixin _$FavOffersViewModel on _FavOffersVieModelBase, Store {
     });
   }
 
+  late final _$getAllOffersAsyncAction =
+      AsyncAction('_FavOffersVieModelBase.getAllOffers', context: context);
+
+  @override
+  Future<void> getAllOffers() {
+    return _$getAllOffersAsyncAction.run(() => super.getAllOffers());
+  }
+
   @override
   String toString() {
     return '''
