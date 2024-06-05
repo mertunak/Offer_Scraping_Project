@@ -20,7 +20,7 @@ class PriceTextField extends StatelessWidget {
         hintStyle: const TextStyle(color: TextColors.HINT_COLOR),
         suffixText: "TL",
         enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: BorderColors.TEXTFIELD_COLOR)
+          // borderSide: BorderSide(color: BorderColors.TEXTFIELD_COLOR)
         )
       ),
     );

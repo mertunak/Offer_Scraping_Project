@@ -28,7 +28,7 @@ class ButtonColors {
 class BorderColors {
   static const PRIMARY_COLOR = Color(0xFF85C88A);
   static const SECONDARY_COLOR = Color(0xFF6FB2D2);
-  static const TEXTFIELD_COLOR = Color(0xFFEBD671);
+  static const TEXTFIELD_COLOR = Color.fromARGB(255, 155, 154, 154);
 }
 
 class AssetColors {

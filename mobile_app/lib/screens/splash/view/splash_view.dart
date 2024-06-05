@@ -45,7 +45,7 @@ class _SplashViewState extends BaseState<SplashView> {
   }
 
   Future<void> inits() async {
-    await Future.delayed(const Duration(seconds: 1), () async {
+    await Future.delayed(const Duration(seconds: 2), () async {
       if (FirebaseAuth.instance.currentUser != null) {
         await Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => const HomeView()));
