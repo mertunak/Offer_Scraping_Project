@@ -153,13 +153,11 @@ class PushNotifications {
         print("got here");
         // Use offerModel.id as the key
         String uniqueId = offerModel.id;
-        if (uniqueId != null) {
-          await sendLastDayNotificationBackGround(
-            offerModel.site,
-            offerModel.header,
-            uniqueId,
-          );
-        }
+        await sendLastDayNotificationBackGround(
+          offerModel.site,
+          offerModel.header,
+          uniqueId,
+        );
       }
     }
   }
