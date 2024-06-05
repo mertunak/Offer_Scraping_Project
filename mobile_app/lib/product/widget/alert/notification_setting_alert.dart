@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/border_radius_constants.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
@@ -13,7 +14,9 @@ class NotificationSettingAlert extends StatelessWidget {
   final double width;
   final double height;
   final OfferModel offerModel;
-  const NotificationSettingAlert({
+  final TextEditingController dateController = TextEditingController();
+  final TextEditingController timeController = TextEditingController();
+  NotificationSettingAlert({
     super.key,
     required this.width,
     required this.height,
@@ -49,16 +52,138 @@ class NotificationSettingAlert extends StatelessWidget {
               ],
             ),
             const ColumnDivider(verticalOffset: 10, horizontalOffset: 0),
-            CustomFilledButton(
-                backgroundColor: SurfaceColors.SECONDARY_COLOR,
-                text: "Hatırlatıcı Ekle",
-                textStyle: TextStyles.BUTTON,
-                onTap: () {
-                  Navigator.of(context).pop();
-                })
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Kampanya Alarmı",
+                  style: TextStyles.MEDIUM,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                alarmOptions(
+                    dateController, "Tarih: __.__.____", true, context),
+                const SizedBox(
+                  height: 5,
+                ),
+                alarmOptions(timeController, "Zaman: __:__", false, context),
+                const SizedBox(
+                  height: 15,
+                ),
+                Center(
+                  child: CustomFilledButton(
+                    backgroundColor: SurfaceColors.SECONDARY_COLOR,
+                    text: "Alarm Ekle",
+                    textStyle: TextStyle(
+                      color: TextColors.BUTTON_TEXT_COLOR,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    onTap: () {
+                      DateFormat dateFormat = DateFormat('dd.MM.yyyy');
+                      DateTime parsedDate = dateFormat.parse(dateController.text);
+                      DateFormat timeFormat = DateFormat('HH:mm');
+                      DateTime parsedTime = timeFormat.parse(timeController.text);
+                      DateTime combinedDateTime = DateTime(
+                        parsedDate.year,
+                        parsedDate.month,
+                        parsedDate.day,
+                        parsedTime.hour,
+                        parsedTime.minute,
+                      );
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),
+    );
+  }
+
+  Row alarmOptions(TextEditingController controller, String hint, bool isDate,
+      BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 16,
+          child: SizedBox(
+            child: TextField(
+              decoration: InputDecoration(
+                contentPadding: AppPaddings.SMALL_H,
+                enabled: false,
+                disabledBorder: OutlineInputBorder(
+                  borderRadius: AppBorderRadius.MEDIUM,
+                  borderSide: const BorderSide(
+                    color: BorderColors.TEXTFIELD_COLOR,
+                    width: 2,
+                  ),
+                ),
+                hintText: hint,
+                hintStyle: const TextStyle(color: TextColors.HINT_COLOR),
+              ),
+              controller: controller,
+            ),
+          ),
+        ),
+        const Spacer(),
+        Expanded(
+            flex: 5,
+            child: ClipRRect(
+              borderRadius: AppBorderRadius.MEDIUM,
+              child: Material(
+                child: InkWell(
+                  overlayColor: const MaterialStatePropertyAll(Colors.white10),
+                  onTap: () async {
+                    if (isDate) {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(DateTime.now().year),
+                        lastDate: DateTime(DateTime.now().year + 5),
+                        locale: Locale('tr'),
+                      );
+                      if (pickedDate != null) {
+                        controller.text =
+                            DateFormat('dd.MM.yyyy').format(pickedDate);
+                      }
+                    } else {
+                      TimeOfDay? pickedTime = await showTimePicker(
+                          context: context, initialTime: TimeOfDay.now());
+                      if (pickedTime != null) {
+                        controller.text = TimeOfDay(
+                                hour: pickedTime.hour,
+                                minute: pickedTime.minute)
+                            .format(context);
+                      }
+                    }
+                  },
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      color: SurfaceColors.SECONDARY_COLOR,
+                      borderRadius: AppBorderRadius.MEDIUM,
+                    ),
+                    child: const SizedBox(
+                      height: 50,
+                      child: Center(
+                        child: Text(
+                          "Seç",
+                          style: TextStyle(
+                            color: TextColors.BUTTON_TEXT_COLOR,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ))
+      ],
     );
   }
 }

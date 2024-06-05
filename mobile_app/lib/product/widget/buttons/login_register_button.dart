@@ -87,7 +87,7 @@ class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
               ]);
               await Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => HomeView()),
+                MaterialPageRoute(builder: (context) => const HomeView()),
                 (route) => false,
               );
             }
