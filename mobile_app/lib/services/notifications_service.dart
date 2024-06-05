@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
 import 'package:intl/intl.dart';
 import 'package:mobile_app/main.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
-import 'package:mobile_app/product/navigation/navigation_constants.dart';
+import 'package:mobile_app/screens/notifications/view/notifications_view.dart';
 import 'package:mobile_app/services/firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -84,8 +83,9 @@ class PushNotifications {
 
   //on tap local notification in foreground
   static void onNotificationTap(NotificationResponse notificationResponse) {
-    navigatorKey.currentState!.pushNamed(NavigationConstants.NOTIFICATIONS_VIEW,
-        arguments: notificationResponse);
+     navigatorKey.currentState!.push(MaterialPageRoute(
+    builder: (context) => NotificationsView(),
+  ));
   }
 
   //show a simple notification

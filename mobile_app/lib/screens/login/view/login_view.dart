@@ -4,9 +4,9 @@ import 'package:mobile_app/product/constants/paths/image_paths.dart';
 import 'package:mobile_app/product/constants/texts/screen_texts.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
-import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/product/widget/buttons/login_register_button.dart';
 import 'package:mobile_app/product/widget/text_fields/custom_text_field.dart';
+import 'package:mobile_app/screens/register/view/register_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -99,8 +99,11 @@ class _LoginViewState extends BaseState<LoginView> {
                             style: TextStyles.TEXT_BUTTON,
                           ),
                           onTap: () async {
-                            await Navigator.of(context)
-                                .pushNamed(NavigationConstants.REGISTER_VIEW);
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const RegisterView()),
+                            );
                           },
                         )
                       ],

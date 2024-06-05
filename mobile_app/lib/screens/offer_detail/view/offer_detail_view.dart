@@ -1,8 +1,6 @@
 import 'package:easy_image_viewer/easy_image_viewer.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:url_launcher/url_launcher.dart';
