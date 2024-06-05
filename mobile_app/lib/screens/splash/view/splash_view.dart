@@ -5,9 +5,8 @@ import 'package:mobile_app/product/constants/paths/image_paths.dart';
 import 'package:mobile_app/product/constants/texts/screen_texts.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
-import 'package:mobile_app/product/managers/user_manager.dart';
-import 'package:mobile_app/product/navigation/navigation_constants.dart';
-import 'package:mobile_app/services/shared_preferences.dart';
+import 'package:mobile_app/screens/home/view/home_view.dart';
+import 'package:mobile_app/screens/login/view/login_view.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -46,21 +45,14 @@ class _SplashViewState extends BaseState<SplashView> {
   }
 
   Future<void> inits() async {
-    await Future.delayed(const Duration(seconds: 2), () async {
-      await SharedManager.checkIsFirstTime().then((isFirstTime) async {
-        if (isFirstTime) {
-          await Navigator.of(context).pushNamedAndRemoveUntil(
-              NavigationConstants.LOGIN_VIEW, (route) => false);
-        } else {
-          if (FirebaseAuth.instance.currentUser != null) {
-            await Navigator.pushReplacementNamed(
-                context, NavigationConstants.HOME_VIEW);
-          } else {
-            await Navigator.pushReplacementNamed(
-                context, NavigationConstants.LOGIN_VIEW);
-          }
-        }
-      });
+    await Future.delayed(const Duration(seconds: 1), () async {
+      if (FirebaseAuth.instance.currentUser != null) {
+        await Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => const HomeView()));
+      } else {
+        await Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => const LoginView()));
+      }
     });
   }
 }

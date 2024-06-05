@@ -4,11 +4,12 @@ import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/core/base/view/base_view.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
-import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/screens/fav_offers/view/fav_offers_view.dart';
 import 'package:mobile_app/screens/home/viewmodel/home_viewmodel.dart';
+import 'package:mobile_app/screens/notifications/view/notifications_view.dart';
 import 'package:mobile_app/screens/offer/view/offer_view.dart';
 import 'package:mobile_app/screens/offer_preferences/view/offer_preferences_view.dart';
+import 'package:mobile_app/screens/profile/view/profile_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -61,8 +62,10 @@ class _HomeViewState extends BaseState<HomeView> {
         actions: [
           IconButton(
             onPressed: () async {
-              await Navigator.of(context)
-                  .pushNamed(NavigationConstants.PROFILE_VIEW);
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileView()),
+              );
             },
             icon: const Icon(
               Icons.person,
@@ -72,8 +75,12 @@ class _HomeViewState extends BaseState<HomeView> {
           ),
           IconButton(
             onPressed: () async {
-              await Navigator.of(context)
-                  .pushNamed(NavigationConstants.NOTIFICATIONS_VIEW);
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NotificationsView(),
+                ),
+              );
             },
             icon: const Icon(
               Icons.notifications_rounded,

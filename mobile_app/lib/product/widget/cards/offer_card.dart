@@ -3,10 +3,10 @@ import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/border_radius_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
-import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/product/widget/alert/notification_setting_alert.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
 import 'package:mobile_app/screens/fav_offers/viewmodel/fav_offers_viewmodel.dart';
+import 'package:mobile_app/screens/offer_detail/view/offer_detail_view.dart';
 import '../../constants/utils/color_constants.dart';
 import '../../models/offer_model.dart';
 import 'package:share_plus/share_plus.dart';
@@ -158,9 +158,12 @@ class _OfferCardState extends BaseState<OfferCard> {
           ),
           InkWell(
             onTap: () async {
-              await Navigator.of(context).pushNamed(
-                  NavigationConstants.OFFER_DETAIL_VIEW,
-                  arguments: widget.offer);
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => OfferDetailView(widget.offer),
+                ),
+              );
             },
             overlayColor: const MaterialStatePropertyAll(Colors.transparent),
             highlightColor: Colors.transparent,

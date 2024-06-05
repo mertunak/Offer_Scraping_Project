@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/product/constants/texts/screen_texts.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
-import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/product/widget/buttons/login_register_button.dart';
 import 'package:mobile_app/product/widget/text_fields/custom_text_field.dart';
+import 'package:mobile_app/screens/login/view/login_view.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -86,8 +86,11 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                   InkWell(
                     onTap: () async {
-                      await Navigator.of(context).pushNamedAndRemoveUntil(
-                          NavigationConstants.LOGIN_VIEW, (route) => false);
+                      await Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginView()),
+                        (route) => false,
+                      );
                     },
                     child: const Text(
                       'Giriş Yap',
