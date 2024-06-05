@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/product/models/user_model.dart';
 
 class FirestoreService {
   final CollectionReference _offers =
       FirebaseFirestore.instance.collection("offers");
+
+  final CollectionReference _favOffers =
+      FirebaseFirestore.instance.collection("fav_offers");
 
   final CollectionReference _scrapedSites =
       FirebaseFirestore.instance.collection("scraped_sites");

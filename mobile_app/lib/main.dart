@@ -19,9 +19,8 @@ void main() async {
   await PushNotifications.initLocalNotifications();
 
   if (FirebaseAuth.instance.currentUser != null) {
-    await UserManager.instance.setCurrentUser();
     await SharedManager.init();
-    await PushNotifications().getAllOffers();
+    await UserManager.instance.setCurrentUser();
   }
 
   runApp(const MyApp());
