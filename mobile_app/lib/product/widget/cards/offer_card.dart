@@ -90,6 +90,7 @@ class _OfferCardState extends BaseState<OfferCard> {
                                     Icons.favorite_border_rounded,
                                   ),
                             onPressed: () {
+                              print("Fav offer id: " + widget.offer.id);
                               UserManager.instance
                                   .changeFavorite(isFav, widget.offer.id)
                                   .then((value) {

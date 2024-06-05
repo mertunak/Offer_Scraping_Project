@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:mobile_app/core/base/viewmodel/base_viewmodel.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
-import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobx/mobx.dart';
 
 import '../../../services/firestore.dart';

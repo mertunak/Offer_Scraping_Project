@@ -160,7 +160,7 @@ def getOfferCardArray(offerPageLink):
 
     return next(iter(unique_class_groups.values()))
 
-def scrape_offers(baseUrl):
+def scrape_offers(baseUrl, firestoreDb):
     site = baseUrl.split('/')[-1].split('.')[1].capitalize()
     offers = []
     offerPageLink = find_offer_tab.findOfferTab(baseUrl=baseUrl, header=header)
@@ -519,17 +519,17 @@ def scrape_offers(baseUrl):
         "scraping_date": datetime.date.today().strftime("%d-%m-%Y"),
     }
 
-    # firebase_operations.add_scraped_site(scraped_site, firestoreDb)
-    # firebase_operations.add_offers_to_firestore(offers, firestoreDb)
+    firebase_operations.add_scraped_site(scraped_site, firestoreDb)
+    firebase_operations.add_offers_to_firestore(offers, firestoreDb)
 
-    for o in offers:
-        print("\n\nLink: " + o["link"],
-                "\nTitle: " + o["title"],
-                "\nDescription: " + o["description"],
-                "\nImage: " + o["image"],
-                "\nStartDate: " + o["startDate"],
-                "\nEndDate: " + o["endDate"],
-                "\nSite: " + o["site"])
+    # for o in offers:
+    #     print("\n\nLink: " + o["link"],
+    #             "\nTitle: " + o["title"],
+    #             "\nDescription: " + o["description"],
+    #             "\nImage: " + o["image"],
+    #             "\nStartDate: " + o["startDate"],
+    #             "\nEndDate: " + o["endDate"],
+    #             "\nSite: " + o["site"])
 
 # scrape_offers(isbank)
 # scrape_offers(altin)
@@ -554,4 +554,4 @@ def scrape_offers(baseUrl):
 # scrape_offers("https://www.etstur.com") #Detay ve görsel iç sayfada
 # scrape_offers("https://www.enuygun.com") #Dinamik görsel
 # scrape_offers("https://www.pttcell.com.tr") #Date detayda
-scrape_offers("https://www.vodafone.com.tr") # Desc detayda
+# scrape_offers("https://www.vodafone.com.tr") # Desc detayda
