@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
+import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/navigation/navigation_constants.dart';
 import 'package:mobile_app/product/widget/buttons/custom_button.dart';
 import 'package:mobile_app/services/auth_service.dart';
@@ -58,6 +59,7 @@ class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
               await SharedManager.saveUserInformations(
                   'favOffers', currentUser.favOffers ?? []);
               // ignore: use_build_context_synchronously
+              await UserManager.instance.setCurrentUser();
               await Navigator.of(context).pushNamedAndRemoveUntil(
                   NavigationConstants.HOME_VIEW, (route) => false);
             }
@@ -84,7 +86,7 @@ class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
                 widget.passwordController.text,
               ]);
               await Navigator.of(context).pushNamedAndRemoveUntil(
-                  NavigationConstants.HOME_VIEW, (route) => false);
+                  NavigationConstants.LOGIN_VIEW, (route) => false);
             }
           }
         },

@@ -93,15 +93,12 @@ class _CustomDropdownState extends BaseState<CustomDropdown> {
   Future<void> handleDropdownValue(String value) async {
     if (value == "Bildirim Gönderme") {
       // No action needed for "Send Notification"
-      await PushNotifications.cancelFavNotification(widget.offerModel.id);
       print("No action needed for 'Send Notification'");
     } else {
       // Get the corresponding integer value
       int? intValue = valueMap[value];
       if (intValue != null) {
         print("Selected integer value: $intValue");
-        //(print(PushNotifications().uniqueIds[widget.offerModel]!);
-        await pushNotifications.getAllOffers();
         await pushNotifications.scheduleFavOfferNotification(
             widget.offerModel, intValue);
         // Your function logic here using intValue
