@@ -35,8 +35,8 @@ class OfferModel {
   String get startDate => _startDate;
   String get endDate => _endDate;
 
-  OfferModel.fromJson(Map<String, dynamic> json)
-      : _id = json['id'] ?? '', // Initialize in the initializer list
+  OfferModel.fromJson(Map<String, dynamic> json, String id)
+      : _id = id,
         _header = json['title'],
         _description = json['description'],
         _link = json['link'],

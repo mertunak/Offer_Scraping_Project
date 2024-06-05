@@ -173,8 +173,7 @@ class PushNotifications {
 
     List<OfferModel> offerModels = allOffers.map((snapshot) {
       Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-      data['id'] = snapshot.id; // Ensure this is provided
-      return OfferModel.fromJson(data);
+      return OfferModel.fromJson(data, snapshot.id);
     }).toList();
 
     if (!isGenerated) {

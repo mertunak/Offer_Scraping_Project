@@ -151,7 +151,7 @@ class _OfferViewState extends State<OfferView> {
                           widget.viewModel.resultOffers[index];
                       Map<String, dynamic> data =
                           document.data() as Map<String, dynamic>;
-                      OfferModel offer = OfferModel.fromJson(data);
+                      OfferModel offer = OfferModel.fromJson(data, document.id);
                       //offer.setId(document.id);
                       return Padding(
                         padding: const EdgeInsets.only(top: 8),

@@ -31,8 +31,12 @@ class UserModel {
     _password = json['password'];
     _name = json['name'];
     _surname = json['surname'];
-    _favSites = List.castFrom<dynamic, String>(json['fav_sites']);
-    _favOffers = List.castFrom<dynamic, String>(json['fav_offers']);
+    _favSites = json['fav_sites'] != null
+        ? List.castFrom<dynamic, String>(json['fav_sites'])
+        : [];
+    _favOffers = json['fav_offers'] != null
+        ? List.castFrom<dynamic, String>(json['fav_offers'])
+        : [];
   }
 
   Map<String, dynamic> toJson() {
