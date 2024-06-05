@@ -6,6 +6,7 @@ import 'package:mobile_app/services/notifications_service.dart';
 import 'package:mobile_app/services/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -33,6 +34,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      supportedLocales: [
+        const Locale('en', ''), // English
+        const Locale('tr', ''), // Turkish
+      ],
       home: SplashView(),
     );
   }
