@@ -56,7 +56,7 @@ class NotificationSettingAlert extends StatelessWidget {
               ],
             ),
             const ColumnDivider(verticalOffset: 10, horizontalOffset: 0),
-            Column(
+            /* Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
@@ -101,7 +101,7 @@ class NotificationSettingAlert extends StatelessWidget {
                   ),
                 ),
               ],
-            )
+            ) */
           ],
         ),
       ),
