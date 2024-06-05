@@ -5,6 +5,7 @@ import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/widget/buttons/custom_button.dart';
 import 'package:mobile_app/screens/home/view/home_view.dart';
+import 'package:mobile_app/screens/login/view/login_view.dart';
 import 'package:mobile_app/services/auth_service.dart';
 import 'package:mobile_app/services/firestore.dart';
 import 'package:mobile_app/services/shared_preferences.dart';
@@ -87,7 +88,7 @@ class _LoginAndRegisterButtonState extends BaseState<LoginAndRegisterButton> {
               ]);
               await Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => HomeView()),
+                MaterialPageRoute(builder: (context) => LoginView()),
                 (route) => false,
               );
             }

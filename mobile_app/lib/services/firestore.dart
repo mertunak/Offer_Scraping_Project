@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
+import 'package:mobile_app/product/models/offer_notifcation_model.dart';
 import 'package:mobile_app/product/models/user_model.dart';
 
 class FirestoreService {
@@ -117,5 +118,24 @@ class FirestoreService {
 
   Future<void> updateUserInformations(UserModel userModel) async {
     await users.doc(userModel.id).update(userModel.toJson());
+  }
+
+  Future<void> saveFavOfferNotification(
+      OfferNotificationModel offerNotificationModel) async {
+    await _favOffers
+        .doc(offerNotificationModel.userId)
+        .set(offerNotificationModel.toJson());
+  }
+
+  Future<void> addOrUpdateOfferData(
+      OfferNotificationModel offerNotificationModel) async {
+    await _favOffers
+        .doc(offerNotificationModel.userId)
+        .set(offerNotificationModel.toJson(), SetOptions(merge: true));
+  }
+
+  Future<bool> favOffersExists(String userID) async {
+    final documentReference = await _favOffers.doc(userID).get();
+    return documentReference.exists;
   }
 }

@@ -78,6 +78,7 @@ class _FavOffersViewState extends State<FavOffersView> {
                       offer: offer,
                       favOffersViewModel: widget.viewModel,
                       isHome: false,
+                      isFav: true,
                     );
                   },
                 ),
