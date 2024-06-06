@@ -140,7 +140,7 @@ class _OfferPreferencesViewState extends BaseState<OfferPreferencesView> {
                                     setState(() {
                                       isScraperRunning = true;
                                     });
-                                    flaskService.runScraper(text).then((_) {
+                                    flaskService.runScraper(context ,text).then((_) {
                                       setState(() {
                                         isScraperRunning = false;
                                         siteUrlController.clear();

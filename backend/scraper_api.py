@@ -15,8 +15,8 @@ def run_scraper():
     try:
         offer_scraper.scrape_offers(siteUrl, firestoreDb)
         return jsonify({'success': True})
-    except subprocess.CalledProcessError as e:
-        return jsonify({'success': False, 'error': e.output.strip()})
+    except Exception as e:
+        return jsonify({'success': False})
 
 if __name__ == '__main__':
     credentialData = credentials.Certificate("backend/serviceAccountKey.json")

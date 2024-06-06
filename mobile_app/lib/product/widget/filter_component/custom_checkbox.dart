@@ -26,10 +26,19 @@ class _CustomCheckboxState extends State<CustomCheckbox> {
           height: 30,
           width: 30,
           child: Checkbox(
-            value: false,
+            value: widget
+                    .viewModel.choiceFilters[widget.filterType.toLowerCase()]![
+                widget.choice.toLowerCase()],
             shape: const CircleBorder(),
             activeColor: ButtonColors.CHECKBOX_COLOR,
             onChanged: (bool? value) {
+              setState(() {
+                widget.viewModel.changeCheckboxFilter(
+                  widget.filterType,
+                  widget.choice,
+                  value!,
+                );
+              });
             },
           ),
         ),

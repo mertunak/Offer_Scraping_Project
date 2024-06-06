@@ -97,16 +97,25 @@ class FirestoreService {
     return false;
   }
 
-  Future<List<String>> getFilterTabletIds(String indexKey) async {
-    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-        .collection('inverted_index')
+  Future<List<String>> getFilterOfferIds(
+      String indexKey, String choiceFilterKey) async {
+    DocumentSnapshot documentSnapshot;
+    if (choiceFilterKey.contains("kategori")) {
+      documentSnapshot = await FirebaseFirestore.instance
+          .collection('inverted_index_category')
+          .doc(indexKey)
+          .get();
+    } else {
+      documentSnapshot = await FirebaseFirestore.instance
+        .collection('inverted_index_type')
         .doc(indexKey)
         .get();
+    }
 
     if (documentSnapshot.exists) {
       final Map<String, dynamic> tabletIdsMap =
           documentSnapshot.data() as Map<String, dynamic>;
-      return List<String>.from(tabletIdsMap["tablet_ids"]);
+      return List<String>.from(tabletIdsMap["offer_ids"]);
     } else {
       return [];
     }

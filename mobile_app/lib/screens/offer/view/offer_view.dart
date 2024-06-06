@@ -34,6 +34,13 @@ class _OfferViewState extends State<OfferView> {
   final TextEditingController mostPriceController = TextEditingController();
 
   bool notificationsScheduled = false;
+
+  Future<void> _refreshOffers() async {
+    await widget.viewModel.getAllOffers();
+    widget.viewModel.initOfferLists();
+    _searchOffers();
+  }
+
   _searchOffers() {
     if (_searchController.text != "") {
       widget.viewModel.clearResultOffers();
@@ -92,13 +99,6 @@ class _OfferViewState extends State<OfferView> {
   Column buildPage(BuildContext context) {
     return Column(
       children: [
-        // const Expanded(
-        //   flex: 3,
-        //   child: Center(
-        //     child: Text(ScreenTexts.HOME_TEXT,
-        //         textAlign: TextAlign.center, style: TextStyles.HOME_HEADING),
-        //   ),
-        // ),
         Expanded(
           flex: 2,
           child: Row(
@@ -111,11 +111,6 @@ class _OfferViewState extends State<OfferView> {
               const SizedBox(width: 20),
               IconButton(
                 onPressed: () {
-                  setState(() {
-                    print("aaaaa");
-                    print(widget.viewModel.allOffers);
-                    print(widget.viewModel.resultOffers);
-                  });
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
@@ -153,25 +148,28 @@ class _OfferViewState extends State<OfferView> {
                 ),
                 Expanded(
                   flex: 14,
-                  child: ListView.builder(
-                    itemCount: widget.viewModel.resultOffers.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      DocumentSnapshot document =
-                          widget.viewModel.resultOffers[index];
-                      Map<String, dynamic> data =
-                          document.data() as Map<String, dynamic>;
-                      OfferModel offer = OfferModel.fromJson(data, document.id);
+                  child: RefreshIndicator(
+                    onRefresh: _refreshOffers,
+                    child: ListView.builder(
+                      itemCount: widget.viewModel.resultOffers.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        DocumentSnapshot document =
+                            widget.viewModel.resultOffers[index];
+                        Map<String, dynamic> data =
+                            document.data() as Map<String, dynamic>;
+                        OfferModel offer = OfferModel.fromJson(data, document.id);
 
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: OfferCard(
-                          offer: offer,
-                          favOffersViewModel: widget.favOffersViewModel,
-                          isHome: true,
-                          isFav: checkisFavOffer(offer.id),
-                        ),
-                      );
-                    },
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: OfferCard(
+                            offer: offer,
+                            favOffersViewModel: widget.favOffersViewModel,
+                            isHome: true,
+                            isFav: checkisFavOffer(offer.id),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ],
