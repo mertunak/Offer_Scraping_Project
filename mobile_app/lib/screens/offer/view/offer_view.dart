@@ -69,6 +69,8 @@ class _OfferViewState extends State<OfferView> {
   void initState() {
     widget.viewModel.getAllOffers().then((value) {
       widget.viewModel.initOfferLists();
+      UserModel currentUser = UserManager.instance.currentUser;
+      widget.viewModel.monitorAllNotifications(currentUser.id!);
     });
 
     _searchController.addListener(_searchOffers);

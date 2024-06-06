@@ -1,50 +1,73 @@
-import 'dart:convert';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:mobile_app/product/constants/utils/padding_constants.dart';
-import 'package:mobile_app/product/widget/list_tiles/notification_list_tile.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobile_app/core/base/state/base_state.dart';
+import 'package:mobile_app/core/base/view/base_view.dart';
+import 'package:mobile_app/product/models/offer_notifcation_model.dart';
+import 'package:mobile_app/screens/notifications/viewmodel/notifications_viewmodel.dart';
 
-// ignore: must_be_immutable
-class NotificationsView extends StatelessWidget {
-  Map payload = {};
+class NotificationsView extends StatefulWidget {
+  const NotificationsView({super.key});
 
-  NotificationsView({super.key});
+  @override
+  State<NotificationsView> createState() => _NotificationsViewState();
+}
+
+class _NotificationsViewState extends BaseState<NotificationsView> {
+  late NotificationViewModel viewModel;
+  @override
+  void initState() {
+    viewModel = NotificationViewModel();
+    viewModel.getNotifications();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final data = ModalRoute.of(context)!.settings.arguments;
-    //for background and terminated state
-    if (data is RemoteMessage) {
-      payload = data.data;
-    }
+    return BaseStatefulView<NotificationViewModel>(
+      viewModel: NotificationViewModel(),
+      onModelReady: (model) {
+        model.setContext(context);
+      },
+      onPageBuilder: (context, value) => buildPage(context),
+    );
+  }
 
-    //for foreground state
-    if (data is NotificationResponse) {
-      payload = jsonDecode(data.payload!);
-    }
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Bildirimler"),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-        ),
-        resizeToAvoidBottomInset: false,
-        body: Padding(
-          padding: AppPaddings.MEDIUM_H,
-          child: Column(
-            children: <Widget>[
-              NotificationListTile(
-                  title: "Notification 1", subtitle: "$payload.toString()"),
-              const NotificationListTile(
-                  title: "Notification 2", subtitle: "This is a notification"),
-              const NotificationListTile(
-                  title: "Notification 3", subtitle: "This is a notification"),
-            ],
-          ),
-        ),
+  Scaffold buildPage(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Bildirimler'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            flex: 15,
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 14,
+                  child: ListView.builder(
+                    itemCount: viewModel.notificationsList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      print(viewModel.notificationsList.length);
+                      OfferNotificationModel offerNotificationModel =
+                          viewModel.notificationsList[index];
+
+                      return Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: ListTile(
+                            title: Text(
+                                offerNotificationModel.offerData.keys.first),
+                            subtitle: Text(
+                                offerNotificationModel.offerData.keys.last),
+                          ));
+                    },
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
       ),
     );
   }

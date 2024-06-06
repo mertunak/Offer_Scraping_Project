@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
@@ -205,96 +207,138 @@ class CustomDropdown extends StatefulWidget {
 
 class _CustomDropdownState extends BaseState<CustomDropdown> {
   final PushNotifications pushNotifications = PushNotifications();
-  final List<String> list = <String>[
+  final List<String> defaultList = <String>[
     "1 Gün Önce",
     "2 Gün Önce",
     "5 Gün Önce",
     "1 Hafta Önce",
     "Bildirim Gönderme"
   ];
-  late String dropdownValue = list.first;
+  List<String> list = [];
+  late String dropdownValue;
   final Map<String, int> valueMap = {
     "1 Gün Önce": 1,
     "2 Gün Önce": 2,
     "5 Gün Önce": 5,
     "1 Hafta Önce": 7,
   };
+
+  @override
+  void initState() {
+    super.initState();
+    updateDropdownOptions();
+  }
+
+  void updateDropdownOptions() {
+    DateTime now = DateTime.now();
+    String offerDate = widget.offerModel.endDate;
+    DateFormat format = DateFormat("dd.MM.yyyy");
+    DateTime endDate = format.parse(offerDate);
+
+    int differenceInDays = endDate.difference(now).inDays;
+
+    if (differenceInDays <= 1) {
+      showAlertDialog(context);
+      list = [];
+    } else if (differenceInDays <= 2) {
+      list = ["1 Gün Önce", "Bildirim Gönderme"];
+    } else if (differenceInDays <= 5) {
+      list = ["1 Gün Önce", "2 Gün Önce", "Bildirim Gönderme"];
+    } else if (differenceInDays <= 7) {
+      list = ["1 Gün Önce", "2 Gün Önce", "5 Gün Önce", "Bildirim Gönderme"];
+    } else {
+      list = defaultList;
+    }
+
+    dropdownValue = list.isNotEmpty ? list.first : '';
+  }
+
   Future<void> handleDropdownValue(String value) async {
     if (value == "Bildirim Gönderme") {
-      // No action needed for "Send Notification"
       print("No action needed for 'Send Notification'");
     } else {
-      // Get the corresponding integer value
       UserModel currentUser = UserManager.instance.currentUser;
       int? intValue = valueMap[value];
       String offerDate = widget.offerModel.endDate;
       DateFormat format = DateFormat("dd.MM.yyyy");
       DateTime endDate = format.parse(offerDate);
-      DateTime scheduledDate = endDate.subtract(Duration(days: intValue!));
-      String formattedDate = DateFormat("dd.MM.yyyy").format(scheduledDate);
+      DateTime scheduledDate = DateTime(
+          endDate.year, endDate.month, endDate.day - intValue!, 9, 0, 0);
+      String formattedDate =
+          DateFormat("dd.MM.yyyy HH:mm").format(scheduledDate);
+
       print("Selected integer value: $intValue");
-      OfferNotificationModel offerNotificationModel = OfferNotificationModel(
-        currentUser.id!,
-        {
-          widget.offerModel.id: {
-            "notificationTime": intValue,
-            "isNotified": false,
-            "scheduledDate": formattedDate,
-          }
-        },
-      );
-      if (await FirestoreService().favOffersExists(currentUser.id!)) {
-        await FirestoreService().addOrUpdateOfferData(offerNotificationModel);
+      if (scheduledDate.isBefore(DateTime.now())) {
+        print(DateTime.now());
+        print("Scheduled date is before current date");
+        print("Scheduled date: $scheduledDate");
+        return showAlertDialog(context);
       } else {
-        await FirestoreService()
-            .saveFavOfferNotification(offerNotificationModel);
+        OfferNotificationModel offerNotificationModel = OfferNotificationModel(
+          currentUser.id!,
+          {
+            widget.offerModel.id: {
+              "notificationTime": intValue,
+              "isNotified": false,
+              "scheduledDate": formattedDate,
+            }
+          },
+        );
+        if (await FirestoreService().favOffersExists(currentUser.id!)) {
+          await FirestoreService().addOrUpdateOfferData(offerNotificationModel);
+        } else {
+          await FirestoreService()
+              .saveFavOfferNotification(offerNotificationModel);
+        }
+        await PushNotifications()
+            .scheduleNotification(widget.offerModel, scheduledDate);
       }
-      await PushNotifications()
-          .scheduleNotification(widget.offerModel, scheduledDate);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return DropdownMenu<String>(
-      expandedInsets: AppPaddings.MEDIUM_V,
-      textStyle: TextStyles.SMALL,
-      inputDecorationTheme: InputDecorationTheme(
-        contentPadding: AppPaddings.SMALL_H,
-        border: OutlineInputBorder(
-          borderRadius: AppBorderRadius.MEDIUM,
-        ),
-      ),
-      menuStyle: MenuStyle(
-        backgroundColor: const MaterialStatePropertyAll(Colors.white),
-        visualDensity: VisualDensity.standard,
-        padding: const MaterialStatePropertyAll(EdgeInsets.zero),
-        shape: MaterialStatePropertyAll(
-          RoundedRectangleBorder(
-            borderRadius: AppBorderRadius.MEDIUM,
-          ),
-        ),
-      ),
-      initialSelection: list.first,
-      onSelected: (String? value) async {
-        dropdownValue = value!;
-        print(dropdownValue);
-        await handleDropdownValue(value);
+    return DropdownButton<String>(
+      value: dropdownValue.isNotEmpty ? dropdownValue : null,
+      onChanged: (String? value) async {
+        if (value != null) {
+          dropdownValue = value;
+          print(dropdownValue);
+          await handleDropdownValue(value);
+          Navigator.of(context).pop();
+        }
       },
-      dropdownMenuEntries: list.map<DropdownMenuEntry<String>>((String value) {
-        return DropdownMenuEntry<String>(
+      items: list.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
           value: value,
-          label: value,
-          style: ButtonStyle(
-            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-              borderRadius: AppBorderRadius.MEDIUM,
-            )),
-            padding: MaterialStatePropertyAll(
-              EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            ),
-          ),
+          child: Text(value),
         );
       }).toList(),
     );
+  }
+
+  showAlertDialog(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AlertDialog alert = AlertDialog(
+        backgroundColor: SurfaceColors.PRIMARY_COLOR,
+        title: Text("Hata!"),
+        content: Text("Seçtiğiniz kampanyanın bitişine 1 gün kalmıştır."),
+        actions: [
+          TextButton(
+            child: Text("Ok"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+    });
   }
 }

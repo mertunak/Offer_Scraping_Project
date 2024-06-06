@@ -147,4 +147,28 @@ class FirestoreService {
     final documentReference = await _favOffers.doc(userID).get();
     return documentReference.exists;
   }
+
+  Future<void> updateNotificationStatus(String userId, String offerId) async {
+    print("bbbbb");
+    await _favOffers.doc(userId).update({
+      'offer_data.$offerId.isNotified': true,
+    });
+  }
+
+  Future<List<OfferNotificationModel>> getAllNotifications(
+      String userId) async {
+    try {
+      DocumentSnapshot snapshot = await _favOffers.doc(userId).get();
+      if (snapshot.exists) {
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        OfferNotificationModel model = OfferNotificationModel.fromJson(data);
+        return [model];
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print("Failed to fetch notifications: $e");
+      return [];
+    }
+  }
 }
