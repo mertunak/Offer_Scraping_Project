@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/border_radius_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
@@ -27,7 +28,6 @@ class FilterBottomSheet extends StatefulWidget {
 }
 
 class _FilterBottomSheetState extends BaseState<FilterBottomSheet> {
-
   @override
   void initState() {
     super.initState();
@@ -36,7 +36,7 @@ class _FilterBottomSheetState extends BaseState<FilterBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: dynamicHeightDevice(0.7),
+      height: dynamicHeightDevice(0.8),
       decoration: const BoxDecoration(
         color: SurfaceColors.PRIMARY_COLOR,
         borderRadius: BorderRadius.only(
@@ -54,12 +54,14 @@ class _FilterBottomSheetState extends BaseState<FilterBottomSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    flex: 2,
-                    child: SortByWidget(isSelected: widget.viewModel.isSelected,),
+                    flex: 4,
+                    child: SortByWidget(
+                      isSelected: widget.viewModel.isSelected,
+                    ),
                   ),
-                  ColumnDivider(verticalOffset: 10, horizontalOffset: 0),
+                  ColumnDivider(verticalOffset: 5, horizontalOffset: 0),
                   Expanded(
-                    flex: 8,
+                    flex: 18,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -74,12 +76,54 @@ class _FilterBottomSheetState extends BaseState<FilterBottomSheet> {
                         SizedBox(
                           height: 5,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: FilterMultipleCheckbox(
-                              viewModel: widget.viewModel,
-                              filterType: "Firma",
-                              choices: widget.viewModel.favSiteNames),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  // FilterMultipleCheckbox(
+                                  //   viewModel: widget.viewModel,
+                                  //   filterType: "Firma",
+                                  //   choices: const [
+                                  //     "Isbank",
+                                  //     "Money",
+                                  //     "Evidea",
+                                  //   ],
+                                  // ),
+                                  // const ColumnDivider(verticalOffset: 5, horizontalOffset: 0),
+                                  FilterMultipleCheckbox(
+                                    viewModel: widget.viewModel,
+                                    filterType: "Kategori",
+                                    choices: const [
+                                      'Giyim',
+                                      'Elektronik',
+                                      'Ev',
+                                      'Finans',
+                                      'Tatil',
+                                      'Ulaşım',
+                                      'Telekom',
+                                      'Bebek',
+                                      'Araç',
+                                      'Kozmetik',
+                                      'Market',
+                                    ],
+                                  ),
+                                  const ColumnDivider(verticalOffset: 5, horizontalOffset: 0),
+                                  FilterMultipleCheckbox(
+                                    viewModel: widget.viewModel,
+                                    filterType: "Tip",
+                                    choices: const [
+                                      'Özel günler',
+                                      'İndirim',
+                                      'Kupon',
+                                      'Çekiliş',
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         )
                       ],
                     ),
@@ -98,7 +142,12 @@ class _FilterBottomSheetState extends BaseState<FilterBottomSheet> {
                   fontWeight: FontWeight.bold,
                 ),
                 onTap: () {
-                  widget.viewModel.sortResultOffers(widget.viewModel.isSelected[0] || widget.viewModel.isSelected[1], widget.viewModel.isSelected[0] || widget.viewModel.isSelected[2]);
+                  widget.viewModel.filterOffers();
+                  widget.viewModel.sortResultOffers(
+                      widget.viewModel.isSelected[0] ||
+                          widget.viewModel.isSelected[1],
+                      widget.viewModel.isSelected[0] ||
+                          widget.viewModel.isSelected[2]);
                   Navigator.pop(context);
                 },
               ),

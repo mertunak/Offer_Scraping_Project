@@ -531,12 +531,12 @@ def scrape_offers(baseUrl, firestoreDb):
     #             "\nEndDate: " + o["endDate"],
     #             "\nSite: " + o["site"])
 
-import firebase_admin
-from firebase_admin import credentials, firestore
-credentialData = credentials.Certificate("backend/serviceAccountKey.json")
-firebase_admin.initialize_app(credentialData)
-firestoreDb = firestore.client()
-scrape_offers(isbank, firestoreDb)
+# import firebase_admin
+# from firebase_admin import credentials, firestore
+# credentialData = credentials.Certificate("backend/serviceAccountKey.json")
+# firebase_admin.initialize_app(credentialData)
+# firestoreDb = firestore.client()
+# scrape_offers(isbank, firestoreDb)
 # scrape_offers(isbank)
 # scrape_offers(altin)
 # scrape_offers(ebebek)
