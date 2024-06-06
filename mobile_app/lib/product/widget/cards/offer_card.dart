@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/border_radius_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
-import 'package:mobile_app/product/models/user_model.dart';
 import 'package:mobile_app/product/widget/alert/notification_setting_alert.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
 import 'package:mobile_app/screens/fav_offers/viewmodel/fav_offers_viewmodel.dart';
@@ -17,7 +15,7 @@ class OfferCard extends StatefulWidget {
   final OfferModel offer;
   final FavOffersViewModel favOffersViewModel;
   final bool isHome;
-  final bool isFav;
+  bool isFav;
   OfferCard({
     super.key,
     required this.offer,
@@ -107,6 +105,7 @@ class _OfferCardState extends BaseState<OfferCard> {
                               });
                               setState(() {
                                 isFav = !isFav;
+                                widget.isFav = !widget.isFav;
                               });
                             },
                           ),

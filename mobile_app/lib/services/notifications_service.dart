@@ -1,11 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile_app/main.dart';
-import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
-import 'package:mobile_app/product/models/offer_notifcation_model.dart';
+import 'package:mobile_app/screens/home/view/home_view.dart';
 import 'package:mobile_app/screens/notifications/view/notifications_view.dart';
 import 'package:mobile_app/services/firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,7 +68,7 @@ class PushNotifications {
   //on tap local notification in foreground
   static void onNotificationTap(NotificationResponse notificationResponse) {
     navigatorKey.currentState!.push(MaterialPageRoute(
-      builder: (context) => NotificationsView(),
+      builder: (context) => HomeView(), //TODO: Change the notification view
     ));
   }
 
@@ -128,8 +126,10 @@ class PushNotifications {
     final NotificationDetails notificationDetails = NotificationDetails(
         android: androidNotificationDetails, iOS: iosDetails);
     final int notificationId = _notificationIdCounter++;
-    final tz.TZDateTime tzScheduledDate =
-        tz.TZDateTime.from(scheduledDate, tz.local);
+    tz.initializeTimeZones();
+    final location = tz.getLocation('Europe/Istanbul');
+    final tzScheduledDate = tz.TZDateTime.from(scheduledDate, location);
+    // tz.TZDateTime.now(tz.local).add(const Duration(seconds: 30));
 
     await _flutterLocalNotificationsPlugin.zonedSchedule(
       notificationId,
@@ -146,10 +146,6 @@ class PushNotifications {
 
   Future<void> scheduleNotification(
       OfferModel offerModel, DateTime scheduledDate) async {
-    final scheduledDate2 = scheduledDate.add(const Duration(seconds: 10));
-
-    print(scheduledDate2);
-    //if ( isFavNotificationEnable) {
     await PushNotifications.sendNotificationInBackground(
       title: offerModel.site,
       body: offerModel.header,
@@ -157,6 +153,5 @@ class PushNotifications {
       payload: offerModel.id,
     );
     print("Last day notification sent in background");
-    //}
   }
 }
