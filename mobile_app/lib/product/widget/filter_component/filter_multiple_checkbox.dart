@@ -16,7 +16,7 @@ class FilterMultipleCheckbox extends BaseStatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return choices.isEmpty ? Center() : Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -24,7 +24,7 @@ class FilterMultipleCheckbox extends BaseStatelessWidget {
           style: const TextStyle(
             color: TextColors.PRIMARY_COLOR,
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: 20,
           ),
         ),
         SizedBox(
@@ -33,7 +33,7 @@ class FilterMultipleCheckbox extends BaseStatelessWidget {
             scrollDirection: Axis.horizontal,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              mainAxisExtent: dynamicWidthDevice(context, 0.9),
+              mainAxisExtent: dynamicWidthDevice(context, 0.42),
             ),
             itemCount: choices.length,
             itemBuilder: (BuildContext context, int index) {

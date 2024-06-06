@@ -18,6 +18,36 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   List<DocumentSnapshot> filterResults = [];
   List<bool> isSelected = <bool>[true, false, false, false];
 
+  Map<String, bool> categoryMap = {
+    'filterActive': false,
+    'giyim': false,
+    'elektronik': false,
+    'ev': false,
+    'finans': false,
+    'tatil': false,
+    'ulaşım': false,
+    'telekom': false,
+    'bebek': false,
+    'araç': false,
+    'kozmetik': false,
+    'market': false,
+  };
+
+  Map<String, bool> typeMap = {
+    'filterActive': false,
+    'özel günler': false,
+    'indirim': false,
+    'kupon': false,
+    'çekiliş': false,
+  };
+
+  // Map<String, bool> siteMap = {
+  //   'filterActive': false,
+  //   'vatan': false,
+  //   'mediamarkt': false,
+  //   'teknosa': false,
+  // };
+
   @observable
   ObservableList<DocumentSnapshot> resultOffers = ObservableList.of([]);
 
@@ -30,8 +60,18 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   @observable
   Map<String, Map<String, bool>> choiceFilters = {};
 
-  @observable
-  List<String> priceFilter = [];
+  _OfferViewModelBase() {
+    init();
+  }
+
+  @override
+  void init() {
+    choiceFilters = {
+      'kategori': categoryMap,
+      'tip': typeMap,
+      // 'site': siteMap,
+    };
+  }
 
   @action
   Future<void> getAllOffers() async {
@@ -56,13 +96,11 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   void sortResultOffers(bool isDate, bool isDesc) {
     print(isDate.toString() + " " + isDesc.toString());
     if (isDate) {
-      resultOffers
-          .sort((a, b) => a.get('endDate').compareTo(b.get('endDate')));
+      resultOffers.sort((a, b) => a.get('endDate').compareTo(b.get('endDate')));
     } else {
-      resultOffers
-          .sort((a, b) => a.get('site').compareTo(b.get('site')));
+      resultOffers.sort((a, b) => a.get('site').compareTo(b.get('site')));
     }
-    if (isDesc){
+    if (isDesc) {
       resultOffers = ObservableList.of(resultOffers.reversed);
     }
   }
@@ -85,8 +123,52 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
         ObservableList.of(await firestoreService.getSiteNamesByIds(siteIds));
   }
 
-  @override
-  void init() {}
+  @action
+  void changeCheckboxFilter(
+      String filterKey, String choiceKey, bool isSelected) {
+    filterKey = filterKey.toLowerCase();
+    choiceKey = choiceKey.toLowerCase();
+    Map<String, bool> filterMap = choiceFilters[filterKey]!;
+    filterMap[choiceKey] = isSelected;
+    filterMap["filterActive"] = false;
+    for (var option in filterMap.values) {
+      if (option == true) {
+        filterMap["filterActive"] = true;
+        break;
+      }
+    }
+  }
+
+  @action
+  Future<void> filterOffers() async {
+    List<String> offerIds = [];
+    List<String> tmpIds = [];
+    List<String> filterOfferIds = [];
+    Map<String, bool> filterMap;
+    for (DocumentSnapshot offerSnapshot in allOffers) {
+      offerIds.add(offerSnapshot.id);
+    }
+    for (var choiceFilterKey in choiceFilters.keys) {
+      filterMap = choiceFilters[choiceFilterKey]!;
+      if (filterMap["filterActive"] == true) {
+        tmpIds = [];
+        for (var filterMapKey in filterMap.keys) {
+          if (filterMap[filterMapKey] == true) {
+            if (filterMapKey.compareTo("filterActive") != 0) {
+              filterOfferIds =
+                  await firestoreService.getFilterOfferIds(filterMapKey, choiceFilterKey);
+              tmpIds = List.from(tmpIds)..addAll(filterOfferIds);
+            }
+          }
+        }
+        offerIds.removeWhere((element) => !tmpIds.contains(element));
+      }
+    }
+
+    filterResults = List.of(allOffers);
+    filterResults.removeWhere((element) => !offerIds.contains(element.id));
+    updateResultOffers(filterResults);
+  }
 
   @override
   void setContext(BuildContext context) {

@@ -73,22 +73,6 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
     });
   }
 
-  late final _$priceFilterAtom =
-      Atom(name: '_OfferViewModelBase.priceFilter', context: context);
-
-  @override
-  List<String> get priceFilter {
-    _$priceFilterAtom.reportRead();
-    return super.priceFilter;
-  }
-
-  @override
-  set priceFilter(List<String> value) {
-    _$priceFilterAtom.reportWrite(value, super.priceFilter, () {
-      super.priceFilter = value;
-    });
-  }
-
   late final _$getAllOffersAsyncAction =
       AsyncAction('_OfferViewModelBase.getAllOffers', context: context);
 
@@ -104,6 +88,14 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
   Future<void> getFavSiteNames(List<String> siteIds) {
     return _$getFavSiteNamesAsyncAction
         .run(() => super.getFavSiteNames(siteIds));
+  }
+
+  late final _$filterOffersAsyncAction =
+      AsyncAction('_OfferViewModelBase.filterOffers', context: context);
+
+  @override
+  Future<void> filterOffers() {
+    return _$filterOffersAsyncAction.run(() => super.filterOffers());
   }
 
   late final _$_OfferViewModelBaseActionController =
@@ -165,13 +157,24 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
   }
 
   @override
+  void changeCheckboxFilter(
+      String filterKey, String choiceKey, bool isSelected) {
+    final _$actionInfo = _$_OfferViewModelBaseActionController.startAction(
+        name: '_OfferViewModelBase.changeCheckboxFilter');
+    try {
+      return super.changeCheckboxFilter(filterKey, choiceKey, isSelected);
+    } finally {
+      _$_OfferViewModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 resultOffers: ${resultOffers},
 favSiteNames: ${favSiteNames},
 resultCount: ${resultCount},
-choiceFilters: ${choiceFilters},
-priceFilter: ${priceFilter}
+choiceFilters: ${choiceFilters}
     ''';
   }
 }

@@ -88,7 +88,7 @@ class _WebsiteUpdateCardState extends BaseState<WebsiteUpdateCard> {
         ),
         IconButton(
           onPressed: () {
-            widget.service.runScraper(widget.website);
+            widget.service.runScraper(context ,widget.website);
             setState(() {
               scrapedTime = DateTime.now();
             });
