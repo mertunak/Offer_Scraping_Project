@@ -14,8 +14,11 @@ class NotificationViewModel = _NotificationViewModelBase
 
 abstract class _NotificationViewModelBase extends BaseViewModel with Store {
   UserModel currentUser = UserManager.instance.currentUser;
-  List<OfferNotificationModel> notificationsList = [];
+  @observable
+  ObservableList<OfferNotificationModel> notificationsList =
+      ObservableList.of([]);
 
+  @action
   Future<void> getNotifications() async {
     print(currentUser.id ?? '');
     List<OfferNotificationModel> getNotificationsList =

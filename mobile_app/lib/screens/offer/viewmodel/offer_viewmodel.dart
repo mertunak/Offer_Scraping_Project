@@ -156,8 +156,8 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
         for (var filterMapKey in filterMap.keys) {
           if (filterMap[filterMapKey] == true) {
             if (filterMapKey.compareTo("filterActive") != 0) {
-              filterOfferIds =
-                  await firestoreService.getFilterOfferIds(filterMapKey, choiceFilterKey);
+              filterOfferIds = await firestoreService.getFilterOfferIds(
+                  filterMapKey, choiceFilterKey);
               tmpIds = List.from(tmpIds)..addAll(filterOfferIds);
             }
           }
@@ -195,6 +195,9 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
 
   void monitorNotification(
       String userId, String offerId, DateTime scheduledDate) async {
+    print("monitorNotification");
+    print("scheduledDate: " + scheduledDate.toString());
+    print(DateTime.now().toString());
     Timer.periodic(Duration(minutes: 1), (timer) async {
       if (DateTime.now().isAfter(scheduledDate)) {
         // Update Firestore to set isNotified to true

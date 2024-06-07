@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/core/base/view/base_view.dart';
+import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/models/offer_notifcation_model.dart';
 import 'package:mobile_app/screens/notifications/viewmodel/notifications_viewmodel.dart';
 
@@ -42,29 +43,36 @@ class _NotificationsViewState extends BaseState<NotificationsView> {
         children: [
           Expanded(
             flex: 15,
-            child: Column(
-              children: [
-                Expanded(
-                  flex: 14,
-                  child: ListView.builder(
-                    itemCount: viewModel.notificationsList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      print(viewModel.notificationsList.length);
-                      OfferNotificationModel offerNotificationModel =
-                          viewModel.notificationsList[index];
+            child: Observer(
+              builder: (_) {
+                return ListView.builder(
+                  itemCount: viewModel.notificationsList.length,
+                  itemBuilder: (context, index) {
+                    OfferNotificationModel notification =
+                        viewModel.notificationsList[index];
+                    String offerId = notification.offerData.keys.first;
+                    Map<String, dynamic> offerData =
+                        notification.offerData[offerId]!;
 
-                      return Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: ListTile(
-                            title: Text(
-                                offerNotificationModel.offerData.keys.first),
-                            subtitle: Text(
-                                offerNotificationModel.offerData.keys.last),
-                          ));
-                    },
-                  ),
-                ),
-              ],
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListTile(
+                          leading: Icon(Icons.notifications),
+                          title: Text(offerData['title'] ?? ''),
+                          subtitle: Text(offerData['body'] ?? ''),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 57) +
+                              AppPaddings.SMALL_V,
+                          child: Text(
+                              "Şu tarihte bildirildi: ${offerData['scheduledDate']}"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
           )
         ],
