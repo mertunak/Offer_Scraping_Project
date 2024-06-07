@@ -109,7 +109,8 @@ class _FilterBottomSheetState extends BaseState<FilterBottomSheet> {
                                       'Market',
                                     ],
                                   ),
-                                  const ColumnDivider(verticalOffset: 5, horizontalOffset: 0),
+                                  const ColumnDivider(
+                                      verticalOffset: 5, horizontalOffset: 0),
                                   FilterMultipleCheckbox(
                                     viewModel: widget.viewModel,
                                     filterType: "Tip",
@@ -141,13 +142,14 @@ class _FilterBottomSheetState extends BaseState<FilterBottomSheet> {
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
-                onTap: () {
-                  widget.viewModel.filterOffers();
-                  widget.viewModel.sortResultOffers(
-                      widget.viewModel.isSelected[0] ||
-                          widget.viewModel.isSelected[1],
-                      widget.viewModel.isSelected[0] ||
-                          widget.viewModel.isSelected[2]);
+                onTap: () async {
+                  await widget.viewModel.filterOffers().then((value) => {
+                        widget.viewModel.sortResultOffers(
+                            widget.viewModel.isSelected[0] ||
+                                widget.viewModel.isSelected[1],
+                            widget.viewModel.isSelected[0] ||
+                                widget.viewModel.isSelected[2])
+                      });
                   Navigator.pop(context);
                 },
               ),
