@@ -262,8 +262,8 @@ class _CustomDropdownState extends BaseState<CustomDropdown> {
       String offerDate = widget.offerModel.endDate;
       DateFormat format = DateFormat("dd.MM.yyyy");
       DateTime endDate = format.parse(offerDate);
-      DateTime scheduledDate = DateTime(
-          endDate.year, endDate.month, endDate.day - intValue!, 9, 0, 0);
+      DateTime scheduledDate = DateTime.now().add(Duration(seconds: 10));
+      //DateTime(endDate.year, endDate.month, endDate.day - intValue!, 9, 0, 0);
       String formattedDate =
           DateFormat("dd.MM.yyyy HH:mm").format(scheduledDate);
 
@@ -281,6 +281,8 @@ class _CustomDropdownState extends BaseState<CustomDropdown> {
               "notificationTime": intValue,
               "isNotified": false,
               "scheduledDate": formattedDate,
+              "title": widget.offerModel.site,
+              "body": widget.offerModel.header,
             }
           },
         );
