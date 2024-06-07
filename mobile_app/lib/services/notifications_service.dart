@@ -68,7 +68,8 @@ class PushNotifications {
   //on tap local notification in foreground
   static void onNotificationTap(NotificationResponse notificationResponse) {
     navigatorKey.currentState!.push(MaterialPageRoute(
-      builder: (context) => HomeView(), //TODO: Change the notification view
+      builder: (context) =>
+          NotificationsView(), //TODO: Change the notification view
     ));
   }
 
@@ -114,6 +115,7 @@ class PushNotifications {
     if (!notificationsEnabled) return;
 
     final String channelId = const Uuid().v4();
+
     final AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
       channelId,
@@ -128,8 +130,8 @@ class PushNotifications {
     final int notificationId = _notificationIdCounter++;
     tz.initializeTimeZones();
     final location = tz.getLocation('Europe/Istanbul');
-    final tzScheduledDate = tz.TZDateTime.from(scheduledDate, location);
-    // tz.TZDateTime.now(tz.local).add(const Duration(seconds: 30));
+    final tzScheduledDate = //tz.TZDateTime.from(scheduledDate, location);
+        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 10));
 
     await _flutterLocalNotificationsPlugin.zonedSchedule(
       notificationId,
