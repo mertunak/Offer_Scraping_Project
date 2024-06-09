@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/core/base/view/base_view.dart';
+import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
+import 'package:mobile_app/product/constants/utils/text_styles.dart';
 import 'package:mobile_app/product/models/offer_notifcation_model.dart';
 import 'package:mobile_app/screens/notifications/viewmodel/notifications_viewmodel.dart';
 
@@ -37,7 +39,7 @@ class _NotificationsViewState extends BaseState<NotificationsView> {
   Scaffold buildPage(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bildirimler'),
+        title: const Text('Geçmiş Bildirimler'),
       ),
       body: Column(
         children: [
@@ -58,15 +60,19 @@ class _NotificationsViewState extends BaseState<NotificationsView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ListTile(
-                          leading: Icon(Icons.notifications),
-                          title: Text(offerData['title'] ?? ''),
-                          subtitle: Text(offerData['body'] ?? ''),
+                          leading: Icon(Icons.notifications,
+                              color: ButtonColors.SECONDARY_COLOR),
+                          title: Text(offerData['title'] ?? '',
+                              style: TextStyles.SMALL),
+                          subtitle: Text(offerData['body'] ?? '',
+                              style: TextStyles.SMALL),
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 57) +
                               AppPaddings.SMALL_V,
                           child: Text(
-                              "Şu tarihte bildirildi: ${offerData['scheduledDate']}"),
+                              "Şu tarihte bildirildi: ${offerData['scheduledDate']}",
+                              style: TextStyles.TEXT_BUTTON),
                         ),
                       ],
                     );

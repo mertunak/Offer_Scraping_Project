@@ -107,9 +107,9 @@ class FirestoreService {
           .get();
     } else {
       documentSnapshot = await FirebaseFirestore.instance
-        .collection('inverted_index_type')
-        .doc(indexKey)
-        .get();
+          .collection('inverted_index_type')
+          .doc(indexKey)
+          .get();
     }
 
     if (documentSnapshot.exists) {
@@ -153,6 +153,14 @@ class FirestoreService {
     await _favOffers.doc(userId).update({
       'offer_data.$offerId.isNotified': true,
     });
+  }
+
+  Future<void> deleteOfferFromUserNotifications(
+      String userId, String offerId) async {
+    await _favOffers.doc(userId).update({
+      'offer_data.$offerId': FieldValue.delete(),
+    });
+    print("Offer $offerId deleted from user notifications for user $userId");
   }
 
   Future<List<OfferNotificationModel>> getAllNotifications(

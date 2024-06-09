@@ -33,6 +33,16 @@ mixin _$FavOffersViewModel on _FavOffersVieModelBase, Store {
     return _$getAllOffersAsyncAction.run(() => super.getAllOffers());
   }
 
+  late final _$deleteNotificationsAsyncAction = AsyncAction(
+      '_FavOffersVieModelBase.deleteNotifications',
+      context: context);
+
+  @override
+  Future<void> deleteNotifications(String offerId) {
+    return _$deleteNotificationsAsyncAction
+        .run(() => super.deleteNotifications(offerId));
+  }
+
   @override
   String toString() {
     return '''

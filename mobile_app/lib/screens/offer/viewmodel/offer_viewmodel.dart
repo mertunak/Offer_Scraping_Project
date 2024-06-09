@@ -193,7 +193,8 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
     }
   }
 
-  void monitorNotification(
+  @action
+  Future<void> monitorNotification(
       String userId, String offerId, DateTime scheduledDate) async {
     print("monitorNotification");
     print("scheduledDate: " + scheduledDate.toString());
@@ -201,7 +202,7 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
     Timer.periodic(Duration(minutes: 1), (timer) async {
       if (DateTime.now().isAfter(scheduledDate)) {
         // Update Firestore to set isNotified to true
-        await FirestoreService().updateNotificationStatus(userId, offerId);
+        await firestoreService.updateNotificationStatus(userId, offerId);
         // Stop the timer
         timer.cancel();
       }

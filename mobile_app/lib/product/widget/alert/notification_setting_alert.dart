@@ -1,33 +1,24 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/border_radius_constants.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
-import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/product/models/offer_notifcation_model.dart';
-import 'package:mobile_app/product/models/user_model.dart';
 import 'package:mobile_app/product/widget/buttons/custom_filled_button.dart';
-import 'package:mobile_app/product/widget/column_divider.dart';
-import 'package:mobile_app/services/firestore.dart';
-import 'package:mobile_app/services/notifications_service.dart';
 
 class NotificationSettingAlert extends StatelessWidget {
   final double width;
   final double height;
   final OfferModel offerModel;
-  final TextEditingController dateController = TextEditingController();
-  final TextEditingController timeController = TextEditingController();
-  NotificationSettingAlert({
-    super.key,
+
+  const NotificationSettingAlert({
+    Key? key,
     required this.width,
     required this.height,
     required this.offerModel,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,152 +35,39 @@ class NotificationSettingAlert extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Kampanya Bitiş Bildirimi",
-                  style: TextStyles.MEDIUM,
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                CustomDropdown(offerModel: offerModel),
-              ],
+            const Text(
+              "Kampanya Bitiş Bildirimi",
+              style: TextStyles.MEDIUM,
             ),
-            const ColumnDivider(verticalOffset: 10, horizontalOffset: 0),
-            /* Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Kampanya Alarmı",
-                  style: TextStyles.MEDIUM,
+            const SizedBox(
+              height: 5,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                constraints: const BoxConstraints(
+                  minWidth: double.infinity,
+                  maxWidth: double.infinity,
                 ),
-                const SizedBox(
-                  height: 5,
+                child: CustomDropdown(offerModel: offerModel),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                child: CustomFilledButton(
+                  backgroundColor: ButtonColors.PRIMARY_COLOR,
+                  text: "Bildirim Oluştur",
+                  textStyle: TextStyles.BUTTON,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
-                alarmOptions(
-                    dateController, "Tarih: __.__.____", true, context),
-                const SizedBox(
-                  height: 5,
-                ),
-                alarmOptions(timeController, "Zaman: __:__", false, context),
-                const SizedBox(
-                  height: 15,
-                ),
-                Center(
-                  child: CustomFilledButton(
-                    backgroundColor: SurfaceColors.SECONDARY_COLOR,
-                    text: "Alarm Ekle",
-                    textStyle: TextStyle(
-                      color: TextColors.BUTTON_TEXT_COLOR,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    onTap: () {
-                      DateFormat dateFormat = DateFormat('dd.MM.yyyy');
-                      DateTime parsedDate = dateFormat.parse(dateController.text);
-                      DateFormat timeFormat = DateFormat('HH:mm');
-                      DateTime parsedTime = timeFormat.parse(timeController.text);
-                      DateTime combinedDateTime = DateTime(
-                        parsedDate.year,
-                        parsedDate.month,
-                        parsedDate.day,
-                        parsedTime.hour,
-                        parsedTime.minute,
-                      );
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ),
-              ],
-            ) */
+              ),
+            )
           ],
         ),
       ),
-    );
-  }
-
-  Row alarmOptions(TextEditingController controller, String hint, bool isDate,
-      BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 16,
-          child: SizedBox(
-            child: TextField(
-              decoration: InputDecoration(
-                contentPadding: AppPaddings.SMALL_H,
-                enabled: false,
-                disabledBorder: OutlineInputBorder(
-                  borderRadius: AppBorderRadius.MEDIUM,
-                  borderSide: const BorderSide(
-                    color: BorderColors.TEXTFIELD_COLOR,
-                    width: 2,
-                  ),
-                ),
-                hintText: hint,
-                hintStyle: const TextStyle(color: TextColors.HINT_COLOR),
-              ),
-              controller: controller,
-            ),
-          ),
-        ),
-        const Spacer(),
-        Expanded(
-            flex: 5,
-            child: ClipRRect(
-              borderRadius: AppBorderRadius.MEDIUM,
-              child: Material(
-                child: InkWell(
-                  overlayColor: const MaterialStatePropertyAll(Colors.white10),
-                  onTap: () async {
-                    if (isDate) {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(DateTime.now().year),
-                        lastDate: DateTime(DateTime.now().year + 5),
-                        locale: Locale('tr'),
-                      );
-                      if (pickedDate != null) {
-                        controller.text =
-                            DateFormat('dd.MM.yyyy').format(pickedDate);
-                      }
-                    } else {
-                      TimeOfDay? pickedTime = await showTimePicker(
-                          context: context, initialTime: TimeOfDay.now());
-                      if (pickedTime != null) {
-                        controller.text = TimeOfDay(
-                                hour: pickedTime.hour,
-                                minute: pickedTime.minute)
-                            .format(context);
-                      }
-                    }
-                  },
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      color: SurfaceColors.SECONDARY_COLOR,
-                      borderRadius: AppBorderRadius.MEDIUM,
-                    ),
-                    child: const SizedBox(
-                      height: 50,
-                      child: Center(
-                        child: Text(
-                          "Seç",
-                          style: TextStyle(
-                            color: TextColors.BUTTON_TEXT_COLOR,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ))
-      ],
     );
   }
 }
@@ -197,16 +75,15 @@ class NotificationSettingAlert extends StatelessWidget {
 class CustomDropdown extends StatefulWidget {
   final OfferModel offerModel;
   const CustomDropdown({
-    super.key,
+    Key? key,
     required this.offerModel,
-  });
+  }) : super(key: key);
 
   @override
   State<CustomDropdown> createState() => _CustomDropdownState();
 }
 
-class _CustomDropdownState extends BaseState<CustomDropdown> {
-  final PushNotifications pushNotifications = PushNotifications();
+class _CustomDropdownState extends State<CustomDropdown> {
   final List<String> defaultList = <String>[
     "1 Gün Önce",
     "2 Gün Önce",
@@ -214,7 +91,6 @@ class _CustomDropdownState extends BaseState<CustomDropdown> {
     "1 Hafta Önce",
     "Bildirim Gönderme"
   ];
-  List<String> list = [];
   late String dropdownValue;
   final Map<String, int> valueMap = {
     "1 Gün Önce": 1,
@@ -239,88 +115,59 @@ class _CustomDropdownState extends BaseState<CustomDropdown> {
 
     if (differenceInDays <= 1) {
       showAlertDialog(context);
-      list = [];
+      dropdownValue = '';
     } else if (differenceInDays <= 2) {
-      list = ["1 Gün Önce", "Bildirim Gönderme"];
+      dropdownValue = "1 Gün Önce";
     } else if (differenceInDays <= 5) {
-      list = ["1 Gün Önce", "2 Gün Önce", "Bildirim Gönderme"];
+      dropdownValue = "2 Gün Önce";
     } else if (differenceInDays <= 7) {
-      list = ["1 Gün Önce", "2 Gün Önce", "5 Gün Önce", "Bildirim Gönderme"];
+      dropdownValue = "5 Gün Önce";
     } else {
-      list = defaultList;
+      dropdownValue = defaultList.first;
     }
-
-    dropdownValue = list.isNotEmpty ? list.first : '';
   }
 
   Future<void> handleDropdownValue(String value) async {
     if (value == "Bildirim Gönderme") {
       print("No action needed for 'Send Notification'");
     } else {
-      UserModel currentUser = UserManager.instance.currentUser;
       int? intValue = valueMap[value];
-      String offerDate = widget.offerModel.endDate;
-      DateFormat format = DateFormat("dd.MM.yyyy");
-      DateTime endDate = format.parse(offerDate);
-      DateTime scheduledDate = DateTime.now().add(Duration(seconds: 10));
-      //DateTime(endDate.year, endDate.month, endDate.day - intValue!, 9, 0, 0);
-      String formattedDate =
-          DateFormat("dd.MM.yyyy HH:mm").format(scheduledDate);
-
-      print("Selected integer value: $intValue");
-      if (scheduledDate.isBefore(DateTime.now())) {
-        print(DateTime.now());
-        print("Scheduled date is before current date");
-        print("Scheduled date: $scheduledDate");
-        return showAlertDialog(context);
-      } else {
-        OfferNotificationModel offerNotificationModel = OfferNotificationModel(
-          currentUser.id!,
-          {
-            widget.offerModel.id: {
-              "notificationTime": intValue,
-              "isNotified": false,
-              "scheduledDate": formattedDate,
-              "title": widget.offerModel.site,
-              "body": widget.offerModel.header,
-            }
-          },
-        );
-        if (await FirestoreService().favOffersExists(currentUser.id!)) {
-          await FirestoreService().addOrUpdateOfferData(offerNotificationModel);
-        } else {
-          await FirestoreService()
-              .saveFavOfferNotification(offerNotificationModel);
-        }
-        await PushNotifications()
-            .scheduleNotification(widget.offerModel, scheduledDate);
-      }
+      // Your remaining code for handling dropdown value
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      value: dropdownValue.isNotEmpty ? dropdownValue : null,
-      onChanged: (String? value) async {
-        if (value != null) {
-          dropdownValue = value;
-          print(dropdownValue);
-          await handleDropdownValue(value);
-          Navigator.of(context).pop();
-        }
-      },
-      items: list.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
+    return Container(
+      constraints: BoxConstraints(
+        minWidth: double.infinity,
+        maxWidth: double.infinity,
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          isExpanded: true,
+          value: dropdownValue.isNotEmpty ? dropdownValue : null,
+          onChanged: (String? value) async {
+            if (value != null) {
+              setState(() {
+                dropdownValue = value;
+              });
+              await handleDropdownValue(value);
+            }
+          },
+          items: defaultList.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 
   showAlertDialog(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       AlertDialog alert = AlertDialog(
         backgroundColor: SurfaceColors.PRIMARY_COLOR,
         title: Text("Hata!"),

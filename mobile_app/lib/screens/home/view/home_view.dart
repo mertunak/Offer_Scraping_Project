@@ -4,8 +4,10 @@ import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/core/base/view/base_view.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
+import 'package:mobile_app/product/models/offer_notifcation_model.dart';
 import 'package:mobile_app/screens/fav_offers/view/fav_offers_view.dart';
 import 'package:mobile_app/screens/home/viewmodel/home_viewmodel.dart';
+import 'package:mobile_app/screens/notifications/view/active_notifications_view.dart';
 import 'package:mobile_app/screens/notifications/view/notifications_view.dart';
 import 'package:mobile_app/screens/offer/view/offer_view.dart';
 import 'package:mobile_app/screens/offer_preferences/view/offer_preferences_view.dart';
@@ -19,6 +21,7 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends BaseState<HomeView> {
+  List<OfferNotificationModel> notificationsList = [];
   int currentPageIndex = 0;
   late HomeViewModel viewModel;
 
@@ -75,6 +78,23 @@ class _HomeViewState extends BaseState<HomeView> {
           ),
           IconButton(
             onPressed: () async {
+              notificationsList = await viewModel.getSetNotifications();
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ActiveNotificationsView(
+                          notifications: notificationsList,
+                        )),
+              );
+            },
+            icon: const Icon(
+              Icons.notifications_active,
+              color: AssetColors.SECONDARY_COLOR,
+              size: 35,
+            ),
+          ),
+          IconButton(
+            onPressed: () async {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -83,7 +103,7 @@ class _HomeViewState extends BaseState<HomeView> {
               );
             },
             icon: const Icon(
-              Icons.notifications_rounded,
+              Icons.notifications_off,
               color: AssetColors.SECONDARY_COLOR,
               size: 35,
             ),

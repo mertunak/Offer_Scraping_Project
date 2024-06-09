@@ -99,8 +99,14 @@ def contains_campaign_content_filter(element):
     return word_count > 3 and len(re.findall("(kampanya|ucuz|indirim|fırsat|hediye)", text_content, re.I)) > 0 and len(list(element.children)) < 10
 
 def getOfferCardArray(offerPageLink):
-    httpRequest = requests.get(offerPageLink, headers=header)
-    parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "lxml")
+    chrome_options = Options()
+    chrome_options.add_argument("webdriver.chrome.driver=backend/chromedriver.exe")
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(offerPageLink)
+    time.sleep(5)
+    parsedOfferPageHtml = BeautifulSoup(driver.page_source, "html.parser")
+    # httpRequest = requests.get(offerPageLink, headers=header)
+    # parsedOfferPageHtml = BeautifulSoup(httpRequest.text, "lxml")
 
     queue = deque([(parsedOfferPageHtml, None)])  # (current node, parent node)
     level = 0
@@ -167,6 +173,7 @@ def scrape_offers(baseUrl, firestoreDb):
     print(offerPageLink)
     offerCardArray = getOfferCardArray(offerPageLink)
     print(len(offerCardArray))
+    print(offerCardArray[0].get("class"))
     if offerPageLink != "":
         n = 0
         for offerCard in offerCardArray:
@@ -511,7 +518,7 @@ def scrape_offers(baseUrl, firestoreDb):
                 offers.append(offer)
 
     else:
-        print("Search in slider")
+        print("Campaign section can not be")
 
     scraped_site = {
         "site_name": site,

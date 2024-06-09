@@ -33,12 +33,11 @@ class _OfferViewState extends State<OfferView> {
   final TextEditingController leastPriceController = TextEditingController();
   final TextEditingController mostPriceController = TextEditingController();
 
-  bool notificationsScheduled = false;
-
   Future<void> _refreshOffers() async {
     await widget.viewModel.getAllOffers();
     widget.viewModel.initOfferLists();
     _searchOffers();
+    await _monitorNotifications();
   }
 
   _searchOffers() {
@@ -56,6 +55,11 @@ class _OfferViewState extends State<OfferView> {
     }
   }
 
+  Future<void> _monitorNotifications() async {
+    UserModel currentUser = UserManager.instance.currentUser;
+    widget.viewModel.monitorAllNotifications(currentUser.id!);
+  }
+
   bool checkisFavOffer(String offerId) {
     UserModel currentUser = UserManager.instance.currentUser;
     if (currentUser.favOffers.contains(offerId)) {
@@ -69,8 +73,6 @@ class _OfferViewState extends State<OfferView> {
   void initState() {
     widget.viewModel.getAllOffers().then((value) {
       widget.viewModel.initOfferLists();
-      UserModel currentUser = UserManager.instance.currentUser;
-      widget.viewModel.monitorAllNotifications(currentUser.id!);
     });
 
     _searchController.addListener(_searchOffers);
@@ -79,9 +81,8 @@ class _OfferViewState extends State<OfferView> {
   }
 
   @override
-  void didChangeDependencies() {
+  void didChangeDependencies() async {
     _searchOffers();
-
     super.didChangeDependencies();
   }
 
@@ -157,7 +158,8 @@ class _OfferViewState extends State<OfferView> {
                             widget.viewModel.resultOffers[index];
                         Map<String, dynamic> data =
                             document.data() as Map<String, dynamic>;
-                        OfferModel offer = OfferModel.fromJson(data, document.id);
+                        OfferModel offer =
+                            OfferModel.fromJson(data, document.id);
 
                         return Padding(
                           padding: const EdgeInsets.only(top: 8),
