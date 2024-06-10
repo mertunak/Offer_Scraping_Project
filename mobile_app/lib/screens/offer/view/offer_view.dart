@@ -37,7 +37,8 @@ class _OfferViewState extends State<OfferView> {
     await widget.viewModel.getAllOffers();
     widget.viewModel.initOfferLists();
     _searchOffers();
-    await _monitorNotifications();
+    await firestoreService
+        .checkNotifications(UserManager.instance.currentUser.id!);
   }
 
   _searchOffers() {
@@ -53,11 +54,6 @@ class _OfferViewState extends State<OfferView> {
     } else {
       widget.viewModel.updateResultOffers(widget.viewModel.filterResults);
     }
-  }
-
-  Future<void> _monitorNotifications() async {
-    UserModel currentUser = UserManager.instance.currentUser;
-    widget.viewModel.monitorAllNotifications(currentUser.id!);
   }
 
   bool checkisFavOffer(String offerId) {

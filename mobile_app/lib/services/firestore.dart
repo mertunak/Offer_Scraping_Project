@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:intl/intl.dart';
+import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/product/models/offer_notifcation_model.dart';
 import 'package:mobile_app/product/models/user_model.dart';
+import 'package:uuid/uuid.dart';
 
 class FirestoreService {
   final CollectionReference _offers =
@@ -129,54 +133,141 @@ class FirestoreService {
     await users.doc(userModel.id).update(userModel.toJson());
   }
 
-  Future<void> saveFavOfferNotification(
-      OfferNotificationModel offerNotificationModel) async {
-    await _favOffers
-        .doc(offerNotificationModel.userId)
+  Future<void> saveToFirebase(
+      String userId, OfferNotificationModel offerNotificationModel) async {
+    final QuerySnapshot querySnapshot =
+        await _favOffers.doc(userId).collection('notifications').get();
+    for (var doc in querySnapshot.docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      OfferNotificationModel model =
+          OfferNotificationModel.fromJson(data, doc.id);
+      if (model.offerID == offerNotificationModel.offerID &&
+          model.notificationTime == offerNotificationModel.notificationTime) {
+        print('Notification already exists');
+        return;
+      }
+    }
+    final CollectionReference notificationsCollection = FirebaseFirestore
+        .instance
+        .collection('fav_offers')
+        .doc(userId)
+        .collection('notifications');
+    await notificationsCollection
+        .doc(offerNotificationModel.id)
         .set(offerNotificationModel.toJson());
   }
 
-  Future<void> addOrUpdateOfferData(
-      OfferNotificationModel offerNotificationModel) async {
-    await _favOffers
-        .doc(offerNotificationModel.userId)
-        .set(offerNotificationModel.toJson(), SetOptions(merge: true));
-  }
-
-  Future<bool> favOffersExists(String userID) async {
-    final documentReference = await _favOffers.doc(userID).get();
-    return documentReference.exists;
-  }
-
-  Future<void> updateNotificationStatus(String userId, String offerId) async {
-    print("bbbbb");
-    await _favOffers.doc(userId).update({
-      'offer_data.$offerId.isNotified': true,
-    });
-  }
-
-  Future<void> deleteOfferFromUserNotifications(
+  Future<List<OfferNotificationModel>> offerActiveNotifications(
       String userId, String offerId) async {
-    await _favOffers.doc(userId).update({
-      'offer_data.$offerId': FieldValue.delete(),
-    });
-    print("Offer $offerId deleted from user notifications for user $userId");
+    List<OfferNotificationModel> matchingNotifications = [];
+    final QuerySnapshot querySnapshot =
+        await _favOffers.doc(userId).collection('notifications').get();
+    for (var doc in querySnapshot.docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      OfferNotificationModel model =
+          OfferNotificationModel.fromJson(data, doc.id);
+      if (model.offerID == offerId && !model.isNotified) {
+        matchingNotifications.add(model);
+      }
+    }
+    return matchingNotifications;
   }
 
-  Future<List<OfferNotificationModel>> getAllNotifications(
+  Future<List<OfferNotificationModel>> userPassiveNotifcations(
       String userId) async {
-    try {
-      DocumentSnapshot snapshot = await _favOffers.doc(userId).get();
-      if (snapshot.exists) {
-        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-        OfferNotificationModel model = OfferNotificationModel.fromJson(data);
-        return [model];
-      } else {
-        return [];
+    List<OfferNotificationModel> matchingNotifications = [];
+    final QuerySnapshot querySnapshot =
+        await _favOffers.doc(userId).collection('notifications').get();
+    for (var doc in querySnapshot.docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      OfferNotificationModel model =
+          OfferNotificationModel.fromJson(data, doc.id);
+      if (model.isNotified) {
+        matchingNotifications.add(model);
       }
-    } catch (e) {
-      print("Failed to fetch notifications: $e");
-      return [];
+    }
+    return matchingNotifications;
+  }
+
+  Future<void> checkNotifications(String userId) async {
+    final QuerySnapshot querySnapshot =
+        await _favOffers.doc(userId).collection('notifications').get();
+    for (var doc in querySnapshot.docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      OfferNotificationModel model =
+          OfferNotificationModel.fromJson(data, doc.id);
+      if (!model.isNotified) {
+        String scheduledDateStr = model.scheduledDate;
+        DateTime scheduledDate =
+            DateFormat("dd.MM.yyyy HH:mm").parse(scheduledDateStr);
+        print(scheduledDate.toString());
+        Timer.periodic(Duration(seconds: 1), (timer) async {
+          if (DateTime.now().isAfter(scheduledDate)) {
+            // Update Firestore to set isNotified to true
+            await _favOffers
+                .doc(userId)
+                .collection('notifications')
+                .doc(doc.id)
+                .update({'isNotified': true});
+            // Stop the timer
+            timer.cancel();
+          }
+        });
+      }
+    }
+  }
+
+  Future<void> deleteActiveNotification(
+      String userId, OfferNotificationModel offerNotificationModel) async {
+    await _favOffers
+        .doc(userId)
+        .collection('notifications')
+        .where('offerID', isEqualTo: offerNotificationModel.offerID)
+        .where('id', isEqualTo: offerNotificationModel.id)
+        .where('notificationTime',
+            isEqualTo: offerNotificationModel.notificationTime)
+        .get()
+        .then((snapshot) {
+      for (DocumentSnapshot doc in snapshot.docs) {
+        doc.reference.delete();
+      }
+    });
+  }
+
+  Future<void> deleteFavOfferNotifications(
+      String userId, OfferModel offerModel) async {
+    await _favOffers
+        .doc(userId)
+        .collection('notifications')
+        .where('offerID', isEqualTo: offerModel.id)
+        .where('isNotified', isEqualTo: false)
+        .get()
+        .then((snapshot) {
+      for (DocumentSnapshot doc in snapshot.docs) {
+        doc.reference.delete();
+      }
+    });
+  }
+
+  Future<void> updateOfferNotification(String userId,
+      OfferNotificationModel offerNotificationModel, int day) async {
+    final QuerySnapshot querySnapshot =
+        await _favOffers.doc(userId).collection('notifications').get();
+    for (var doc in querySnapshot.docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      OfferNotificationModel model =
+          OfferNotificationModel.fromJson(data, doc.id);
+
+      print("sfdsfdsfs");
+      if (model.id == offerNotificationModel.id) {
+        print("asödşlsd");
+        await _favOffers
+            .doc(userId)
+            .collection('notifications')
+            .doc(doc.id)
+            .update({'notificationTime': day});
+        return;
+      }
     }
   }
 }

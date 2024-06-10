@@ -105,11 +105,11 @@ class _OfferCardState extends BaseState<OfferCard> {
                                   .then((value) {
                                 widget.favOffersViewModel.getFavOffers();
                                 widget.isFav = !widget.isFav;
-                                print(widget.isFav);
                                 if (!widget.isFav) {
-                                  print("aaaa");
-                                  widget.favOffersViewModel
-                                      .deleteNotifications(widget.offer.id);
+                                  FirestoreService()
+                                      .deleteFavOfferNotifications(
+                                          UserManager.instance.currentUser.id!,
+                                          widget.offer);
                                 }
                               });
                               setState(() {
@@ -129,6 +129,12 @@ class _OfferCardState extends BaseState<OfferCard> {
                                 iconSize: 30,
                                 icon: const Icon(Icons.edit_notifications),
                                 onPressed: () async {
+                                  List<OfferNotificationModel> notifications =
+                                      await FirestoreService()
+                                          .offerActiveNotifications(
+                                              UserManager
+                                                  .instance.currentUser.id!,
+                                              widget.offer.id);
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) {
@@ -136,6 +142,8 @@ class _OfferCardState extends BaseState<OfferCard> {
                                           offerModel: widget.offer,
                                           width: dyanmicWidthDevice(0.8),
                                           height: dynamicHeightDevice(0.5),
+                                          notifications: notifications,
+                                          offer: widget.offer,
                                         );
                                       });
                                 },
@@ -157,6 +165,10 @@ class _OfferCardState extends BaseState<OfferCard> {
                                       .changeFavorite(!isFav, widget.offer.id);
                                   await widget.favOffersViewModel
                                       .getFavOffers();
+                                  await FirestoreService()
+                                      .deleteFavOfferNotifications(
+                                          UserManager.instance.currentUser.id!,
+                                          widget.offer);
                                 },
                               ),
                             ),

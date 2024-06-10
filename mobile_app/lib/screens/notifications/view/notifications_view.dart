@@ -52,9 +52,6 @@ class _NotificationsViewState extends BaseState<NotificationsView> {
                   itemBuilder: (context, index) {
                     OfferNotificationModel notification =
                         viewModel.notificationsList[index];
-                    String offerId = notification.offerData.keys.first;
-                    Map<String, dynamic> offerData =
-                        notification.offerData[offerId]!;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,16 +59,16 @@ class _NotificationsViewState extends BaseState<NotificationsView> {
                         ListTile(
                           leading: Icon(Icons.notifications,
                               color: ButtonColors.SECONDARY_COLOR),
-                          title: Text(offerData['title'] ?? '',
-                              style: TextStyles.SMALL),
-                          subtitle: Text(offerData['body'] ?? '',
-                              style: TextStyles.SMALL),
+                          title:
+                              Text(notification.title, style: TextStyles.SMALL),
+                          subtitle:
+                              Text(notification.body, style: TextStyles.SMALL),
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 57) +
                               AppPaddings.SMALL_V,
                           child: Text(
-                              "Şu tarihte bildirildi: ${offerData['scheduledDate']}",
+                              "Şu tarihte bildirildi: ${notification.scheduledDate}",
                               style: TextStyles.TEXT_BUTTON),
                         ),
                       ],

@@ -98,16 +98,6 @@ mixin _$OfferViewModel on _OfferViewModelBase, Store {
     return _$filterOffersAsyncAction.run(() => super.filterOffers());
   }
 
-  late final _$monitorNotificationAsyncAction =
-      AsyncAction('_OfferViewModelBase.monitorNotification', context: context);
-
-  @override
-  Future<void> monitorNotification(
-      String userId, String offerId, DateTime scheduledDate) {
-    return _$monitorNotificationAsyncAction
-        .run(() => super.monitorNotification(userId, offerId, scheduledDate));
-  }
-
   late final _$_OfferViewModelBaseActionController =
       ActionController(name: '_OfferViewModelBase', context: context);
 

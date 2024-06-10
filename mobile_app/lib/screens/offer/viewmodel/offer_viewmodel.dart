@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -174,38 +175,5 @@ abstract class _OfferViewModelBase extends BaseViewModel with Store {
   @override
   void setContext(BuildContext context) {
     viewModelContext = context;
-  }
-
-  Future<void> monitorAllNotifications(String userId) async {
-    List<OfferNotificationModel> notifications =
-        await FirestoreService().getAllNotifications(userId);
-
-    for (OfferNotificationModel notification in notifications) {
-      notification.offerData.forEach((offerId, offerDetails) {
-        String scheduledDateStr = offerDetails['scheduledDate'];
-        DateTime scheduledDate =
-            DateFormat("dd.MM.yyyy HH:mm").parse(scheduledDateStr);
-        print(scheduledDate.toString());
-        if (!offerDetails['isNotified']) {
-          monitorNotification(userId, offerId, scheduledDate);
-        }
-      });
-    }
-  }
-
-  @action
-  Future<void> monitorNotification(
-      String userId, String offerId, DateTime scheduledDate) async {
-    print("monitorNotification");
-    print("scheduledDate: " + scheduledDate.toString());
-    print(DateTime.now().toString());
-    Timer.periodic(Duration(minutes: 1), (timer) async {
-      if (DateTime.now().isAfter(scheduledDate)) {
-        // Update Firestore to set isNotified to true
-        await firestoreService.updateNotificationStatus(userId, offerId);
-        // Stop the timer
-        timer.cancel();
-      }
-    });
   }
 }

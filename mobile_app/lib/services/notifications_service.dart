@@ -68,8 +68,7 @@ class PushNotifications {
   //on tap local notification in foreground
   static void onNotificationTap(NotificationResponse notificationResponse) {
     navigatorKey.currentState!.push(MaterialPageRoute(
-      builder: (context) =>
-          NotificationsView(), //TODO: Change the notification view
+      builder: (context) => HomeView(), //TODO: Change the notification view
     ));
   }
 

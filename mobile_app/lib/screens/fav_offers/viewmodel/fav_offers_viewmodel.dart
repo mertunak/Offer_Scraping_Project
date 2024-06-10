@@ -35,10 +35,10 @@ abstract class _FavOffersVieModelBase extends BaseViewModel with Store {
         .getSiteNamesByIds(UserManager.instance.currentUser.favSites));
   }
 
-  @action
+  /* @action
   Future<void> deleteNotifications(String offerId) async {
     print(UserManager.instance.currentUser.id);
     await firestoreService.deleteOfferFromUserNotifications(
         UserManager.instance.currentUser.id ?? "", offerId);
-  }
+  } */
 }

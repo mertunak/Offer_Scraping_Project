@@ -1,31 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile_app/product/constants/utils/border_radius_constants.dart';
 import 'package:mobile_app/product/constants/utils/color_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/constants/utils/text_styles.dart';
+import 'package:mobile_app/product/managers/user_manager.dart';
 import 'package:mobile_app/product/models/offer_model.dart';
 import 'package:mobile_app/product/models/offer_notifcation_model.dart';
 import 'package:mobile_app/product/widget/buttons/custom_filled_button.dart';
+import 'package:mobile_app/product/widget/custom_drop_down.dart';
+import 'package:mobile_app/services/firestore.dart';
 
-class NotificationSettingAlert extends StatelessWidget {
+class NotificationSettingAlert extends StatefulWidget {
   final double width;
   final double height;
   final OfferModel offerModel;
+  final OfferModel offer;
+  List<OfferNotificationModel> notifications;
 
-  const NotificationSettingAlert({
-    Key? key,
+  NotificationSettingAlert({
+    super.key,
     required this.width,
     required this.height,
     required this.offerModel,
-  }) : super(key: key);
+    required this.notifications,
+    required this.offer,
+  });
 
+  @override
+  State<NotificationSettingAlert> createState() =>
+      _NotificationSettingAlertState();
+}
+
+class _NotificationSettingAlertState extends State<NotificationSettingAlert> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: AppPaddings.MEDIUM_H,
       backgroundColor: Colors.transparent,
       child: Container(
+        height: widget.height,
+        width: widget.width,
         padding: AppPaddings.MEDIUM_H + AppPaddings.MEDIUM_V,
         decoration: BoxDecoration(
           color: SurfaceColors.PRIMARY_COLOR,
@@ -35,9 +49,78 @@ class NotificationSettingAlert extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              "Kampanya Bitiş Bildirimi",
-              style: TextStyles.MEDIUM,
+            widget.notifications.isNotEmpty
+                ? Expanded(
+                    child: ListView.builder(
+                      itemCount: widget.notifications.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          children: [
+                            ListTile(
+                                title: Text(
+                                    "${widget.notifications[index].notificationTime} gün önce bildirim gönderilecek."),
+                                subtitle: Text(
+                                  widget.notifications[index].scheduledDate
+                                      .toString(),
+                                  style: TextStyles.TEXT_BUTTON,
+                                ),
+                                trailing: IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: ButtonColors.SECONDARY_COLOR,
+                                  ),
+                                  onPressed: () async {
+                                    await FirestoreService()
+                                        .deleteActiveNotification(
+                                            UserManager
+                                                .instance.currentUser.id!,
+                                            widget.notifications[index]);
+                                    widget.notifications =
+                                        await FirestoreService()
+                                            .offerActiveNotifications(
+                                                UserManager
+                                                    .instance.currentUser.id!,
+                                                widget.offer.id);
+                                    setState(() {});
+                                  },
+                                )),
+                            Padding(
+                              padding: AppPaddings.MEDIUM_H,
+                              child: CustomDropdown(
+                                offerModel: widget.offerModel,
+                                isUpdate: true,
+                                offerNotificationModel:
+                                    widget.notifications[index],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  )
+                : Padding(
+                    padding: AppPaddings.MEDIUM_V + AppPaddings.SMALL_H,
+                    child: const Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            "Bu Kampanya için aktif bildirim ayarınız bulunmamaktadır.",
+                            style: TextStyles.MEDIUM,
+                          ),
+                          SizedBox(height: 10),
+                        ],
+                      ),
+                    ),
+                  ),
+            const Divider(),
+            Padding(
+              padding: AppPaddings.MEDIUM_H + AppPaddings.SMALL_V,
+              child: const Center(
+                child: Text(
+                  "Yeni Bildirim Ayarı Ekle",
+                  style: TextStyles.MEDIUM,
+                ),
+              ),
             ),
             const SizedBox(
               height: 5,
@@ -49,7 +132,21 @@ class NotificationSettingAlert extends StatelessWidget {
                   minWidth: double.infinity,
                   maxWidth: double.infinity,
                 ),
-                child: CustomDropdown(offerModel: offerModel),
+                child: Padding(
+                    padding: AppPaddings.MEDIUM_H,
+                    child: CustomDropdown(
+                      isUpdate: false,
+                      offerModel: widget.offerModel,
+                      offerNotificationModel: OfferNotificationModel(
+                        id: "",
+                        offerID: "",
+                        body: "",
+                        title: "",
+                        scheduledDate: "",
+                        isNotified: false,
+                        notificationTime: 0,
+                      ),
+                    )),
               ),
             ),
             Padding(
@@ -59,135 +156,19 @@ class NotificationSettingAlert extends StatelessWidget {
                   backgroundColor: ButtonColors.PRIMARY_COLOR,
                   text: "Bildirim Oluştur",
                   textStyle: TextStyles.BUTTON,
-                  onTap: () {
-                    Navigator.of(context).pop();
+                  onTap: () async {
+                    widget.notifications = await FirestoreService()
+                        .offerActiveNotifications(
+                            UserManager.instance.currentUser.id!,
+                            widget.offer.id);
+                    setState(() {});
                   },
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
-  }
-}
-
-class CustomDropdown extends StatefulWidget {
-  final OfferModel offerModel;
-  const CustomDropdown({
-    Key? key,
-    required this.offerModel,
-  }) : super(key: key);
-
-  @override
-  State<CustomDropdown> createState() => _CustomDropdownState();
-}
-
-class _CustomDropdownState extends State<CustomDropdown> {
-  final List<String> defaultList = <String>[
-    "1 Gün Önce",
-    "2 Gün Önce",
-    "5 Gün Önce",
-    "1 Hafta Önce",
-    "Bildirim Gönderme"
-  ];
-  late String dropdownValue;
-  final Map<String, int> valueMap = {
-    "1 Gün Önce": 1,
-    "2 Gün Önce": 2,
-    "5 Gün Önce": 5,
-    "1 Hafta Önce": 7,
-  };
-
-  @override
-  void initState() {
-    super.initState();
-    updateDropdownOptions();
-  }
-
-  void updateDropdownOptions() {
-    DateTime now = DateTime.now();
-    String offerDate = widget.offerModel.endDate;
-    DateFormat format = DateFormat("dd.MM.yyyy");
-    DateTime endDate = format.parse(offerDate);
-
-    int differenceInDays = endDate.difference(now).inDays;
-
-    if (differenceInDays <= 1) {
-      showAlertDialog(context);
-      dropdownValue = '';
-    } else if (differenceInDays <= 2) {
-      dropdownValue = "1 Gün Önce";
-    } else if (differenceInDays <= 5) {
-      dropdownValue = "2 Gün Önce";
-    } else if (differenceInDays <= 7) {
-      dropdownValue = "5 Gün Önce";
-    } else {
-      dropdownValue = defaultList.first;
-    }
-  }
-
-  Future<void> handleDropdownValue(String value) async {
-    if (value == "Bildirim Gönderme") {
-      print("No action needed for 'Send Notification'");
-    } else {
-      int? intValue = valueMap[value];
-      // Your remaining code for handling dropdown value
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(
-        minWidth: double.infinity,
-        maxWidth: double.infinity,
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: dropdownValue.isNotEmpty ? dropdownValue : null,
-          onChanged: (String? value) async {
-            if (value != null) {
-              setState(() {
-                dropdownValue = value;
-              });
-              await handleDropdownValue(value);
-            }
-          },
-          items: defaultList.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
-  showAlertDialog(BuildContext context) {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      AlertDialog alert = AlertDialog(
-        backgroundColor: SurfaceColors.PRIMARY_COLOR,
-        title: Text("Hata!"),
-        content: Text("Seçtiğiniz kampanyanın bitişine 1 gün kalmıştır."),
-        actions: [
-          TextButton(
-            child: Text("Ok"),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
-        },
-      );
-    });
   }
 }

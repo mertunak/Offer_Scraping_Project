@@ -22,7 +22,7 @@ abstract class _HomeViewModelBase extends BaseViewModel with Store {
     viewModelContext = context;
   }
 
-  Future<List<OfferNotificationModel>> getSetNotifications() async {
+  /* Future<List<OfferNotificationModel>> getSetNotifications() async {
     List<OfferNotificationModel> notificationsList = await FirestoreService()
         .getAllNotifications(UserManager.instance.currentUser.id ?? "");
     List<OfferNotificationModel> notifications = [];
@@ -33,10 +33,9 @@ abstract class _HomeViewModelBase extends BaseViewModel with Store {
             offerData[offerId]?['isNotified'] == false) {
           // Check if isNotified is false
           notifications.add(notification); // Add to notifications
-          break; // Exit inner loop once a matching offer is found
         }
       }
     }
     return notifications;
-  }
+  } */
 }
