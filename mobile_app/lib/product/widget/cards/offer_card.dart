@@ -3,10 +3,12 @@ import 'package:mobile_app/core/base/state/base_state.dart';
 import 'package:mobile_app/product/constants/utils/border_radius_constants.dart';
 import 'package:mobile_app/product/constants/utils/padding_constants.dart';
 import 'package:mobile_app/product/managers/user_manager.dart';
+import 'package:mobile_app/product/models/offer_notifcation_model.dart';
 import 'package:mobile_app/product/widget/alert/notification_setting_alert.dart';
 import 'package:mobile_app/product/widget/column_divider.dart';
 import 'package:mobile_app/screens/fav_offers/viewmodel/fav_offers_viewmodel.dart';
 import 'package:mobile_app/screens/offer_detail/view/offer_detail_view.dart';
+import 'package:mobile_app/services/firestore.dart';
 import '../../constants/utils/color_constants.dart';
 import '../../models/offer_model.dart';
 import 'package:share_plus/share_plus.dart';
@@ -65,7 +67,7 @@ class _OfferCardState extends BaseState<OfferCard> {
                       highlightColor: Colors.transparent,
                       padding: EdgeInsets.zero,
                       iconSize: 30,
-                      icon: Icon(Icons.share_rounded),
+                      icon: const Icon(Icons.share_rounded),
                       onPressed: () {
                         Share.share(
                             'Bu Kampanyaya Göz At!!!\n\n${widget.offer.header}\n${widget.offer.link}');
@@ -83,7 +85,7 @@ class _OfferCardState extends BaseState<OfferCard> {
                             highlightColor: Colors.transparent,
                             padding: EdgeInsets.zero,
                             iconSize: 30,
-                            icon: isFav
+                            icon: widget.isFav
                                 ? const Icon(
                                     Icons.favorite_rounded,
                                     color: Colors.red,
@@ -93,19 +95,25 @@ class _OfferCardState extends BaseState<OfferCard> {
                                         Icons.favorite_rounded,
                                         color: Colors.red,
                                       )
-                                    : Icon(
+                                    : const Icon(
                                         Icons.favorite_border_rounded,
                                       ),
-                            onPressed: () {
+                            onPressed: () async {
                               print("Fav offer id: " + widget.offer.id);
-                              UserManager.instance
+                              await UserManager.instance
                                   .changeFavorite(widget.isFav, widget.offer.id)
                                   .then((value) {
                                 widget.favOffersViewModel.getFavOffers();
+                                widget.isFav = !widget.isFav;
+                                if (!widget.isFav) {
+                                  FirestoreService()
+                                      .deleteFavOfferNotifications(
+                                          UserManager.instance.currentUser.id!,
+                                          widget.offer);
+                                }
                               });
                               setState(() {
                                 isFav = !isFav;
-                                widget.isFav = !widget.isFav;
                               });
                             },
                           ),
@@ -119,9 +127,14 @@ class _OfferCardState extends BaseState<OfferCard> {
                                 highlightColor: Colors.transparent,
                                 padding: EdgeInsets.zero,
                                 iconSize: 30,
-                                icon: Icon(Icons.edit_notifications),
-                                onPressed: () {
-                                  print("Uyarı: ${widget.offer.id}");
+                                icon: const Icon(Icons.edit_notifications),
+                                onPressed: () async {
+                                  List<OfferNotificationModel> notifications =
+                                      await FirestoreService()
+                                          .offerActiveNotifications(
+                                              UserManager
+                                                  .instance.currentUser.id!,
+                                              widget.offer.id);
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) {
@@ -129,6 +142,8 @@ class _OfferCardState extends BaseState<OfferCard> {
                                           offerModel: widget.offer,
                                           width: dyanmicWidthDevice(0.8),
                                           height: dynamicHeightDevice(0.5),
+                                          notifications: notifications,
+                                          offer: widget.offer,
                                         );
                                       });
                                 },
@@ -145,12 +160,15 @@ class _OfferCardState extends BaseState<OfferCard> {
                                 padding: EdgeInsets.zero,
                                 iconSize: 30,
                                 icon: Icon(Icons.delete),
-                                onPressed: () {
-                                  UserManager.instance
-                                      .changeFavorite(!isFav, widget.offer.id)
-                                      .then((value) {
-                                    widget.favOffersViewModel.getFavOffers();
-                                  });
+                                onPressed: () async {
+                                  await UserManager.instance
+                                      .changeFavorite(!isFav, widget.offer.id);
+                                  await widget.favOffersViewModel
+                                      .getFavOffers();
+                                  await FirestoreService()
+                                      .deleteFavOfferNotifications(
+                                          UserManager.instance.currentUser.id!,
+                                          widget.offer);
                                 },
                               ),
                             ),

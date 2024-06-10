@@ -21,20 +21,10 @@ abstract class _NotificationViewModelBase extends BaseViewModel with Store {
   @action
   Future<void> getNotifications() async {
     print(currentUser.id ?? '');
-    List<OfferNotificationModel> getNotificationsList =
-        await FirestoreService().getAllNotifications(currentUser.id ?? '');
-    for (var notification in getNotificationsList) {
-      var offerData = notification.offerData;
-      print(offerData.keys.length);
-      for (var offerId in offerData.keys) {
-        if (offerData[offerId] is Map<String, dynamic> &&
-            offerData[offerId]?['isNotified'] == true) {
-          // Check if isNotified is true
-          notificationsList.add(notification); // Add to notificationsList
-        }
-      }
-    }
-    print(notificationsList.length);
+    List<OfferNotificationModel> getNotificationsList = [];
+    getNotificationsList =
+        await FirestoreService().userPassiveNotifcations(currentUser.id ?? '');
+    notificationsList = ObservableList.of(getNotificationsList);
   }
 
   @override
